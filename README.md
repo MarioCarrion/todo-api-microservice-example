@@ -42,11 +42,20 @@ Talking specificially about microservices **only**, the structure I like to reco
   - [ ] `service/`: orchestrates use cases and manages transactions.
 - [ ] `pkg/` public API meant to imported by other Go package
 
+## Tools
+
+```
+go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.14.1
+go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.6.0
+```
+
 ## Features
 
 In no particular order.
 
-- [ ] Database migrations
+- [X] Database migrations
+- [X] Repositories
+- [X] Dependency Injection
 - [ ] Infrastructure as code
 - [ ] Metrics Instrumentation
 - [ ] Logging
