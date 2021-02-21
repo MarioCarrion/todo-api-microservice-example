@@ -1,0 +1,252 @@
+package postgresql_test
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"net"
+	"net/url"
+	"runtime"
+	"testing"
+	"time"
+
+	migrate "github.com/golang-migrate/migrate/v4"
+	migratepostgres "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/google/go-cmp/cmp"
+	_ "github.com/jackc/pgx/v4/stdlib" // to initialize "pgx"
+	"github.com/ory/dockertest/v3"
+	"github.com/ory/dockertest/v3/docker"
+
+	"github.com/MarioCarrion/todo-api/internal"
+	"github.com/MarioCarrion/todo-api/internal/postgresql"
+)
+
+func TestTask_Create(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Create: OK", func(t *testing.T) {
+		t.Parallel()
+
+		task, err := postgresql.NewTask(newDB(t)).Create(context.Background(), "test", internal.PriorityNone, internal.Dates{})
+		if err != nil {
+			t.Fatalf("expected no error, got %s", err)
+		}
+
+		if task.ID == "" {
+			t.Fatalf("expected valid record, got empty value")
+		}
+	})
+
+	t.Run("Create: ERR", func(t *testing.T) {
+		t.Parallel()
+
+		_, err := postgresql.NewTask(newDB(t)).Create(context.Background(), "", internal.Priority(-1), internal.Dates{})
+		if err == nil { // because of invalid priority
+			t.Fatalf("expected error, got no value")
+		}
+	})
+}
+
+func TestTask_Find(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Find: OK", func(t *testing.T) {
+		t.Parallel()
+
+		store := postgresql.NewTask(newDB(t))
+
+		originalTask, err := store.Create(context.Background(), "test", internal.PriorityNone, internal.Dates{})
+		if err != nil {
+			t.Fatalf("expected no error, got %s", err)
+		}
+
+		actualTask, err := store.Find(context.Background(), originalTask.ID)
+		if err != nil {
+			t.Fatalf("expected no error, got %s", err)
+		}
+
+		if !cmp.Equal(originalTask, actualTask) {
+			t.Fatalf("expected result does not match: %s", cmp.Diff(originalTask, actualTask))
+		}
+	})
+
+	t.Run("Find: ERR uuid", func(t *testing.T) {
+		t.Parallel()
+
+		_, err := postgresql.NewTask(newDB(t)).Find(context.Background(), "x")
+		if err == nil {
+			t.Fatalf("expected error, got not value")
+		}
+	})
+
+	t.Run("Find: ERR not found", func(t *testing.T) {
+		t.Parallel()
+
+		_, err := postgresql.NewTask(newDB(t)).Find(context.Background(), "44633fe3-b039-4fb3-a35f-a57fe3c906c7")
+		if err == nil {
+			t.Fatalf("expected error, got not value")
+		}
+	})
+}
+
+func TestTask_Update(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Update: OK", func(t *testing.T) {
+		t.Parallel()
+
+		store := postgresql.NewTask(newDB(t))
+
+		originalTask, err := store.Create(context.Background(), "test", internal.PriorityNone, internal.Dates{})
+		if err != nil {
+			t.Fatalf("expected no error, got %s", err)
+		}
+
+		originalTask.Description = "changed"
+		originalTask.Dates.Due = time.Now().UTC()
+		originalTask.Priority = internal.PriorityHigh
+
+		if err := store.Update(context.Background(),
+			originalTask.ID,
+			originalTask.Description,
+			originalTask.Priority,
+			originalTask.Dates,
+			originalTask.IsDone); err != nil {
+			t.Fatalf("expected no error, got %s", err)
+		}
+
+		actualTask, err := store.Find(context.Background(), originalTask.ID)
+		if err != nil {
+			t.Fatalf("expected no error, got %s", err)
+		}
+
+		if !cmp.Equal(originalTask, actualTask) {
+			t.Fatalf("expected result does not match: %s", cmp.Diff(originalTask, actualTask))
+		}
+	})
+
+	t.Run("Update: ERR uuid", func(t *testing.T) {
+		t.Parallel()
+
+		if err := postgresql.NewTask(newDB(t)).Update(context.Background(),
+			"x",
+			"",
+			internal.PriorityNone,
+			internal.Dates{},
+			false); err == nil {
+			t.Fatalf("expected error, got not value")
+		}
+	})
+
+	t.Run("Update: ERR invalid priority", func(t *testing.T) {
+		t.Parallel()
+
+		store := postgresql.NewTask(newDB(t))
+
+		task, err := store.Create(context.Background(), "test", internal.PriorityNone, internal.Dates{})
+		if err != nil {
+			t.Fatalf("expected no error, got %s", err)
+		}
+
+		if err := postgresql.NewTask(newDB(t)).Update(context.Background(),
+			task.ID,
+			"",
+			internal.Priority(-1),
+			internal.Dates{},
+			false); err == nil {
+			t.Fatalf("expected error, got not value")
+		}
+	})
+}
+
+func newDB(tb testing.TB) *sql.DB {
+	dsn := &url.URL{
+		Scheme: "postgres",
+		User:   url.UserPassword("username", "password"),
+		Path:   "todo",
+	}
+
+	q := dsn.Query()
+	q.Add("sslmode", "disable")
+
+	dsn.RawQuery = q.Encode()
+
+	//-
+
+	pool, err := dockertest.NewPool("")
+	if err != nil {
+		tb.Fatalf("Couldn't connect to docker: %s", err)
+	}
+
+	pool.MaxWait = 10 * time.Second
+
+	pw, _ := dsn.User.Password()
+
+	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
+		Repository: "postgres",
+		Tag:        "12.5-alpine",
+		Env: []string{
+			fmt.Sprintf("POSTGRES_USER=%s", dsn.User.Username()),
+			fmt.Sprintf("POSTGRES_PASSWORD=%s", pw),
+			fmt.Sprintf("POSTGRES_DB=%s", dsn.Path),
+		},
+	}, func(config *docker.HostConfig) {
+		config.AutoRemove = true
+		config.RestartPolicy = docker.RestartPolicy{
+			Name: "no",
+		}
+	})
+
+	if err != nil {
+		tb.Fatalf("Couldn't start resource: %s", err)
+	}
+
+	resource.Expire(60)
+
+	tb.Cleanup(func() {
+		if err := pool.Purge(resource); err != nil {
+			tb.Fatalf("Couldn't purge container: %v", err)
+		}
+	})
+
+	dsn.Host = fmt.Sprintf("%s:5432", resource.Container.NetworkSettings.IPAddress)
+	if runtime.GOOS == "darwin" { // MacOS-specific
+		dsn.Host = net.JoinHostPort(resource.GetBoundIP("5432/tcp"), resource.GetPort("5432/tcp"))
+	}
+
+	db, err := sql.Open("pgx", dsn.String())
+	if err != nil {
+		tb.Fatalf("Couldn't open DB: %s", err)
+	}
+
+	tb.Cleanup(func() {
+		if err := db.Close(); err != nil {
+			tb.Fatalf("Couldn't close DB: %s", err)
+		}
+	})
+
+	if err := pool.Retry(func() (err error) {
+		return db.Ping()
+	}); err != nil {
+		tb.Fatalf("Couldn't ping DB: %s", err)
+	}
+
+	//-
+
+	instance, err := migratepostgres.WithInstance(db, &migratepostgres.Config{})
+	if err != nil {
+		tb.Fatalf("Couldn't migrate (1): %s", err)
+	}
+
+	m, err := migrate.NewWithDatabaseInstance("file://../../db/migrations/", "postgres", instance)
+	if err != nil {
+		tb.Fatalf("Couldn't migrate (2): %s", err)
+	}
+
+	if err = m.Up(); err != nil && err != migrate.ErrNoChange {
+		tb.Fatalf("Couldnt' migrate (3): %s", err)
+	}
+
+	return db
+}
