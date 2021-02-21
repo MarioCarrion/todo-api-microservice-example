@@ -47,6 +47,7 @@ Talking specificially about microservices **only**, the structure I like to reco
 ```
 go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.14.1
 go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.6.0
+go install github.com/maxbrunsfeld/counterfeiter/v6@v6.3.0
 ```
 
 ## Features
@@ -56,8 +57,9 @@ In no particular order.
 - [X] Database migrations
 - [X] Repositories
 - [X] Dependency Injection
+- [X] Secure Configuration
 - [ ] Infrastructure as code
-- [ ] Metrics Instrumentation
+- [ ] Metrics and Instrumentation
 - [ ] Logging
 - [ ] Error Handling
 - [ ] Caching
@@ -73,3 +75,34 @@ In no particular order.
 * [2017: William Kennedy's: Design Philosophy On Packaging](https://www.ardanlabs.com/blog/2017/02/design-philosophy-on-packaging.html)
 * [2017: Jaana Dogan's: Style guideline for Go packages](https://rakyll.org/style-packages/)
 * [2018: Kat Zien - How Do You Structure Your Go Apps](https://www.youtube.com/watch?v=oL6JBUk6tj0)
+
+## Docker Containers
+
+### PostgreSQL
+
+Used as repository for persisting data.
+
+```
+docker run \
+  -d \
+  -e POSTGRES_HOST_AUTH_METHOD=trust \
+  -e POSTGRES_USER=user \
+  -e POSTGRES_PASSWORD=password \
+  -e POSTGRES_DB=dbname \
+  -p 5432:5432 \
+  postgres:12.5-alpine
+```
+
+### Vault
+
+Used as repository for retrieving secrets for configuration values.
+
+```
+docker run \
+  -d \
+  --cap-add=IPC_LOCK \
+  -e 'VAULT_DEV_ROOT_TOKEN_ID=myroot' \
+  -e 'VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8300' \
+  -p 8300:8300 \
+  vault:1.6.2
+```
