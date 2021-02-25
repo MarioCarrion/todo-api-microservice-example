@@ -1,21 +1,22 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"time"
 
+	"github.com/gorilla/mux"
 	_ "github.com/jackc/pgx/v4/stdlib"
 
-	"github.com/MarioCarrion/todo-api/internal"
 	"github.com/MarioCarrion/todo-api/internal/envvar"
 	"github.com/MarioCarrion/todo-api/internal/envvar/vault"
 	"github.com/MarioCarrion/todo-api/internal/postgresql"
+	"github.com/MarioCarrion/todo-api/internal/rest"
 	"github.com/MarioCarrion/todo-api/internal/service"
 )
 
@@ -40,29 +41,27 @@ func main() {
 
 	repo := postgresql.NewTask(db) // Task Repository
 	svc := service.NewTask(repo)   // Task Application Service
-	task, err := svc.Create(context.Background(), "new task", internal.PriorityLow, internal.Dates{})
-
-	fmt.Printf("NEW task %#v, err %s\n", task, err)
 
 	//-
 
-	if err := svc.Update(context.Background(),
-		task.ID,
-		"changed task",
-		internal.PriorityHigh,
-		internal.Dates{
-			Due: time.Now().Add(2 * time.Hour),
-		},
-		false); err != nil {
-		log.Fatalln("couldn't update task", err)
+	r := mux.NewRouter()
+
+	rest.NewTaskHandler(svc).Register(r)
+
+	address := "0.0.0.0:9234"
+
+	srv := &http.Server{
+		Handler:           r,
+		Addr:              address,
+		ReadTimeout:       1 * time.Second,
+		ReadHeaderTimeout: 1 * time.Second,
+		WriteTimeout:      1 * time.Second,
+		IdleTimeout:       1 * time.Second,
 	}
 
-	updatedTask, err := svc.Task(context.Background(), task.ID)
-	if err != nil {
-		log.Fatalln("couldn't find task", err)
-	}
+	log.Println("Starting server", address)
 
-	fmt.Printf("UPDATED task %#v, err %s\n", updatedTask, err)
+	log.Fatal(srv.ListenAndServe())
 }
 
 func newDB(conf *envvar.Configuration) *sql.DB {
