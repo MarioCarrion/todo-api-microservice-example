@@ -2,9 +2,9 @@
 
 ## Introduction
 
-Welcome 👋!
+Welcome! 👋
 
-This is an educational repository that includes microservice written in Go. It is used as the principal example of my video series: [Building Microservices in Go/Golang](https://www.youtube.com/playlist?list=PL7yAAGMOat_Fn8sAXIk0WyBfK_sT1pohu).
+This is an educational repository that includes a microservice written in Go. It is used as the principal example of my video series: [Building Microservices in Go/Golang](https://www.youtube.com/playlist?list=PL7yAAGMOat_Fn8sAXIk0WyBfK_sT1pohu).
 
 It's a collection of patterns and guidelines I've successfully used to deliver enterprise microservices when using Go.
 
