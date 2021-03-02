@@ -13,6 +13,8 @@ import (
 
 const uuidRegEx string = `[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}`
 
+//go:generate counterfeiter -o resttesting/task_service.gen.go . TaskService
+
 // TaskService ...
 type TaskService interface {
 	Create(ctx context.Context, description string, priority internal.Priority, dates internal.Dates) (internal.Task, error)
@@ -81,8 +83,8 @@ func (t *TaskHandler) create(w http.ResponseWriter, r *http.Request) {
 		http.StatusCreated)
 }
 
-// GetTasksResponse defines the response returned back after searching one task.
-type GetTasksResponse struct {
+// ReadTasksResponse defines the response returned back after searching one task.
+type ReadTasksResponse struct {
 	Task Task `json:"task"`
 }
 
@@ -97,7 +99,7 @@ func (t *TaskHandler) task(w http.ResponseWriter, r *http.Request) {
 	}
 
 	renderResponse(w,
-		&GetTasksResponse{
+		&ReadTasksResponse{
 			Task: Task{
 				ID:          task.ID,
 				Description: task.Description,

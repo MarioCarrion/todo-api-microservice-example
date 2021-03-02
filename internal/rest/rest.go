@@ -5,12 +5,13 @@ import (
 	"net/http"
 )
 
-type errorResponse struct {
+// ErrorResponse represents a response containing an error message.
+type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
 func renderErrorResponse(w http.ResponseWriter, msg string, status int) {
-	renderResponse(w, errorResponse{Error: msg}, status)
+	renderResponse(w, ErrorResponse{Error: msg}, status)
 }
 
 func renderResponse(w http.ResponseWriter, res interface{}, status int) {
@@ -23,7 +24,7 @@ func renderResponse(w http.ResponseWriter, res interface{}, status int) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(status)
 
 	if _, err = w.Write(content); err != nil {
 		// XXX Do something with the error ;)
