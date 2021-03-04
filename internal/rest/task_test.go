@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/gorilla/mux"
 
 	"github.com/MarioCarrion/todo-api/internal"
@@ -40,12 +41,14 @@ func TestTasks_Post(t *testing.T) {
 					internal.Task{
 						ID:          "1-2-3",
 						Description: "new task",
+						Priority:    internal.PriorityHigh,
 					},
 					nil)
 			},
 			func() []byte {
 				b, _ := json.Marshal(&rest.CreateTasksRequest{
 					Description: "new task",
+					Priority:    "high",
 				})
 
 				return b
@@ -56,6 +59,7 @@ func TestTasks_Post(t *testing.T) {
 					Task: rest.Task{
 						ID:          "1-2-3",
 						Description: "new task",
+						Priority:    "high",
 					},
 				},
 				&rest.CreateTasksResponse{},
@@ -152,6 +156,7 @@ func TestTasks_Read(t *testing.T) {
 					Task: rest.Task{
 						ID:          "a-b-c",
 						Description: "existing task",
+						Priority:    "none",
 					},
 				},
 				&rest.ReadTasksResponse{},
@@ -226,6 +231,7 @@ func TestTasks_Update(t *testing.T) {
 			func() []byte {
 				b, _ := json.Marshal(&rest.UpdateTasksRequest{
 					Description: "update task",
+					Priority:    "low",
 				})
 
 				return b
@@ -315,7 +321,7 @@ func assertResponse(t *testing.T, res *http.Response, test test) {
 	}
 	defer res.Body.Close()
 
-	if !cmp.Equal(test.expected, test.target) {
-		t.Fatalf("expected results don't match: %s", cmp.Diff(test.expected, test.target))
+	if !cmp.Equal(test.expected, test.target, cmpopts.IgnoreUnexported(rest.Time{})) {
+		t.Fatalf("expected results don't match: %s", cmp.Diff(test.expected, test.target, cmpopts.IgnoreUnexported(rest.Time{})))
 	}
 }

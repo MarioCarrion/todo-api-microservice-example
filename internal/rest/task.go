@@ -43,14 +43,17 @@ func (t *TaskHandler) Register(r *mux.Router) {
 
 // Task is an activity that needs to be completed within a period of time.
 type Task struct {
-	ID          string `json:"id"`
-	Description string `json:"description"`
+	ID          string   `json:"id"`
+	Description string   `json:"description"`
+	Priority    Priority `json:"priority"`
+	Dates       Dates    `json:"dates"`
 }
 
 // CreateTasksRequest defines the request used for creating tasks.
 type CreateTasksRequest struct {
-	Description string `json:"description"`
-	// XXX `Priority` and `Dates` are intentionally missing, to be covered in future videos
+	Description string   `json:"description"`
+	Priority    Priority `json:"priority"`
+	Dates       Dates    `json:"dates"`
 }
 
 // CreateTasksResponse defines the response returned back after creating tasks.
@@ -67,7 +70,7 @@ func (t *TaskHandler) create(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	task, err := t.svc.Create(r.Context(), req.Description, internal.PriorityNone, internal.Dates{})
+	task, err := t.svc.Create(r.Context(), req.Description, req.Priority.Convert(), req.Dates.Convert())
 	if err != nil {
 		renderErrorResponse(w, "create failed", http.StatusInternalServerError)
 		return
@@ -78,6 +81,8 @@ func (t *TaskHandler) create(w http.ResponseWriter, r *http.Request) {
 			Task: Task{
 				ID:          task.ID,
 				Description: task.Description,
+				Priority:    NewPriority(task.Priority),
+				Dates:       NewDates(task.Dates),
 			},
 		},
 		http.StatusCreated)
@@ -103,6 +108,8 @@ func (t *TaskHandler) task(w http.ResponseWriter, r *http.Request) {
 			Task: Task{
 				ID:          task.ID,
 				Description: task.Description,
+				Priority:    NewPriority(task.Priority),
+				Dates:       NewDates(task.Dates),
 			},
 		},
 		http.StatusOK)
@@ -110,9 +117,10 @@ func (t *TaskHandler) task(w http.ResponseWriter, r *http.Request) {
 
 // UpdateTasksRequest defines the request used for updating a task.
 type UpdateTasksRequest struct {
-	Description string `json:"description"`
-	IsDone      bool   `json:"is_done"`
-	// XXX `Priority` and `Dates` are intentionally missing, to be covered in future videos
+	Description string   `json:"description"`
+	IsDone      bool     `json:"is_done"`
+	Priority    Priority `json:"priority"`
+	Dates       Dates    `json:"dates"`
 }
 
 func (t *TaskHandler) update(w http.ResponseWriter, r *http.Request) {
@@ -126,7 +134,7 @@ func (t *TaskHandler) update(w http.ResponseWriter, r *http.Request) {
 
 	id, _ := mux.Vars(r)["id"] // NOTE: Safe to ignore error, because it's always defined.
 
-	err := t.svc.Update(r.Context(), id, req.Description, internal.PriorityNone, internal.Dates{}, req.IsDone)
+	err := t.svc.Update(r.Context(), id, req.Description, req.Priority.Convert(), req.Dates.Convert(), req.IsDone)
 	if err != nil {
 		// XXX: Differentiating between NotFound and Internal errors will be covered in future episodes.
 		renderErrorResponse(w, "update failed", http.StatusInternalServerError)
