@@ -3,6 +3,9 @@ module github.com/MarioCarrion/todo-api
 go 1.16
 
 require (
+	github.com/deepmap/oapi-codegen v1.5.1
+	github.com/getkin/kin-openapi v0.37.0
+	github.com/ghodss/yaml v1.0.0
 	github.com/golang-migrate/migrate/v4 v4.14.1
 	github.com/google/go-cmp v0.5.1
 	github.com/google/uuid v1.2.0

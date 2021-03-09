@@ -33,14 +33,14 @@ Talking specificially about microservices **only**, the structure I like to reco
   - [ ] `<primary-server>/`: uses primary database.
   - [ ] `<replica-server>/`: uses readonly databases.
   - [ ] `<binaryN>/`
-- [ ] `db/`
-  - [ ] `migrations/`: contains database migrations
+- [X] `db/`
+  - [X] `migrations/`: contains database migrations
   - [ ] `seeds/`: contains file meant to populate basic database values
 - [ ] `internal/`: defines the _core domain_
   - [ ] `<datastoreN>/`: a concrete _repository_ used by the domain, for example `postgresql`
   - [ ] `http/`: defines HTTP Handlers
   - [ ] `service/`: orchestrates use cases and manages transactions.
-- [ ] `pkg/` public API meant to imported by other Go package
+- [X] `pkg/` public API meant to imported by other Go package
 
 ## Tools
 
@@ -48,6 +48,7 @@ Talking specificially about microservices **only**, the structure I like to reco
 go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.14.1
 go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.6.0
 go install github.com/maxbrunsfeld/counterfeiter/v6@v6.3.0
+go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.5.1
 ```
 
 ## Features
@@ -58,6 +59,7 @@ In no particular order.
 - [X] Repositories
 - [X] Dependency Injection
 - [X] Secure Configuration
+- [X] [OpenAPI/Swagger](SWAGGER.md)
 - [ ] Infrastructure as code
 - [ ] Metrics and Instrumentation
 - [ ] Logging

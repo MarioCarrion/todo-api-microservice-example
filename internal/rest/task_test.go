@@ -147,6 +147,7 @@ func TestTasks_Read(t *testing.T) {
 					internal.Task{
 						ID:          "a-b-c",
 						Description: "existing task",
+						IsDone:      true,
 					},
 					nil)
 			},
@@ -157,6 +158,7 @@ func TestTasks_Read(t *testing.T) {
 						ID:          "a-b-c",
 						Description: "existing task",
 						Priority:    "none",
+						IsDone:      true,
 					},
 				},
 				&rest.ReadTasksResponse{},
