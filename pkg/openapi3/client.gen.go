@@ -95,6 +95,9 @@ type ClientInterface interface {
 
 	CreateTask(ctx context.Context, body CreateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DeleteTask request
+	DeleteTask(ctx context.Context, taskId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ReadTask request
 	ReadTask(ctx context.Context, taskId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -117,6 +120,17 @@ func (c *Client) CreateTaskWithBody(ctx context.Context, contentType string, bod
 
 func (c *Client) CreateTask(ctx context.Context, body CreateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateTaskRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteTask(ctx context.Context, taskId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteTaskRequest(c.Server, taskId)
 	if err != nil {
 		return nil, err
 	}
@@ -195,6 +209,40 @@ func NewCreateTaskRequestWithBody(server string, contentType string, body io.Rea
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteTaskRequest generates requests for DeleteTask
+func NewDeleteTaskRequest(server string, taskId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParam("simple", false, "taskId", taskId)
+	if err != nil {
+		return nil, err
+	}
+
+	queryUrl, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	basePath := fmt.Sprintf("/tasks/%s", pathParam0)
+	if basePath[0] == '/' {
+		basePath = basePath[1:]
+	}
+
+	queryUrl, err = queryUrl.Parse(basePath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryUrl.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -329,6 +377,9 @@ type ClientWithResponsesInterface interface {
 
 	CreateTaskWithResponse(ctx context.Context, body CreateTaskJSONRequestBody) (*CreateTaskResponse, error)
 
+	// DeleteTask request
+	DeleteTaskWithResponse(ctx context.Context, taskId string) (*DeleteTaskResponse, error)
+
 	// ReadTask request
 	ReadTaskWithResponse(ctx context.Context, taskId string) (*ReadTaskResponse, error)
 
@@ -362,6 +413,30 @@ func (r CreateTaskResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateTaskResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteTaskResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON500      *struct {
+		Error *string `json:"error,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteTaskResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteTaskResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -439,6 +514,15 @@ func (c *ClientWithResponses) CreateTaskWithResponse(ctx context.Context, body C
 	return ParseCreateTaskResponse(rsp)
 }
 
+// DeleteTaskWithResponse request returning *DeleteTaskResponse
+func (c *ClientWithResponses) DeleteTaskWithResponse(ctx context.Context, taskId string) (*DeleteTaskResponse, error) {
+	rsp, err := c.DeleteTask(ctx, taskId)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteTaskResponse(rsp)
+}
+
 // ReadTaskWithResponse request returning *ReadTaskResponse
 func (c *ClientWithResponses) ReadTaskWithResponse(ctx context.Context, taskId string) (*ReadTaskResponse, error) {
 	rsp, err := c.ReadTask(ctx, taskId)
@@ -497,6 +581,34 @@ func ParseCreateTaskResponse(rsp *http.Response) (*CreateTaskResponse, error) {
 		}
 		response.JSON400 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest struct {
+			Error *string `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteTaskResponse parses an HTTP response from a DeleteTaskWithResponse call
+func ParseDeleteTaskResponse(rsp *http.Response) (*DeleteTaskResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer rsp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteTaskResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest struct {
 			Error *string `json:"error,omitempty"`

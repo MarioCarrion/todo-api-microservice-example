@@ -114,6 +114,22 @@ paths:
         "500":
           $ref: '#/components/responses/ErrorResponse'
   /tasks/{taskId}:
+    delete:
+      operationId: DeleteTask
+      parameters:
+      - in: path
+        name: taskId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        "200":
+          description: Task updated
+        "404":
+          description: Task not found
+        "500":
+          $ref: '#/components/responses/ErrorResponse'
     get:
       operationId: ReadTask
       parameters:
@@ -126,6 +142,8 @@ paths:
       responses:
         "200":
           $ref: '#/components/responses/ReadTasksResponse'
+        "404":
+          description: Task not found
         "500":
           $ref: '#/components/responses/ErrorResponse'
     put:
@@ -141,9 +159,11 @@ paths:
         $ref: '#/components/requestBodies/UpdateTasksRequest'
       responses:
         "200":
-          description: Task was updated
+          description: Task updated
         "400":
           $ref: '#/components/responses/ErrorResponse'
+        "404":
+          description: Task not found
         "500":
           $ref: '#/components/responses/ErrorResponse'
 servers:

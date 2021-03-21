@@ -3,7 +3,7 @@ package postgresql
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"errors"
 
 	"github.com/google/uuid"
 
@@ -35,7 +35,7 @@ func (t *Task) Create(ctx context.Context, description string, priority internal
 		DueDate:     newNullTime(dates.Due),
 	})
 	if err != nil {
-		return internal.Task{}, fmt.Errorf("insert: %w", err)
+		return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "insert task")
 	}
 
 	return internal.Task{
@@ -46,21 +46,44 @@ func (t *Task) Create(ctx context.Context, description string, priority internal
 	}, nil
 }
 
+// Delete deletes the existing record matching the id.
+func (t *Task) Delete(ctx context.Context, id string) error {
+	val, err := uuid.Parse(id)
+	if err != nil {
+		return internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "invalid uuid")
+	}
+
+	_, err = t.q.DeleteTask(ctx, val)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return internal.WrapErrorf(err, internal.ErrorCodeNotFound, "task not found")
+		}
+
+		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "delete task")
+	}
+
+	return nil
+}
+
 // Find returns the requested task by searching its id.
 func (t *Task) Find(ctx context.Context, id string) (internal.Task, error) {
 	val, err := uuid.Parse(id)
 	if err != nil {
-		return internal.Task{}, fmt.Errorf("uuid parse: %w", err)
+		return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "invalid uuid")
 	}
 
 	res, err := t.q.SelectTask(ctx, val)
 	if err != nil {
-		return internal.Task{}, fmt.Errorf("select: %w", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeNotFound, "task not found")
+		}
+
+		return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "select task")
 	}
 
 	priority, err := convertPriority(res.Priority)
 	if err != nil {
-		return internal.Task{}, fmt.Errorf("convert priority: %w", err)
+		return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "convert priority")
 	}
 
 	return internal.Task{
@@ -80,10 +103,10 @@ func (t *Task) Update(ctx context.Context, id string, description string, priori
 	// XXX: We will revisit the number of received arguments in future episodes.
 	val, err := uuid.Parse(id)
 	if err != nil {
-		return fmt.Errorf("uuid parse: %w", err)
+		return internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "invalid uuid")
 	}
 
-	if err := t.q.UpdateTask(ctx, UpdateTaskParams{
+	if _, err := t.q.UpdateTask(ctx, UpdateTaskParams{
 		ID:          val,
 		Description: description,
 		Priority:    newPriority(priority),
@@ -91,7 +114,11 @@ func (t *Task) Update(ctx context.Context, id string, description string, priori
 		DueDate:     newNullTime(dates.Due),
 		Done:        isDone,
 	}); err != nil {
-		return fmt.Errorf("update: %w", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			return internal.WrapErrorf(err, internal.ErrorCodeNotFound, "task not found")
+		}
+
+		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "update task")
 	}
 
 	return nil

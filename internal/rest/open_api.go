@@ -141,6 +141,26 @@ func NewOpenAPI3() openapi3.Swagger {
 			},
 		},
 		"/tasks/{taskId}": &openapi3.PathItem{
+			Delete: &openapi3.Operation{
+				OperationID: "DeleteTask",
+				Parameters: []*openapi3.ParameterRef{
+					{
+						Value: openapi3.NewPathParameter("taskId").
+							WithSchema(openapi3.NewUUIDSchema()),
+					},
+				},
+				Responses: openapi3.Responses{
+					"200": &openapi3.ResponseRef{
+						Value: openapi3.NewResponse().WithDescription("Task updated"),
+					},
+					"404": &openapi3.ResponseRef{
+						Value: openapi3.NewResponse().WithDescription("Task not found"),
+					},
+					"500": &openapi3.ResponseRef{
+						Ref: "#/components/responses/ErrorResponse",
+					},
+				},
+			},
 			Get: &openapi3.Operation{
 				OperationID: "ReadTask",
 				Parameters: []*openapi3.ParameterRef{
@@ -150,11 +170,14 @@ func NewOpenAPI3() openapi3.Swagger {
 					},
 				},
 				Responses: openapi3.Responses{
-					"500": &openapi3.ResponseRef{
-						Ref: "#/components/responses/ErrorResponse",
-					},
 					"200": &openapi3.ResponseRef{
 						Ref: "#/components/responses/ReadTasksResponse",
+					},
+					"404": &openapi3.ResponseRef{
+						Value: openapi3.NewResponse().WithDescription("Task not found"),
+					},
+					"500": &openapi3.ResponseRef{
+						Ref: "#/components/responses/ErrorResponse",
 					},
 				},
 			},
@@ -170,14 +193,17 @@ func NewOpenAPI3() openapi3.Swagger {
 					Ref: "#/components/requestBodies/UpdateTasksRequest",
 				},
 				Responses: openapi3.Responses{
+					"200": &openapi3.ResponseRef{
+						Value: openapi3.NewResponse().WithDescription("Task updated"),
+					},
 					"400": &openapi3.ResponseRef{
 						Ref: "#/components/responses/ErrorResponse",
 					},
+					"404": &openapi3.ResponseRef{
+						Value: openapi3.NewResponse().WithDescription("Task not found"),
+					},
 					"500": &openapi3.ResponseRef{
 						Ref: "#/components/responses/ErrorResponse",
-					},
-					"200": &openapi3.ResponseRef{
-						Value: openapi3.NewResponse().WithDescription("Task was updated"),
 					},
 				},
 			},

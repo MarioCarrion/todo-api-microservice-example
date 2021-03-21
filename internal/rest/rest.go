@@ -2,7 +2,10 @@ package rest
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+
+	"github.com/MarioCarrion/todo-api/internal"
 )
 
 // ErrorResponse represents a response containing an error message.
@@ -10,8 +13,25 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-func renderErrorResponse(w http.ResponseWriter, msg string, status int) {
-	renderResponse(w, ErrorResponse{Error: msg}, status)
+func renderErrorResponse(w http.ResponseWriter, msg string, err error) {
+	resp := ErrorResponse{Error: msg}
+	status := http.StatusInternalServerError
+
+	var ierr *internal.Error
+	if !errors.As(err, &ierr) {
+		resp.Error = "internal error"
+	} else {
+		switch ierr.Code() {
+		case internal.ErrorCodeNotFound:
+			status = http.StatusNotFound
+		case internal.ErrorCodeInvalidArgument:
+			status = http.StatusBadRequest
+		}
+	}
+
+	// XXX fmt.Printf("Error: %v\n", err)
+
+	renderResponse(w, resp, status)
 }
 
 func renderResponse(w http.ResponseWriter, res interface{}, status int) {

@@ -3,6 +3,7 @@ package postgresql_test
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"net"
 	"net/url"
@@ -45,6 +46,60 @@ func TestTask_Create(t *testing.T) {
 		if err == nil { // because of invalid priority
 			t.Fatalf("expected error, got no value")
 		}
+
+		var ierr *internal.Error
+		if !errors.As(err, &ierr) || ierr.Code() != internal.ErrorCodeUnknown {
+			t.Fatalf("expected %T error, got %T : %v", ierr, err, err)
+		}
+	})
+}
+
+func TestTask_Delete(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Delete: OK", func(t *testing.T) {
+		t.Parallel()
+
+		store := postgresql.NewTask(newDB(t))
+
+		createdTask, err := store.Create(context.Background(), "test", internal.PriorityNone, internal.Dates{})
+		if err != nil {
+			t.Fatalf("expected no error, got %s", err)
+		}
+
+		if err := store.Delete(context.Background(), createdTask.ID); err != nil {
+			t.Fatalf("expected no error, got %s", err)
+		}
+
+		if _, err = store.Find(context.Background(), createdTask.ID); !errors.Is(err, sql.ErrNoRows) {
+			t.Fatalf("expected no error, got %s", err)
+		}
+	})
+
+	t.Run("Update: ERR uuid", func(t *testing.T) {
+		t.Parallel()
+
+		err := postgresql.NewTask(newDB(t)).Delete(context.Background(), "x")
+
+		if err == nil {
+			t.Fatalf("expected error, got not value")
+		}
+
+		var ierr *internal.Error
+		if !errors.As(err, &ierr) || ierr.Code() != internal.ErrorCodeInvalidArgument {
+			t.Fatalf("expected %T error, got %T : %v", ierr, err, err)
+		}
+	})
+
+	t.Run("Delete: ERR not found", func(t *testing.T) {
+		t.Parallel()
+
+		err := postgresql.NewTask(newDB(t)).Delete(context.Background(), "44633fe3-b039-4fb3-a35f-a57fe3c906c7")
+
+		var ierr *internal.Error
+		if !errors.As(err, &ierr) || ierr.Code() != internal.ErrorCodeNotFound {
+			t.Fatalf("expected %T error, got %T : %v", ierr, err, err)
+		}
 	})
 }
 
@@ -78,6 +133,11 @@ func TestTask_Find(t *testing.T) {
 		if err == nil {
 			t.Fatalf("expected error, got not value")
 		}
+
+		var ierr *internal.Error
+		if !errors.As(err, &ierr) || ierr.Code() != internal.ErrorCodeInvalidArgument {
+			t.Fatalf("expected %T error, got %T : %v", ierr, err, err)
+		}
 	})
 
 	t.Run("Find: ERR not found", func(t *testing.T) {
@@ -86,6 +146,11 @@ func TestTask_Find(t *testing.T) {
 		_, err := postgresql.NewTask(newDB(t)).Find(context.Background(), "44633fe3-b039-4fb3-a35f-a57fe3c906c7")
 		if err == nil {
 			t.Fatalf("expected error, got not value")
+		}
+
+		var ierr *internal.Error
+		if !errors.As(err, &ierr) || ierr.Code() != internal.ErrorCodeNotFound {
+			t.Fatalf("expected %T error, got %T : %v", ierr, err, err)
 		}
 	})
 }
@@ -129,13 +194,19 @@ func TestTask_Update(t *testing.T) {
 	t.Run("Update: ERR uuid", func(t *testing.T) {
 		t.Parallel()
 
-		if err := postgresql.NewTask(newDB(t)).Update(context.Background(),
+		err := postgresql.NewTask(newDB(t)).Update(context.Background(),
 			"x",
 			"",
 			internal.PriorityNone,
 			internal.Dates{},
-			false); err == nil {
+			false)
+		if err == nil {
 			t.Fatalf("expected error, got not value")
+		}
+
+		var ierr *internal.Error
+		if !errors.As(err, &ierr) || ierr.Code() != internal.ErrorCodeInvalidArgument {
+			t.Fatalf("expected %T error, got %T : %v", ierr, err, err)
 		}
 	})
 
@@ -149,13 +220,38 @@ func TestTask_Update(t *testing.T) {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		if err := postgresql.NewTask(newDB(t)).Update(context.Background(),
+		err = postgresql.NewTask(newDB(t)).Update(context.Background(),
 			task.ID,
 			"",
 			internal.Priority(-1),
 			internal.Dates{},
-			false); err == nil {
+			false)
+		if err == nil {
 			t.Fatalf("expected error, got not value")
+		}
+
+		var ierr *internal.Error
+		if !errors.As(err, &ierr) || ierr.Code() != internal.ErrorCodeUnknown {
+			t.Fatalf("expected %T error, got %T : %v", ierr, err, err)
+		}
+	})
+
+	t.Run("Update: ERR not found", func(t *testing.T) {
+		t.Parallel()
+
+		err := postgresql.NewTask(newDB(t)).Update(context.Background(),
+			"44633fe3-b039-4fb3-a35f-a57fe3c906c7",
+			"",
+			internal.PriorityNone,
+			internal.Dates{},
+			false)
+		if err == nil {
+			t.Fatalf("expected error, got not value")
+		}
+
+		var ierr *internal.Error
+		if !errors.As(err, &ierr) || ierr.Code() != internal.ErrorCodeNotFound {
+			t.Fatalf("expected %T error, got %T : %v", ierr, err, err)
 		}
 	})
 }

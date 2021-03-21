@@ -10,6 +10,21 @@ import (
 	"github.com/google/uuid"
 )
 
+const deleteTask = `-- name: DeleteTask :one
+DELETE FROM
+  tasks
+WHERE
+  id = $1
+RETURNING id AS res
+`
+
+func (q *Queries) DeleteTask(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, deleteTask, id)
+	var res uuid.UUID
+	err := row.Scan(&res)
+	return res, err
+}
+
 const insertTask = `-- name: InsertTask :one
 INSERT INTO tasks (
   description,
@@ -74,7 +89,7 @@ func (q *Queries) SelectTask(ctx context.Context, id uuid.UUID) (Tasks, error) {
 	return i, err
 }
 
-const updateTask = `-- name: UpdateTask :exec
+const updateTask = `-- name: UpdateTask :one
 UPDATE tasks SET
   description = $1,
   priority    = $2,
@@ -82,6 +97,7 @@ UPDATE tasks SET
   due_date    = $4,
   done        = $5
 WHERE id = $6
+RETURNING id AS res
 `
 
 type UpdateTaskParams struct {
@@ -93,8 +109,8 @@ type UpdateTaskParams struct {
 	ID          uuid.UUID
 }
 
-func (q *Queries) UpdateTask(ctx context.Context, arg UpdateTaskParams) error {
-	_, err := q.db.ExecContext(ctx, updateTask,
+func (q *Queries) UpdateTask(ctx context.Context, arg UpdateTaskParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, updateTask,
 		arg.Description,
 		arg.Priority,
 		arg.StartDate,
@@ -102,5 +118,7 @@ func (q *Queries) UpdateTask(ctx context.Context, arg UpdateTaskParams) error {
 		arg.Done,
 		arg.ID,
 	)
-	return err
+	var res uuid.UUID
+	err := row.Scan(&res)
+	return res, err
 }

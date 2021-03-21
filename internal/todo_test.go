@@ -1,6 +1,7 @@
 package internal_test
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -48,8 +49,14 @@ func TestPriority_Validate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			if actualErr := tt.input.Validate(); (actualErr != nil) != tt.withErr {
+			actualErr := tt.input.Validate()
+			if (actualErr != nil) != tt.withErr {
 				t.Fatalf("expected error %t, got %s", tt.withErr, actualErr)
+			}
+
+			var ierr *internal.Error
+			if tt.withErr && !errors.As(actualErr, &ierr) {
+				t.Fatalf("expected %T error, got %T", ierr, actualErr)
 			}
 		})
 	}
@@ -101,8 +108,14 @@ func TestDates_Validate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			if actualErr := tt.input.Validate(); (actualErr != nil) != tt.withErr {
+			actualErr := tt.input.Validate()
+			if (actualErr != nil) != tt.withErr {
 				t.Fatalf("expected error %t, got %s", tt.withErr, actualErr)
+			}
+
+			var ierr *internal.Error
+			if tt.withErr && !errors.As(actualErr, &ierr) {
+				t.Fatalf("expected %T error, got %T", ierr, actualErr)
 			}
 		})
 	}
@@ -171,8 +184,14 @@ func TestTask_Validate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			if actualErr := tt.input.Validate(); (actualErr != nil) != tt.withErr {
+			actualErr := tt.input.Validate()
+			if (actualErr != nil) != tt.withErr {
 				t.Fatalf("expected error %t, got %s", tt.withErr, actualErr)
+			}
+
+			var ierr *internal.Error
+			if tt.withErr && !errors.As(actualErr, &ierr) {
+				t.Fatalf("expected %T error, got %T", ierr, actualErr)
 			}
 		})
 	}

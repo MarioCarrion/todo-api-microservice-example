@@ -17,6 +17,85 @@ import (
 	"github.com/MarioCarrion/todo-api/internal/rest/resttesting"
 )
 
+func TestTasks_Delete(t *testing.T) {
+	// XXX: Test "serviceArgs"
+
+	t.Parallel()
+
+	type output struct {
+		expectedStatus int
+		expected       interface{}
+		target         interface{}
+	}
+
+	tests := []struct {
+		name   string
+		setup  func(*resttesting.FakeTaskService)
+		output output
+	}{
+		{
+			"OK: 200",
+			func(s *resttesting.FakeTaskService) {},
+			output{
+				http.StatusOK,
+				&struct{}{},
+				&struct{}{},
+			},
+		},
+		{
+			"ERR: 404",
+			func(s *resttesting.FakeTaskService) {
+				s.DeleteReturns(internal.NewErrorf(internal.ErrorCodeNotFound, "not found"))
+			},
+			output{
+				http.StatusNotFound,
+				&struct{}{},
+				&struct{}{},
+			},
+		},
+		{
+			"ERR: 500",
+			func(s *resttesting.FakeTaskService) {
+				s.DeleteReturns(errors.New("service failed"))
+			},
+			output{
+				http.StatusInternalServerError,
+				&struct{}{},
+				&struct{}{},
+			},
+		},
+	}
+
+	//-
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			router := mux.NewRouter()
+			svc := &resttesting.FakeTaskService{}
+			tt.setup(svc)
+
+			rest.NewTaskHandler(svc).Register(router)
+
+			//-
+
+			res := doRequest(router,
+				httptest.NewRequest(http.MethodDelete, "/tasks/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", nil))
+
+			//-
+
+			assertResponse(t, res, test{tt.output.expected, tt.output.target})
+
+			if tt.output.expectedStatus != res.StatusCode {
+				t.Fatalf("expected code %d, actual %d", tt.output.expectedStatus, res.StatusCode)
+			}
+		})
+	}
+}
+
 func TestTasks_Post(t *testing.T) {
 	// XXX: Test "serviceArgs"
 
@@ -87,7 +166,7 @@ func TestTasks_Post(t *testing.T) {
 			output{
 				http.StatusInternalServerError,
 				&rest.ErrorResponse{
-					Error: "create failed",
+					Error: "internal error",
 				},
 				&rest.ErrorResponse{},
 			},
@@ -165,6 +244,20 @@ func TestTasks_Read(t *testing.T) {
 			},
 		},
 		{
+			"OK: 200",
+			func(s *resttesting.FakeTaskService) {
+				s.TaskReturns(internal.Task{},
+					internal.NewErrorf(internal.ErrorCodeNotFound, "not found"))
+			},
+			output{
+				http.StatusNotFound,
+				&rest.ErrorResponse{
+					Error: "find failed",
+				},
+				&rest.ErrorResponse{},
+			},
+		},
+		{
 			"ERR: 500",
 			func(s *resttesting.FakeTaskService) {
 				s.TaskReturns(internal.Task{},
@@ -173,7 +266,7 @@ func TestTasks_Read(t *testing.T) {
 			output{
 				http.StatusInternalServerError,
 				&rest.ErrorResponse{
-					Error: "find failed",
+					Error: "internal error",
 				},
 				&rest.ErrorResponse{},
 			},
@@ -257,6 +350,25 @@ func TestTasks_Update(t *testing.T) {
 			},
 		},
 		{
+			"ERR: 404",
+			func(s *resttesting.FakeTaskService) {
+				s.UpdateReturns(internal.NewErrorf(internal.ErrorCodeNotFound, "not found"))
+			},
+			func() []byte {
+				b, _ := json.Marshal(&rest.UpdateTasksRequest{
+					Description: "update task",
+					Priority:    "low",
+				})
+
+				return b
+			}(),
+			output{
+				http.StatusNotFound,
+				&struct{}{},
+				&struct{}{},
+			},
+		},
+		{
 			"ERR: 500",
 			func(s *resttesting.FakeTaskService) {
 				s.UpdateReturns(errors.New("service error"))
@@ -265,7 +377,7 @@ func TestTasks_Update(t *testing.T) {
 			output{
 				http.StatusInternalServerError,
 				&rest.ErrorResponse{
-					Error: "update failed",
+					Error: "internal error",
 				},
 				&rest.ErrorResponse{},
 			},

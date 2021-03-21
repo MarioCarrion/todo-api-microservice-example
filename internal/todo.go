@@ -2,8 +2,6 @@
 package internal
 
 import (
-	"errors"
-	"fmt"
 	"time"
 )
 
@@ -31,7 +29,7 @@ func (p Priority) Validate() error {
 		return nil
 	}
 
-	return errors.New("unknown value")
+	return NewErrorf(ErrorCodeInvalidArgument, "unknown value")
 }
 
 // Category is human readable value meant to be used to organize your tasks. Category values are unique.
@@ -46,7 +44,7 @@ type Dates struct {
 // Validate ...
 func (d Dates) Validate() error {
 	if !d.Start.IsZero() && !d.Due.IsZero() && d.Start.After(d.Due) {
-		return errors.New("start dates should be before end date")
+		return NewErrorf(ErrorCodeInvalidArgument, "start dates should be before end date")
 	}
 
 	return nil
@@ -66,15 +64,15 @@ type Task struct {
 // Validate ...
 func (t Task) Validate() error {
 	if t.Description == "" {
-		return errors.New("description is required")
+		return NewErrorf(ErrorCodeInvalidArgument, "description is required")
 	}
 
 	if err := t.Priority.Validate(); err != nil {
-		return fmt.Errorf("priority is invalid: %w", err)
+		return WrapErrorf(err, ErrorCodeInvalidArgument, "priority is invalid")
 	}
 
 	if err := t.Dates.Validate(); err != nil {
-		return fmt.Errorf("dates are invalid: %w", err)
+		return WrapErrorf(err, ErrorCodeInvalidArgument, "dates are invalid")
 	}
 
 	return nil

@@ -10,6 +10,7 @@ import (
 // TaskRepository defines the datastore handling persisting Task records.
 type TaskRepository interface {
 	Create(ctx context.Context, description string, priority internal.Priority, dates internal.Dates) (internal.Task, error)
+	Delete(ctx context.Context, id string) error
 	Find(ctx context.Context, id string) (internal.Task, error)
 	Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error
 }
@@ -35,6 +36,16 @@ func (t *Task) Create(ctx context.Context, description string, priority internal
 	}
 
 	return task, nil
+}
+
+// Delete removes an existing Task from the datastore.
+func (t *Task) Delete(ctx context.Context, id string) error {
+	// XXX: We will revisit the number of received arguments in future episodes.
+	if err := t.repo.Delete(ctx, id); err != nil {
+		return fmt.Errorf("repo delete: %w", err)
+	}
+
+	return nil
 }
 
 // Task gets an existing Task from the datastore.

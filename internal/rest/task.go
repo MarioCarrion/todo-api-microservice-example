@@ -18,6 +18,7 @@ const uuidRegEx string = `[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-
 // TaskService ...
 type TaskService interface {
 	Create(ctx context.Context, description string, priority internal.Priority, dates internal.Dates) (internal.Task, error)
+	Delete(ctx context.Context, id string) error
 	Task(ctx context.Context, id string) (internal.Task, error)
 	Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error
 }
@@ -39,6 +40,7 @@ func (t *TaskHandler) Register(r *mux.Router) {
 	r.HandleFunc("/tasks", t.create).Methods(http.MethodPost)
 	r.HandleFunc(fmt.Sprintf("/tasks/{id:%s}", uuidRegEx), t.task).Methods(http.MethodGet)
 	r.HandleFunc(fmt.Sprintf("/tasks/{id:%s}", uuidRegEx), t.update).Methods(http.MethodPut)
+	r.HandleFunc(fmt.Sprintf("/tasks/{id:%s}", uuidRegEx), t.delete).Methods(http.MethodDelete)
 }
 
 // Task is an activity that needs to be completed within a period of time.
@@ -65,7 +67,7 @@ type CreateTasksResponse struct {
 func (t *TaskHandler) create(w http.ResponseWriter, r *http.Request) {
 	var req CreateTasksRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		renderErrorResponse(w, "invalid request", http.StatusBadRequest)
+		renderErrorResponse(w, "invalid request", internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
 		return
 	}
 
@@ -73,7 +75,7 @@ func (t *TaskHandler) create(w http.ResponseWriter, r *http.Request) {
 
 	task, err := t.svc.Create(r.Context(), req.Description, req.Priority.Convert(), req.Dates.Convert())
 	if err != nil {
-		renderErrorResponse(w, "create failed", http.StatusInternalServerError)
+		renderErrorResponse(w, "create failed", err)
 		return
 	}
 
@@ -89,6 +91,17 @@ func (t *TaskHandler) create(w http.ResponseWriter, r *http.Request) {
 		http.StatusCreated)
 }
 
+func (t *TaskHandler) delete(w http.ResponseWriter, r *http.Request) {
+	id, _ := mux.Vars(r)["id"] // NOTE: Safe to ignore error, because it's always defined.
+
+	if err := t.svc.Delete(r.Context(), id); err != nil {
+		renderErrorResponse(w, "delete failed", err)
+		return
+	}
+
+	renderResponse(w, struct{}{}, http.StatusOK)
+}
+
 // ReadTasksResponse defines the response returned back after searching one task.
 type ReadTasksResponse struct {
 	Task Task `json:"task"`
@@ -99,8 +112,7 @@ func (t *TaskHandler) task(w http.ResponseWriter, r *http.Request) {
 
 	task, err := t.svc.Task(r.Context(), id)
 	if err != nil {
-		// XXX: Differentiating between NotFound and Internal errors will be covered in future episodes.
-		renderErrorResponse(w, "find failed", http.StatusInternalServerError)
+		renderErrorResponse(w, "find failed", err)
 		return
 	}
 
@@ -128,7 +140,7 @@ type UpdateTasksRequest struct {
 func (t *TaskHandler) update(w http.ResponseWriter, r *http.Request) {
 	var req UpdateTasksRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		renderErrorResponse(w, "invalid request", http.StatusBadRequest)
+		renderErrorResponse(w, "invalid request", internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
 		return
 	}
 
@@ -138,8 +150,7 @@ func (t *TaskHandler) update(w http.ResponseWriter, r *http.Request) {
 
 	err := t.svc.Update(r.Context(), id, req.Description, req.Priority.Convert(), req.Dates.Convert(), req.IsDone)
 	if err != nil {
-		// XXX: Differentiating between NotFound and Internal errors will be covered in future episodes.
-		renderErrorResponse(w, "update failed", http.StatusInternalServerError)
+		renderErrorResponse(w, "update failed", err)
 		return
 	}
 

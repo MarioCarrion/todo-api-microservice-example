@@ -27,11 +27,19 @@ VALUES (
 )
 RETURNING id;
 
--- name: UpdateTask :exec
+-- name: UpdateTask :one
 UPDATE tasks SET
   description = @description,
   priority    = @priority,
   start_date  = @start_date,
   due_date    = @due_date,
   done        = @done
-WHERE id = @id;
+WHERE id = @id
+RETURNING id AS res;
+
+-- name: DeleteTask :one
+DELETE FROM
+  tasks
+WHERE
+  id = @id
+RETURNING id AS res;
