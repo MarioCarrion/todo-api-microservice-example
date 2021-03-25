@@ -4,13 +4,27 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
+
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/stdout"
+	"go.opentelemetry.io/otel/exporters/trace/jaeger"
+	"go.opentelemetry.io/otel/propagation"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
 	"github.com/MarioCarrion/todo-api/pkg/openapi3"
 )
 
 func main() {
-	client, err := openapi3.NewClientWithResponses("http://0.0.0.0:9234")
+	initTracer()
+
+	//-
+
+	clientOA3 := http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
+
+	client, err := openapi3.NewClientWithResponses("http://0.0.0.0:9234", openapi3.WithHTTPClient(&clientOA3))
 	if err != nil {
 		log.Fatalf("Couldn't instantiate client: %s", err)
 	}
@@ -79,4 +93,34 @@ func main() {
 	fmt.Printf("\tStart: %s\n", *respR.JSON200.Task.Dates.Start)
 	fmt.Printf("\tDue: %s\n", *respR.JSON200.Task.Dates.Due)
 	fmt.Printf("\tDone: %t\n", *respR.JSON200.Task.IsDone)
+
+	time.Sleep(10 * time.Second)
+}
+
+func initTracer() {
+	jaegerEndpoint := "http://localhost:14268/api/traces"
+
+	jaegerExporter, err := jaeger.NewRawExporter(
+		jaeger.WithCollectorEndpoint(jaegerEndpoint),
+		jaeger.WithSDKOptions(sdktrace.WithSampler(sdktrace.AlwaysSample())),
+		jaeger.WithProcessFromEnv(),
+	)
+	if err != nil {
+		log.Fatalln("Couldn't initialize exporter", err)
+	}
+
+	// Create stdout exporter to be able to retrieve the collected spans.
+	exporter, err := stdout.NewExporter(stdout.WithPrettyPrint())
+	if err != nil {
+		log.Fatalln("Couldn't initialize exporter", err)
+	}
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithSyncer(exporter),
+		sdktrace.WithSyncer(jaegerExporter),
+	)
+
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 }

@@ -66,10 +66,9 @@ In no particular order:
 - [X] Dependency Injection [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/Z89UU4vSayY)
 - [X] Secure Configuration [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/7UmJR0dOkjM)
   - [X] Using AWS SSM [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2019/11/20/golang-aws-ssm-env-vars-package.html)
-- [X] [OpenAPI/Swagger](SWAGGER.md) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/HwtOAc0M08o)
+- [X] [OpenAPI/Swagger](docs/SWAGGER.md) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/HwtOAc0M08o)
 - [ ] Infrastructure as code
-- [ ] Metrics and Instrumentation
-- [ ] Logging
+- [ ] [Metrics, Traces and Logging](docs/METRICS\_TRACES\_LOGGING.md)
 - [X] Error Handling [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/uQOfXL6IFmQ)
 - [ ] Caching
   - [X] Memcached [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/yKI-sy70PwA) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2021/01/30/tips-building-microservices-in-go-golang-caching-memcached.html)

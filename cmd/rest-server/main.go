@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"embed"
 	"flag"
@@ -14,6 +15,17 @@ import (
 
 	"github.com/gorilla/mux"
 	_ "github.com/jackc/pgx/v4/stdlib"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
+	"go.opentelemetry.io/contrib/instrumentation/runtime"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/metric/prometheus"
+	"go.opentelemetry.io/otel/exporters/stdout"
+	"go.opentelemetry.io/otel/exporters/trace/jaeger"
+	"go.opentelemetry.io/otel/metric/global"
+	"go.opentelemetry.io/otel/propagation"
+	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.uber.org/zap"
 
 	"github.com/MarioCarrion/todo-api/internal/envvar"
 	"github.com/MarioCarrion/todo-api/internal/envvar/vault"
@@ -39,6 +51,34 @@ func main() {
 
 	//-
 
+	promExporter := initTracer(conf)
+
+	defer func() {
+		_ = initMeter().Stop(context.Background())
+	}()
+
+	if err := runtime.Start(
+		runtime.WithMinimumReadMemStatsInterval(time.Second),
+	); err != nil {
+		panic(err)
+	}
+
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+
+	middleware := func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			logger.Info(r.Method,
+				zap.Time("time", time.Now()),
+				zap.String("url", r.URL.String()),
+			)
+
+			h.ServeHTTP(w, r)
+		})
+	}
+
+	//-
+
 	db := newDB(conf)
 	defer db.Close()
 
@@ -50,6 +90,11 @@ func main() {
 	//-
 
 	r := mux.NewRouter()
+	r.Handle("/metrics", promExporter)
+
+	r.Use(otelmux.Middleware("todo-api-server"))
+
+	//-
 
 	rest.RegisterOpenAPI(r)
 	rest.NewTaskHandler(svc).Register(r)
@@ -62,7 +107,7 @@ func main() {
 	address := "0.0.0.0:9234"
 
 	srv := &http.Server{
-		Handler:           r,
+		Handler:           middleware(r),
 		Addr:              address,
 		ReadTimeout:       1 * time.Second,
 		ReadHeaderTimeout: 1 * time.Second,
@@ -131,4 +176,49 @@ func newVaultProvider() *vault.Provider {
 	}
 
 	return provider
+}
+
+//-
+
+func initMeter() *controller.Controller {
+	pusher, err := stdout.InstallNewPipeline([]stdout.Option{
+		stdout.WithPrettyPrint(),
+	}, nil)
+	if err != nil {
+		log.Panicf("Couldn't initialize metric stdout exporter %v", err)
+	}
+
+	return pusher
+}
+
+func initTracer(conf *envvar.Configuration) *prometheus.Exporter {
+	promExporter, err := prometheus.NewExportPipeline(prometheus.Config{})
+	if err != nil {
+		log.Fatalln("Couldn't initialize Prometheus exporter", err)
+	}
+
+	global.SetMeterProvider(promExporter.MeterProvider())
+
+	//-
+
+	jaegerEndpoint, _ := conf.Get("JAEGER_ENDPOINT")
+
+	jaegerExporter, err := jaeger.NewRawExporter(
+		jaeger.WithCollectorEndpoint(jaegerEndpoint),
+		jaeger.WithSDKOptions(sdktrace.WithSampler(sdktrace.AlwaysSample())),
+		jaeger.WithProcessFromEnv(),
+	)
+	if err != nil {
+		log.Fatalln("Couldn't initialize jaeger", err)
+	}
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithSyncer(jaegerExporter),
+	)
+
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+
+	return promExporter
 }

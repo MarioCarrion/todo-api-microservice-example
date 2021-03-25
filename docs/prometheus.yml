@@ -1,0 +1,7 @@
+# For demo purposes only
+
+scrape_configs:
+- job_name: to-do-api
+  scrape_interval: 5s
+  static_configs:
+  - targets: ['host.docker.internal:9234']

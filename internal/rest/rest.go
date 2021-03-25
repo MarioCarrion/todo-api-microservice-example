@@ -1,11 +1,13 @@
 package rest
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
 
 	"github.com/MarioCarrion/todo-api/internal"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // ErrorResponse represents a response containing an error message.
@@ -13,7 +15,7 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-func renderErrorResponse(w http.ResponseWriter, msg string, err error) {
+func renderErrorResponse(ctx context.Context, w http.ResponseWriter, msg string, err error) {
 	resp := ErrorResponse{Error: msg}
 	status := http.StatusInternalServerError
 
@@ -27,6 +29,13 @@ func renderErrorResponse(w http.ResponseWriter, msg string, err error) {
 		case internal.ErrorCodeInvalidArgument:
 			status = http.StatusBadRequest
 		}
+	}
+
+	if err != nil {
+		_, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "rest.renderErrorResponse")
+		defer span.End()
+
+		span.RecordError(err)
 	}
 
 	// XXX fmt.Printf("Error: %v\n", err)

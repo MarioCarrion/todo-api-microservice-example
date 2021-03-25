@@ -67,7 +67,7 @@ type CreateTasksResponse struct {
 func (t *TaskHandler) create(w http.ResponseWriter, r *http.Request) {
 	var req CreateTasksRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		renderErrorResponse(w, "invalid request", internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
+		renderErrorResponse(r.Context(), w, "invalid request", internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
 		return
 	}
 
@@ -75,7 +75,7 @@ func (t *TaskHandler) create(w http.ResponseWriter, r *http.Request) {
 
 	task, err := t.svc.Create(r.Context(), req.Description, req.Priority.Convert(), req.Dates.Convert())
 	if err != nil {
-		renderErrorResponse(w, "create failed", err)
+		renderErrorResponse(r.Context(), w, "create failed", err)
 		return
 	}
 
@@ -95,7 +95,7 @@ func (t *TaskHandler) delete(w http.ResponseWriter, r *http.Request) {
 	id, _ := mux.Vars(r)["id"] // NOTE: Safe to ignore error, because it's always defined.
 
 	if err := t.svc.Delete(r.Context(), id); err != nil {
-		renderErrorResponse(w, "delete failed", err)
+		renderErrorResponse(r.Context(), w, "delete failed", err)
 		return
 	}
 
@@ -112,7 +112,7 @@ func (t *TaskHandler) task(w http.ResponseWriter, r *http.Request) {
 
 	task, err := t.svc.Task(r.Context(), id)
 	if err != nil {
-		renderErrorResponse(w, "find failed", err)
+		renderErrorResponse(r.Context(), w, "find failed", err)
 		return
 	}
 
@@ -140,7 +140,7 @@ type UpdateTasksRequest struct {
 func (t *TaskHandler) update(w http.ResponseWriter, r *http.Request) {
 	var req UpdateTasksRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		renderErrorResponse(w, "invalid request", internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
+		renderErrorResponse(r.Context(), w, "invalid request", internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
 		return
 	}
 
@@ -150,7 +150,7 @@ func (t *TaskHandler) update(w http.ResponseWriter, r *http.Request) {
 
 	err := t.svc.Update(r.Context(), id, req.Description, req.Priority.Convert(), req.Dates.Convert(), req.IsDone)
 	if err != nil {
-		renderErrorResponse(w, "update failed", err)
+		renderErrorResponse(r.Context(), w, "update failed", err)
 		return
 	}
 
