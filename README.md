@@ -108,4 +108,4 @@ In no particular order:
 
 ## Docker Containers
 
-Please notice in order to run this project locally you need to run a programs in advance, if you use Docker please refer to the concrete instructions in [`docs/`](docs/) for more details.
+Please notice in order to run this project locally you need to run a few programs in advance, if you use Docker please refer to the concrete instructions in [`docs/`](docs/) for more details.
