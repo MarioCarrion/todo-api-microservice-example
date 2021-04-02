@@ -31,7 +31,7 @@ func NewOpenAPI3() openapi3.Swagger {
 		Servers: openapi3.Servers{
 			&openapi3.Server{
 				Description: "Local development",
-				URL:         "http://0.0.0.0:9234",
+				URL:         "http://127.0.0.1:9234",
 			},
 		},
 	}

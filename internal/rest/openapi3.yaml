@@ -168,4 +168,4 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
 servers:
 - description: Local development
-  url: http://0.0.0.0:9234
+  url: http://127.0.0.1:9234

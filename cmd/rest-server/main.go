@@ -104,7 +104,7 @@ func main() {
 
 	//-
 
-	address := "0.0.0.0:9234"
+	address := ":9234"
 
 	srv := &http.Server{
 		Handler:           middleware(r),
