@@ -115,4 +115,5 @@ There's also a [docker-compose.yml](docker-compose.yml), covered in [Building Mi
 
 1. Run `docker-compose up`, here the _api_ service will fail because the `postgres` service takes longer to start.
 1. Run `docker-compose up api`, _api_ will successfully start however interacting with it will fail because the database migrations are missing.
+  1. If you want to build the `api` image, use `docker-compose build api`.
 1. Run `docker-compose run api migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname?sslmode=disable up` to finally have everything working correctly.

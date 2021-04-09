@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -19,11 +21,9 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/metric/prometheus"
-	"go.opentelemetry.io/otel/exporters/stdout"
 	"go.opentelemetry.io/otel/exporters/trace/jaeger"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/propagation"
-	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.uber.org/zap"
 
@@ -38,35 +38,54 @@ import (
 var content embed.FS
 
 func main() {
-	var env string
+	var env, address string
 
 	flag.StringVar(&env, "env", "", "Environment Variables filename")
+	flag.StringVar(&address, "address", ":9234", "HTTP Server Address")
 	flag.Parse()
 
-	if err := envvar.Load(env); err != nil {
-		log.Fatalln("Couldn't load configuration", err)
+	errC, err := run(env, address)
+	if err != nil {
+		log.Fatalf("Couldn't run: %s", err)
 	}
 
-	conf := envvar.New(newVaultProvider())
+	if err := <-errC; err != nil {
+		log.Fatalf("Error while running: %s", err)
+	}
+}
+
+func run(env, address string) (<-chan error, error) {
+	logger, err := zap.NewProduction()
+	if err != nil {
+		return nil, fmt.Errorf("zap.NewProduction %w", err)
+	}
+
+	if err := envvar.Load(env); err != nil {
+		return nil, fmt.Errorf("envvar.Load %w", err)
+	}
+
+	vault, err := newVaultProvider()
+	if err != nil {
+		return nil, fmt.Errorf("newVaultProvider %w", err)
+	}
+
+	conf := envvar.New(vault)
 
 	//-
 
-	promExporter := initTracer(conf)
-
-	defer func() {
-		_ = initMeter().Stop(context.Background())
-	}()
-
-	if err := runtime.Start(
-		runtime.WithMinimumReadMemStatsInterval(time.Second),
-	); err != nil {
-		panic(err)
+	db, err := newDB(conf)
+	if err != nil {
+		return nil, fmt.Errorf("newDB %w", err)
 	}
 
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
+	//-
 
-	middleware := func(h http.Handler) http.Handler {
+	promExporter, err := newOTExporter(conf)
+	if err != nil {
+		return nil, fmt.Errorf("newOTExporter %w", err)
+	}
+
+	logging := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			logger.Info(r.Method,
 				zap.Time("time", time.Now()),
@@ -79,48 +98,95 @@ func main() {
 
 	//-
 
-	db := newDB(conf)
-	defer db.Close()
+	errC := make(chan error, 1)
+
+	srv := newServer(address, db, promExporter, otelmux.Middleware("todo-api-server"), logging)
+
+	ctx, stop := signal.NotifyContext(context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+		syscall.SIGQUIT)
+
+	// XXX: When using Go 1.15 or older
+	// sc := make(chan os.Signal, 1)
+	// signal.Notify(sc,
+	// 	os.Interrupt,
+	// 	syscall.SIGTERM,
+	// 	syscall.SIGQUIT)
+
+	go func() {
+		// <-sc // XXX: When using Go 1.15 or older
+		<-ctx.Done()
+
+		logger.Info("Shutdown signal received")
+
+		ctxTimeout, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+		defer func() {
+			logger.Sync()
+			db.Close()
+			stop()
+			cancel()
+			close(errC)
+		}()
+
+		srv.SetKeepAlivesEnabled(false)
+
+		if err := srv.Shutdown(ctxTimeout); err != nil {
+			errC <- err
+		}
+
+		logger.Info("Shutdown completed")
+	}()
+
+	go func() {
+		logger.Info("Listening and serving", zap.String("address", address))
+
+		// "ListenAndServe always returns a non-nil error. After Shutdown or Close, the returned error is
+		// ErrServerClosed."
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			errC <- err
+		}
+	}()
+
+	return errC, nil
+}
+
+func newServer(address string, db *sql.DB, metrics http.Handler, mws ...mux.MiddlewareFunc) *http.Server {
+	r := mux.NewRouter()
+
+	for _, mw := range mws {
+		r.Use(mw)
+	}
 
 	//-
 
 	repo := postgresql.NewTask(db) // Task Repository
 	svc := service.NewTask(repo)   // Task Application Service
 
-	//-
-
-	r := mux.NewRouter()
-	r.Handle("/metrics", promExporter)
-
-	r.Use(otelmux.Middleware("todo-api-server"))
-
-	//-
-
 	rest.RegisterOpenAPI(r)
 	rest.NewTaskHandler(svc).Register(r)
+
+	//-
 
 	fsys, _ := fs.Sub(content, "static")
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.FS(fsys))))
 
+	r.Handle("/metrics", metrics)
+
 	//-
 
-	address := ":9234"
-
-	srv := &http.Server{
-		Handler:           middleware(r),
+	return &http.Server{
+		Handler:           r,
 		Addr:              address,
 		ReadTimeout:       1 * time.Second,
 		ReadHeaderTimeout: 1 * time.Second,
 		WriteTimeout:      1 * time.Second,
 		IdleTimeout:       1 * time.Second,
 	}
-
-	log.Println("Starting server", address)
-
-	log.Fatal(srv.ListenAndServe())
 }
 
-func newDB(conf *envvar.Configuration) *sql.DB {
+func newDB(conf *envvar.Configuration) (*sql.DB, error) {
 	get := func(v string) string {
 		res, err := conf.Get(v)
 		if err != nil {
@@ -153,17 +219,17 @@ func newDB(conf *envvar.Configuration) *sql.DB {
 
 	db, err := sql.Open("pgx", dsn.String())
 	if err != nil {
-		log.Fatalln("Couldn't open DB", err)
+		return nil, fmt.Errorf("sql.Open %w", err)
 	}
 
 	if err := db.Ping(); err != nil {
-		log.Fatalln("Couldn't ping DB", err)
+		return nil, fmt.Errorf("db.Ping %w", err)
 	}
 
-	return db
+	return db, nil
 }
 
-func newVaultProvider() *vault.Provider {
+func newVaultProvider() (*vault.Provider, error) {
 	// XXX: We will revisit this code in future episodes replacing it with another solution
 	vaultPath := os.Getenv("VAULT_PATH")
 	vaultToken := os.Getenv("VAULT_TOKEN")
@@ -172,29 +238,22 @@ func newVaultProvider() *vault.Provider {
 
 	provider, err := vault.New(vaultToken, vaultAddress, vaultPath)
 	if err != nil {
-		log.Fatalln("Couldn't load provider", err)
+		return nil, fmt.Errorf("vault.New %w", err)
 	}
 
-	return provider
+	return provider, nil
 }
 
 //-
 
-func initMeter() *controller.Controller {
-	pusher, err := stdout.InstallNewPipeline([]stdout.Option{
-		stdout.WithPrettyPrint(),
-	}, nil)
-	if err != nil {
-		log.Panicf("Couldn't initialize metric stdout exporter %v", err)
+func newOTExporter(conf *envvar.Configuration) (*prometheus.Exporter, error) {
+	if err := runtime.Start(runtime.WithMinimumReadMemStatsInterval(time.Second)); err != nil {
+		return nil, fmt.Errorf("runtime.Start %w", err)
 	}
 
-	return pusher
-}
-
-func initTracer(conf *envvar.Configuration) *prometheus.Exporter {
 	promExporter, err := prometheus.NewExportPipeline(prometheus.Config{})
 	if err != nil {
-		log.Fatalln("Couldn't initialize Prometheus exporter", err)
+		return nil, fmt.Errorf("prometheus.NewExportPipeline %w", err)
 	}
 
 	global.SetMeterProvider(promExporter.MeterProvider())
@@ -209,7 +268,7 @@ func initTracer(conf *envvar.Configuration) *prometheus.Exporter {
 		jaeger.WithProcessFromEnv(),
 	)
 	if err != nil {
-		log.Fatalln("Couldn't initialize jaeger", err)
+		return nil, fmt.Errorf("jaeger.NewRawExporter %w", err)
 	}
 
 	tp := sdktrace.NewTracerProvider(
@@ -220,5 +279,5 @@ func initTracer(conf *envvar.Configuration) *prometheus.Exporter {
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 
-	return promExporter
+	return promExporter, nil
 }
