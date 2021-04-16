@@ -90,6 +90,11 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// SearchTask request  with any body
+	SearchTaskWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SearchTask(ctx context.Context, body SearchTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateTask request  with any body
 	CreateTaskWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -105,6 +110,28 @@ type ClientInterface interface {
 	UpdateTaskWithBody(ctx context.Context, taskId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateTask(ctx context.Context, taskId string, body UpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) SearchTaskWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchTaskRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SearchTask(ctx context.Context, body SearchTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchTaskRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) CreateTaskWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -171,6 +198,46 @@ func (c *Client) UpdateTask(ctx context.Context, taskId string, body UpdateTaskJ
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewSearchTaskRequest calls the generic SearchTask builder with application/json body
+func NewSearchTaskRequest(server string, body SearchTaskJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSearchTaskRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSearchTaskRequestWithBody generates requests for SearchTask with any type of body
+func NewSearchTaskRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	queryUrl, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	basePath := fmt.Sprintf("/search/tasks")
+	if basePath[0] == '/' {
+		basePath = basePath[1:]
+	}
+
+	queryUrl, err = queryUrl.Parse(basePath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryUrl.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
 }
 
 // NewCreateTaskRequest calls the generic CreateTask builder with application/json body
@@ -372,6 +439,11 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// SearchTask request  with any body
+	SearchTaskWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader) (*SearchTaskResponse, error)
+
+	SearchTaskWithResponse(ctx context.Context, body SearchTaskJSONRequestBody) (*SearchTaskResponse, error)
+
 	// CreateTask request  with any body
 	CreateTaskWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader) (*CreateTaskResponse, error)
 
@@ -387,6 +459,34 @@ type ClientWithResponsesInterface interface {
 	UpdateTaskWithBodyWithResponse(ctx context.Context, taskId string, contentType string, body io.Reader) (*UpdateTaskResponse, error)
 
 	UpdateTaskWithResponse(ctx context.Context, taskId string, body UpdateTaskJSONRequestBody) (*UpdateTaskResponse, error)
+}
+
+type SearchTaskResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Task
+	JSON400      *struct {
+		Error *string `json:"error,omitempty"`
+	}
+	JSON500 *struct {
+		Error *string `json:"error,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r SearchTaskResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SearchTaskResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type CreateTaskResponse struct {
@@ -497,6 +597,23 @@ func (r UpdateTaskResponse) StatusCode() int {
 	return 0
 }
 
+// SearchTaskWithBodyWithResponse request with arbitrary body returning *SearchTaskResponse
+func (c *ClientWithResponses) SearchTaskWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader) (*SearchTaskResponse, error) {
+	rsp, err := c.SearchTaskWithBody(ctx, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSearchTaskResponse(rsp)
+}
+
+func (c *ClientWithResponses) SearchTaskWithResponse(ctx context.Context, body SearchTaskJSONRequestBody) (*SearchTaskResponse, error) {
+	rsp, err := c.SearchTask(ctx, body)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSearchTaskResponse(rsp)
+}
+
 // CreateTaskWithBodyWithResponse request with arbitrary body returning *CreateTaskResponse
 func (c *ClientWithResponses) CreateTaskWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader) (*CreateTaskResponse, error) {
 	rsp, err := c.CreateTaskWithBody(ctx, contentType, body)
@@ -547,6 +664,50 @@ func (c *ClientWithResponses) UpdateTaskWithResponse(ctx context.Context, taskId
 		return nil, err
 	}
 	return ParseUpdateTaskResponse(rsp)
+}
+
+// ParseSearchTaskResponse parses an HTTP response from a SearchTaskWithResponse call
+func ParseSearchTaskResponse(rsp *http.Response) (*SearchTaskResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer rsp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SearchTaskResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Task
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest struct {
+			Error *string `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest struct {
+			Error *string `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseCreateTaskResponse parses an HTTP response from a CreateTaskWithResponse call

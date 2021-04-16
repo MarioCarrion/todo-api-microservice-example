@@ -14,6 +14,24 @@ components:
                 $ref: '#/components/schemas/Priority'
       description: Request used for creating a task.
       required: true
+    SearchTasksRequest:
+      content:
+        application/json:
+          schema:
+            nullable: true
+            properties:
+              description:
+                minLength: 1
+                nullable: true
+                type: string
+              is_done:
+                default: false
+                nullable: true
+                type: boolean
+              priority:
+                $ref: '#/components/schemas/Priority'
+      description: Request used for searching a task.
+      required: true
     UpdateTasksRequest:
       content:
         application/json:
@@ -56,6 +74,14 @@ components:
               task:
                 $ref: '#/components/schemas/Task'
       description: Response returned back after searching one task.
+    SearchTasksResponse:
+      content:
+        application/json:
+          schema:
+            items:
+              $ref: '#/components/schemas/Task'
+            type: array
+      description: Response returned back after searching for any task.
   schemas:
     Dates:
       properties:
@@ -101,6 +127,18 @@ info:
   version: 0.0.0
 openapi: 3.0.0
 paths:
+  /search/tasks:
+    post:
+      operationId: SearchTask
+      requestBody:
+        $ref: '#/components/requestBodies/SearchTasksRequest'
+      responses:
+        "200":
+          $ref: '#/components/responses/SearchTasksResponse'
+        "400":
+          $ref: '#/components/responses/ErrorResponse'
+        "500":
+          $ref: '#/components/responses/ErrorResponse'
   /tasks:
     post:
       operationId: CreateTask

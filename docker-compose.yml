@@ -11,12 +11,14 @@ services:
       DATABASE_HOST: postgres
       JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
       VAULT_ADDRESS: "http://vault:8300"
+      ELASTICSEARCH_URL: "http://elasticsearch:9200"
     # docker-compose run api migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname?sslmode=disable up
     depends_on:
       - postgres
       - vault
       - prometheus
       - jaeger
+      - elasticsearch
   prometheus:
     image: prom/prometheus:v2.25.2
     ports:
@@ -46,3 +48,10 @@ services:
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: myroot
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8300"
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node

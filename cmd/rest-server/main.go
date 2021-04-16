@@ -15,6 +15,7 @@ import (
 	"syscall"
 	"time"
 
+	esv7 "github.com/elastic/go-elasticsearch/v7"
 	"github.com/gorilla/mux"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
@@ -27,6 +28,7 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.uber.org/zap"
 
+	"github.com/MarioCarrion/todo-api/internal/elasticsearch"
 	"github.com/MarioCarrion/todo-api/internal/envvar"
 	"github.com/MarioCarrion/todo-api/internal/envvar/vault"
 	"github.com/MarioCarrion/todo-api/internal/postgresql"
@@ -78,6 +80,11 @@ func run(env, address string) (<-chan error, error) {
 		return nil, fmt.Errorf("newDB %w", err)
 	}
 
+	es, err := newElasticSearch(conf)
+	if err != nil {
+		return nil, fmt.Errorf("newElasticSearch %w", err)
+	}
+
 	//-
 
 	promExporter, err := newOTExporter(conf)
@@ -100,7 +107,7 @@ func run(env, address string) (<-chan error, error) {
 
 	errC := make(chan error, 1)
 
-	srv := newServer(address, db, promExporter, otelmux.Middleware("todo-api-server"), logging)
+	srv := newServer(address, db, es, promExporter, otelmux.Middleware("todo-api-server"), logging)
 
 	ctx, stop := signal.NotifyContext(context.Background(),
 		os.Interrupt,
@@ -152,7 +159,7 @@ func run(env, address string) (<-chan error, error) {
 	return errC, nil
 }
 
-func newServer(address string, db *sql.DB, metrics http.Handler, mws ...mux.MiddlewareFunc) *http.Server {
+func newServer(address string, db *sql.DB, es *esv7.Client, metrics http.Handler, mws ...mux.MiddlewareFunc) *http.Server {
 	r := mux.NewRouter()
 
 	for _, mw := range mws {
@@ -161,8 +168,9 @@ func newServer(address string, db *sql.DB, metrics http.Handler, mws ...mux.Midd
 
 	//-
 
-	repo := postgresql.NewTask(db) // Task Repository
-	svc := service.NewTask(repo)   // Task Application Service
+	repo := postgresql.NewTask(db)
+	search := elasticsearch.NewTask(es)
+	svc := service.NewTask(repo, search)
 
 	rest.RegisterOpenAPI(r)
 	rest.NewTaskHandler(svc).Register(r)
@@ -280,4 +288,19 @@ func newOTExporter(conf *envvar.Configuration) (*prometheus.Exporter, error) {
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 
 	return promExporter, nil
+}
+
+func newElasticSearch(conf *envvar.Configuration) (*esv7.Client, error) {
+	es, err := esv7.NewDefaultClient()
+	if err != nil {
+		return nil, fmt.Errorf("elasticsearch.Open %w", err)
+	}
+
+	res, err := es.Info()
+	if err != nil {
+		return nil, fmt.Errorf("es.Info %w", err)
+	}
+	defer res.Body.Close()
+
+	return es, nil
 }

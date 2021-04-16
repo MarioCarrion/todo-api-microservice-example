@@ -17,6 +17,7 @@ const uuidRegEx string = `[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-
 
 // TaskService ...
 type TaskService interface {
+	By(ctx context.Context, description *string, priority *internal.Priority, isDone *bool) ([]internal.Task, error)
 	Create(ctx context.Context, description string, priority internal.Priority, dates internal.Dates) (internal.Task, error)
 	Delete(ctx context.Context, id string) error
 	Task(ctx context.Context, id string) (internal.Task, error)
@@ -41,6 +42,7 @@ func (t *TaskHandler) Register(r *mux.Router) {
 	r.HandleFunc(fmt.Sprintf("/tasks/{id:%s}", uuidRegEx), t.task).Methods(http.MethodGet)
 	r.HandleFunc(fmt.Sprintf("/tasks/{id:%s}", uuidRegEx), t.update).Methods(http.MethodPut)
 	r.HandleFunc(fmt.Sprintf("/tasks/{id:%s}", uuidRegEx), t.delete).Methods(http.MethodDelete)
+	r.HandleFunc("/search/tasks", t.search).Methods(http.MethodPost)
 }
 
 // Task is an activity that needs to be completed within a period of time.
@@ -155,4 +157,49 @@ func (t *TaskHandler) update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	renderResponse(w, &struct{}{}, http.StatusOK)
+}
+
+// SearchTasksRequest defines the request used for searching tasks.
+type SearchTasksRequest struct {
+	Description *string   `json:"description"`
+	Priority    *Priority `json:"priority"`
+	IsDone      *bool     `json:"is_done"`
+}
+
+// SearchTasksResponse defines the response returned back after searching for any task.
+type SearchTasksResponse struct {
+	Tasks []Task `json:"tasks"`
+}
+
+func (t *TaskHandler) search(w http.ResponseWriter, r *http.Request) {
+	var req SearchTasksRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		renderErrorResponse(r.Context(), w, "invalid request", internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
+		return
+	}
+
+	defer r.Body.Close()
+
+	var priority *internal.Priority
+	if req.Priority != nil {
+		res := req.Priority.Convert()
+		priority = &res
+	}
+
+	tasks, err := t.svc.By(r.Context(), req.Description, priority, req.IsDone)
+	if err != nil {
+		renderErrorResponse(r.Context(), w, "search failed", err)
+		return
+	}
+
+	res := make([]Task, len(tasks))
+
+	for i, task := range tasks {
+		res[i].ID = task.ID
+		res[i].Description = task.Description
+		res[i].Priority = NewPriority(task.Priority)
+		res[i].Dates = NewDates(task.Dates)
+	}
+
+	renderResponse(w, &SearchTasksResponse{Tasks: res}, http.StatusOK)
 }

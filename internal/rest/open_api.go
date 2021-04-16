@@ -93,6 +93,21 @@ func NewOpenAPI3() openapi3.Swagger {
 						Ref: "#/components/schemas/Dates",
 					})),
 		},
+		"SearchTasksRequest": &openapi3.RequestBodyRef{
+			Value: openapi3.NewRequestBody().
+				WithDescription("Request used for searching a task.").
+				WithRequired(true).
+				WithJSONSchema(openapi3.NewSchema().
+					WithProperty("description", openapi3.NewStringSchema().
+						WithMinLength(1).
+						WithNullable()).
+					WithProperty("is_done", openapi3.NewBoolSchema().
+						WithDefault(false).
+						WithNullable()).
+					WithPropertyRef("priority", &openapi3.SchemaRef{
+						Ref: "#/components/schemas/Priority",
+					}).WithNullable()),
+		},
 	}
 
 	swagger.Components.Responses = openapi3.Responses{
@@ -117,6 +132,16 @@ func NewOpenAPI3() openapi3.Swagger {
 					WithPropertyRef("task", &openapi3.SchemaRef{
 						Ref: "#/components/schemas/Task",
 					}))),
+		},
+		"SearchTasksResponse": &openapi3.ResponseRef{
+			Value: openapi3.NewResponse().
+				WithDescription("Response returned back after searching for any task.").
+				WithContent(openapi3.NewContentWithJSONSchema(&openapi3.Schema{
+					Type: "array",
+					Items: &openapi3.SchemaRef{
+						Ref: "#/components/schemas/Task",
+					},
+				})),
 		},
 	}
 
@@ -201,6 +226,25 @@ func NewOpenAPI3() openapi3.Swagger {
 					},
 					"404": &openapi3.ResponseRef{
 						Value: openapi3.NewResponse().WithDescription("Task not found"),
+					},
+					"500": &openapi3.ResponseRef{
+						Ref: "#/components/responses/ErrorResponse",
+					},
+				},
+			},
+		},
+		"/search/tasks": &openapi3.PathItem{
+			Post: &openapi3.Operation{
+				OperationID: "SearchTask",
+				RequestBody: &openapi3.RequestBodyRef{
+					Ref: "#/components/requestBodies/SearchTasksRequest",
+				},
+				Responses: openapi3.Responses{
+					"200": &openapi3.ResponseRef{
+						Ref: "#/components/responses/SearchTasksResponse",
+					},
+					"400": &openapi3.ResponseRef{
+						Ref: "#/components/responses/ErrorResponse",
 					},
 					"500": &openapi3.ResponseRef{
 						Ref: "#/components/responses/ErrorResponse",

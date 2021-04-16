@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/deepmap/oapi-codegen v1.5.1
+	github.com/elastic/go-elasticsearch/v7 v7.12.0
 	github.com/getkin/kin-openapi v0.37.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/golang-migrate/migrate/v4 v4.14.1
@@ -23,7 +24,6 @@ require (
 	go.opentelemetry.io/otel/exporters/trace/jaeger v0.19.0
 	go.opentelemetry.io/otel/metric v0.19.0
 	go.opentelemetry.io/otel/sdk v0.19.0
-	go.opentelemetry.io/otel/sdk/metric v0.19.0
 	go.opentelemetry.io/otel/trace v0.19.0
 	go.uber.org/zap v1.16.0
 )

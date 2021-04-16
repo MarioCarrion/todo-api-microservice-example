@@ -48,10 +48,20 @@ type ReadTasksResponse struct {
 	Task *Task `json:"task,omitempty"`
 }
 
+// SearchTasksResponse defines model for SearchTasksResponse.
+type SearchTasksResponse []Task
+
 // CreateTasksRequest defines model for CreateTasksRequest.
 type CreateTasksRequest struct {
 	Dates       *Dates    `json:"dates,omitempty"`
 	Description *string   `json:"description,omitempty"`
+	Priority    *Priority `json:"priority,omitempty"`
+}
+
+// SearchTasksRequest defines model for SearchTasksRequest.
+type SearchTasksRequest struct {
+	Description *string   `json:"description"`
+	IsDone      *bool     `json:"is_done"`
 	Priority    *Priority `json:"priority,omitempty"`
 }
 
@@ -62,6 +72,9 @@ type UpdateTasksRequest struct {
 	IsDone      *bool     `json:"is_done,omitempty"`
 	Priority    *Priority `json:"priority,omitempty"`
 }
+
+// SearchTaskJSONRequestBody defines body for SearchTask for application/json ContentType.
+type SearchTaskJSONRequestBody SearchTasksRequest
 
 // CreateTaskJSONRequestBody defines body for CreateTask for application/json ContentType.
 type CreateTaskJSONRequestBody CreateTasksRequest
