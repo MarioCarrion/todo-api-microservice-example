@@ -24,9 +24,9 @@ On YouTube I created [a playlist](https://www.youtube.com/playlist?list=PL7yAAGM
 
 ## Project Structure
 
-Talking specifically about microservices **only**, the structure I like to recommended is the following, everything using `<` and `>` depends on the domain being implemented and the bounded context being defined.
+Talking specifically about microservices **only**, the structure I like to recommend is the following, everything using `<` and `>` depends on the domain being implemented and the bounded context being defined.
 
-- [ ] `build/`: defines the code used for creating infrastructure.
+- [ ] `build/`: defines the code used for creating infrastructure as well as docker containers.
   - [ ] `<cloud-providers>/`: define concrete cloud provider.
   - [ ] `<executableN>/`: contains a Dockerfile used for building the binary.
 - [ ] `cmd/`
@@ -98,7 +98,7 @@ In no particular order:
   - [X] Integration tests for Datastores with [`ory/dockertest`](https://github.com/ory/dockertest) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/a-CCceqerhg) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2021/03/14/golang-package-testing-datastores-ory-dockertest.html)
 - [ ] Containerization using Docker [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/u_ayzie9pAQ)
 - [ ] Graceful Shutdown [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/VXxe7-b5euo)
-- [ ] Search Engine using [ElasticSearch](https://www.elastic.co/elasticsearch/)
+- [ ] Search Engine using [ElasticSearch](https://www.elastic.co/elasticsearch/) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/ZrdbQRYst5E)
 - [ ] Whatever else I forgot to include
 
 ## More ideas
