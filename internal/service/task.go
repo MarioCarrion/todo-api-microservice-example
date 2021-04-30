@@ -17,24 +17,31 @@ type TaskRepository interface {
 	Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error
 }
 
-// TaskSearchRepository defines the datastore handling persisting Searchable Task records.
+// TaskSearchRepository defines the datastore handling searching Task records.
 type TaskSearchRepository interface {
-	Delete(ctx context.Context, id string) error
-	Index(ctx context.Context, task internal.Task) error
 	Search(ctx context.Context, description *string, priority *internal.Priority, isDone *bool) ([]internal.Task, error)
+}
+
+// TaskMessageBrokerRepository defines the datastore handling persisting Searchable Task records.
+type TaskMessageBrokerRepository interface {
+	Created(ctx context.Context, task internal.Task) error
+	Deleted(ctx context.Context, id string) error
+	Updated(ctx context.Context, task internal.Task) error
 }
 
 // Task defines the application service in charge of interacting with Tasks.
 type Task struct {
-	repo   TaskRepository
-	search TaskSearchRepository
+	repo      TaskRepository
+	search    TaskSearchRepository
+	msgBroker TaskMessageBrokerRepository
 }
 
 // NewTask ...
-func NewTask(repo TaskRepository, search TaskSearchRepository) *Task {
+func NewTask(repo TaskRepository, search TaskSearchRepository, msgBroker TaskMessageBrokerRepository) *Task {
 	return &Task{
-		repo:   repo,
-		search: search,
+		repo:      repo,
+		search:    search,
+		msgBroker: msgBroker,
 	}
 }
 
@@ -62,7 +69,8 @@ func (t *Task) Create(ctx context.Context, description string, priority internal
 		return internal.Task{}, fmt.Errorf("repo create: %w", err)
 	}
 
-	_ = t.search.Index(ctx, task) // XXX: Ignoring errors on purpose
+	// XXX: Transactions will be revisited in future episodes.
+	_ = t.msgBroker.Created(ctx, task) // XXX: Ignoring errors on purpose
 
 	return task, nil
 }
@@ -77,7 +85,8 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 		return fmt.Errorf("repo delete: %w", err)
 	}
 
-	_ = t.search.Delete(ctx, id) // XXX: Ignoring errors on purpose
+	// XXX: Transactions will be revisited in future episodes.
+	_ = t.msgBroker.Deleted(ctx, id) // XXX: Ignoring errors on purpose
 
 	return nil
 }
@@ -110,7 +119,8 @@ func (t *Task) Update(ctx context.Context, id string, description string, priori
 		// XXX: This will be improved when Kafka events are introduced in future episodes
 		task, err := t.repo.Find(ctx, id)
 		if err == nil {
-			_ = t.search.Index(ctx, task) // XXX: Ignoring errors on purpose
+			// XXX: Transactions will be revisited in future episodes.
+			_ = t.msgBroker.Updated(ctx, task) // XXX: Ignoring errors on purpose
 		}
 	}
 

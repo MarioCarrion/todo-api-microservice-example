@@ -1,6 +1,6 @@
 # For demo purposes
 services:
-  api:
+  rest-server:
     build: 
       context: .
       dockerfile: ./build/rest-server/Dockerfile
@@ -9,16 +9,34 @@ services:
     command: rest-server -env /api/env.example
     environment:
       DATABASE_HOST: postgres
+      ELASTICSEARCH_URL: "http://elasticsearch:9200"
       JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
       VAULT_ADDRESS: "http://vault:8300"
-      ELASTICSEARCH_URL: "http://elasticsearch:9200"
-    # docker-compose run api migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname?sslmode=disable up
+      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
+    # docker-compose run rest-server migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname?sslmode=disable up
     depends_on:
       - postgres
       - vault
       - prometheus
       - jaeger
       - elasticsearch
+      - rabbitmq
+  elasticsearch-indexer:
+    build:
+      context: .
+      dockerfile: ./build/elasticsearch-indexer/Dockerfile
+    command: elasticsearch-indexer -env /api/env.example
+    environment:
+      JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
+      VAULT_ADDRESS: "http://vault:8300"
+      ELASTICSEARCH_URL: "http://elasticsearch:9200"
+      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
+    depends_on:
+      - vault
+      - prometheus
+      - jaeger
+      - elasticsearch
+      - rabbitmq
   prometheus:
     image: prom/prometheus:v2.25.2
     ports:
@@ -55,3 +73,8 @@ services:
       - "9300:9300"
     environment:
       - discovery.type=single-node
+  rabbitmq:
+    image: rabbitmq:3.8.14-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"

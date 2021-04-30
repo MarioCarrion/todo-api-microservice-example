@@ -159,8 +159,6 @@ func (t *Task) Search(ctx context.Context, description *string, priority *intern
 		}
 	}
 
-	fmt.Printf("%#v\n", query)
-
 	var buf bytes.Buffer
 
 	if err := json.NewEncoder(&buf).Encode(query); err != nil {
@@ -179,7 +177,7 @@ func (t *Task) Search(ctx context.Context, description *string, priority *intern
 	defer resp.Body.Close()
 
 	if resp.IsError() {
-		return nil, internal.NewErrorf(internal.ErrorCodeUnknown, "SearchRequest.Do %s", resp.StatusCode)
+		return nil, internal.NewErrorf(internal.ErrorCodeUnknown, "SearchRequest.Do %d", resp.StatusCode)
 	}
 
 	var hits struct {

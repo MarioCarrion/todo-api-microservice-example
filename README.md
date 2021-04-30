@@ -91,6 +91,7 @@ In no particular order:
   - [X] Custom JSON Types [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/UmVYkEYm4hw)
   - [ ] Versioning [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/4THy4iBQpFA)
 - [ ] Events
+  - [ ] Using [RabbitMQ](https://www.rabbitmq.com/) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/L0yJxCKrkIY)
 - [ ] Testing
   - [X] Type-safe mocks with [`maxbrunsfeld/counterfeiter`](https://github.com/maxbrunsfeld/counterfeiter) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/ENqwq64TsDk) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2019/06/24/golang-tools-counterfeiter.html)
   - [X] Equality with [`google/go-cmp`](https://github.com/google/go-cmp) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/ae15DzSwNnU) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2021/01/22/go-package-equality-google-go-cmp.html)
@@ -115,7 +116,9 @@ Please notice in order to run this project locally you need to run a few program
 
 There's also a [docker-compose.yml](docker-compose.yml), covered in [Building Microservices In Go: Containerization with Docker](https://youtu.be/u_ayzie9pAQ), however like I mentioned in the video you have to execute `docker-compose` in three steps:
 
-1. Run `docker-compose up`, here the _api_ service will fail because the `postgres` service takes longer to start.
-1. Run `docker-compose up api`, _api_ will successfully start however interacting with it will fail because the database migrations are missing.
-  1. If you want to build the `api` image, use `docker-compose build api`.
-1. Run `docker-compose run api migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname?sslmode=disable up` to finally have everything working correctly.
+1. Run `docker-compose up`, here both _rest-server_ and _elasticsearch-indexer_ services will fail because the `postgres`, `rabbitmq` and `elasticsearch` services take too long to start. We have to run those manually after all their dependencies are running:
+  1. Run `docker-compose up rest-server elasticsearch-indexer` for doing that.
+1. For building the two services images you can use:
+  1. `rest-server` image, use `docker-compose build rest-server`.
+  1. `elasticsearch-indexer` image, use `docker-compose build elasticsearch-indexer`.
+1. Run `docker-compose run rest-server migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname?sslmode=disable up` to finally have everything working correctly.
