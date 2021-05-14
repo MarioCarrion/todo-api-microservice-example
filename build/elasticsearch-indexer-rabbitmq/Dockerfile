@@ -1,13 +1,19 @@
 FROM golang:1.16.3-alpine3.13 AS builder
 
+RUN apk --no-cache add \
+      alpine-sdk \
+      librdkafka-dev \
+      pkgconf && \
+    rm -rf /var/cache/apk/*
+
 WORKDIR /build/
 
 COPY . .
 
 RUN go mod download
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-s -w" \
-    github.com/MarioCarrion/todo-api/cmd/elasticsearch-indexer
+RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -ldflags "-extldflags -static" -tags musl \
+      -o elasticsearch-indexer github.com/MarioCarrion/todo-api/cmd/elasticsearch-indexer-rabbitmq
 
 #-
 

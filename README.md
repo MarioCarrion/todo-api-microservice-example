@@ -117,11 +117,15 @@ In no particular order:
 
 Please notice in order to run this project locally you need to run a few programs in advance, if you use Docker please refer to the concrete instructions in [`docs/`](docs/) for more details.
 
-There's also a [docker-compose.yml](docker-compose.yml), covered in [Building Microservices In Go: Containerization with Docker](https://youtu.be/u_ayzie9pAQ), however like I mentioned in the video you have to execute `docker-compose` in three steps:
+There's also a [docker-compose.yml](docker-compose.yml), covered in [Building Microservices In Go: Containerization with Docker](https://youtu.be/u_ayzie9pAQ), however like I mentioned in the video you have to execute `docker-compose` in multiple steps.
 
-1. Run `docker-compose up`, here both _rest-server_ and _elasticsearch-indexer_ services will fail because the `postgres`, `rabbitmq` and `elasticsearch` services take too long to start. We have to run those manually after all their dependencies are running:
-  1. Run `docker-compose up rest-server elasticsearch-indexer` for doing that.
-1. For building the two services images you can use:
-  1. `rest-server` image, use `docker-compose build rest-server`.
-  1. `elasticsearch-indexer` image, use `docker-compose build elasticsearch-indexer`.
+Notice that because of the way RabbitMQ and Kafka are being used they are sort of competing with each other, so at the moment we either have to enable Kafka and disable RabbitMQ or the other way around in both the code and the `docker-compose.yml` file, in either case there are Dockerfiles and services defined that cover building and running them.
+
+1. Run `docker-compose up`, here both _rest-server_ and _elasticsearch-indexer_ services will fail because the `postgres`, `rabbitmq`, `elasticsearch` and `kafka` services take too long to start.
+  1. If you're planning to use RabbitMQ, run `docker-compose up rest-server elasticsearch-indexer-rabbitmq`.
+  1. If you're planning to use Kafka, run `docker-compose up rest-server elasticsearch-indexer-kafka`.
+1. For building the service images you can use:
+  1. `rest-server` image: `docker-compose build rest-server`.
+  1. `elasticsearch-indexer-rabbitmq` image: `docker-compose build elasticsearch-indexer-rabbitmq`.
+  1. `elasticsearch-indexer-kafka` image: `docker-compose build elasticsearch-indexer-kafka`.
 1. Run `docker-compose run rest-server migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname?sslmode=disable up` to finally have everything working correctly.

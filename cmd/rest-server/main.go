@@ -19,11 +19,12 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.uber.org/zap"
 
+	// "github.com/MarioCarrion/todo-api/internal/rabbitmq"
 	"github.com/MarioCarrion/todo-api/cmd/internal"
 	"github.com/MarioCarrion/todo-api/internal/elasticsearch"
 	"github.com/MarioCarrion/todo-api/internal/envvar"
+	"github.com/MarioCarrion/todo-api/internal/kafka"
 	"github.com/MarioCarrion/todo-api/internal/postgresql"
-	"github.com/MarioCarrion/todo-api/internal/rabbitmq"
 	"github.com/MarioCarrion/todo-api/internal/rest"
 	"github.com/MarioCarrion/todo-api/internal/service"
 )
@@ -77,9 +78,14 @@ func run(env, address string) (<-chan error, error) {
 		return nil, fmt.Errorf("internal.NewElasticSearch %w", err)
 	}
 
-	rmq, err := internal.NewRabbitMQ(conf)
+	// rmq, err := internal.NewRabbitMQ(conf)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("internal.NewRabbitMQ %w", err)
+	// }
+
+	kafka, err := internal.NewKafkaProducer(conf)
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewRabbitMQ %w", err)
+		return nil, fmt.Errorf("internal.NewKafka %w", err)
 	}
 
 	//-
@@ -102,7 +108,15 @@ func run(env, address string) (<-chan error, error) {
 
 	//-
 
-	srv, err := newServer(address, db, es, rmq, promExporter, otelmux.Middleware("todo-api-server"), logging)
+	srv, err := newServer(serverConfig{
+		Address:       address,
+		DB:            db,
+		ElasticSearch: es,
+		Kafka:         kafka,
+		Metrics:       promExporter,
+		Middlewares:   []mux.MiddlewareFunc{otelmux.Middleware("todo-api-server"), logging},
+		// RabbitMQ:      rmq,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("newServer %w", err)
 	}
@@ -124,7 +138,7 @@ func run(env, address string) (<-chan error, error) {
 		defer func() {
 			logger.Sync()
 			db.Close()
-			rmq.Close()
+			// rmq.Close()
 			stop()
 			cancel()
 			close(errC)
@@ -152,21 +166,33 @@ func run(env, address string) (<-chan error, error) {
 	return errC, nil
 }
 
-func newServer(address string, db *sql.DB, es *esv7.Client, rmq *internal.RabbitMQ, metrics http.Handler, mws ...mux.MiddlewareFunc) (*http.Server, error) {
+type serverConfig struct {
+	Address       string
+	DB            *sql.DB
+	ElasticSearch *esv7.Client
+	Kafka         *internal.KafkaProducer
+	RabbitMQ      *internal.RabbitMQ
+	Metrics       http.Handler
+	Middlewares   []mux.MiddlewareFunc
+}
+
+func newServer(conf serverConfig) (*http.Server, error) {
 	r := mux.NewRouter()
 
-	for _, mw := range mws {
+	for _, mw := range conf.Middlewares {
 		r.Use(mw)
 	}
 
 	//-
 
-	repo := postgresql.NewTask(db)
-	search := elasticsearch.NewTask(es)
-	msgBroker, err := rabbitmq.NewTask(rmq.Channel)
-	if err != nil {
-		return nil, fmt.Errorf("rabbitmq.NewTask %w", err)
-	}
+	repo := postgresql.NewTask(conf.DB)
+	search := elasticsearch.NewTask(conf.ElasticSearch)
+	// msgBroker, err := rabbitmq.NewTask(conf.RabbitMQ.Channel)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("rabbitmq.NewTask %w", err)
+	// }
+
+	msgBroker := kafka.NewTask(conf.Kafka.Producer, conf.Kafka.Topic)
 
 	svc := service.NewTask(repo, search, msgBroker)
 
@@ -178,13 +204,13 @@ func newServer(address string, db *sql.DB, es *esv7.Client, rmq *internal.Rabbit
 	fsys, _ := fs.Sub(content, "static")
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.FS(fsys))))
 
-	r.Handle("/metrics", metrics)
+	r.Handle("/metrics", conf.Metrics)
 
 	//-
 
 	return &http.Server{
 		Handler:           r,
-		Addr:              address,
+		Addr:              conf.Address,
 		ReadTimeout:       1 * time.Second,
 		ReadHeaderTimeout: 1 * time.Second,
 		WriteTimeout:      1 * time.Second,

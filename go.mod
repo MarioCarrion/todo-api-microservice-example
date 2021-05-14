@@ -3,6 +3,7 @@ module github.com/MarioCarrion/todo-api
 go 1.16
 
 require (
+	github.com/confluentinc/confluent-kafka-go v1.7.0
 	github.com/deepmap/oapi-codegen v1.5.1
 	github.com/elastic/go-elasticsearch/v7 v7.12.0
 	github.com/getkin/kin-openapi v0.37.0

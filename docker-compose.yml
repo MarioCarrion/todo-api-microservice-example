@@ -12,7 +12,8 @@ services:
       ELASTICSEARCH_URL: "http://elasticsearch:9200"
       JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
       VAULT_ADDRESS: "http://vault:8300"
-      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
+      KAFKA_HOST: "kafka"
+      # RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
     # docker-compose run rest-server migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname?sslmode=disable up
     depends_on:
       - postgres
@@ -20,23 +21,10 @@ services:
       - prometheus
       - jaeger
       - elasticsearch
-      - rabbitmq
-  elasticsearch-indexer:
-    build:
-      context: .
-      dockerfile: ./build/elasticsearch-indexer/Dockerfile
-    command: elasticsearch-indexer -env /api/env.example
-    environment:
-      JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
-      VAULT_ADDRESS: "http://vault:8300"
-      ELASTICSEARCH_URL: "http://elasticsearch:9200"
-      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
-    depends_on:
-      - vault
-      - prometheus
-      - jaeger
-      - elasticsearch
-      - rabbitmq
+      - zookeeper
+      - kafka
+      # - rabbitmq
+
   prometheus:
     image: prom/prometheus:v2.25.2
     ports:
@@ -73,8 +61,57 @@ services:
       - "9300:9300"
     environment:
       - discovery.type=single-node
-  rabbitmq:
-    image: rabbitmq:3.8.14-management-alpine
+  # elasticsearch-indexer-rabbitmq:
+  #   build:
+  #     context: .
+  #     dockerfile: ./build/elasticsearch-indexer-rabbitmq/Dockerfile
+  #   command: elasticsearch-indexer -env /api/env.example
+  #   environment:
+  #     JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
+  #     VAULT_ADDRESS: "http://vault:8300"
+  #     ELASTICSEARCH_URL: "http://elasticsearch:9200"
+  #     RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
+  #   depends_on:
+  #     - vault
+  #     - prometheus
+  #     - jaeger
+  #     - elasticsearch
+  #     - rabbitmq
+  # rabbitmq:
+  #   image: rabbitmq:3.8.14-management-alpine
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
+  elasticsearch-indexer-kafka:
+    build:
+      context: .
+      dockerfile: ./build/elasticsearch-indexer-kafka/Dockerfile
+    command: elasticsearch-indexer -env /api/env.example
+    environment:
+      JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
+      VAULT_ADDRESS: "http://vault:8300"
+      ELASTICSEARCH_URL: "http://elasticsearch:9200"
+      KAFKA_HOST: "kafka"
+    depends_on:
+      - vault
+      - prometheus
+      - jaeger
+      - elasticsearch
+      - kafka
+      - zookeeper
+  zookeeper:
+    image: wurstmeister/zookeeper:3.4.6
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka:2.13-2.7.0
+    ports:
+      - "9092:9092"
+    links:
+      - zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_CREATE_TOPICS: 'tasks:1:1'
