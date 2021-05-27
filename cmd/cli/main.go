@@ -9,10 +9,13 @@ import (
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/stdout"
 	"go.opentelemetry.io/otel/exporters/trace/jaeger"
 	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/semconv"
 
 	"github.com/MarioCarrion/todo-api/pkg/openapi3"
 )
@@ -101,9 +104,7 @@ func initTracer() {
 	jaegerEndpoint := "http://localhost:14268/api/traces"
 
 	jaegerExporter, err := jaeger.NewRawExporter(
-		jaeger.WithCollectorEndpoint(jaegerEndpoint),
-		jaeger.WithSDKOptions(sdktrace.WithSampler(sdktrace.AlwaysSample())),
-		jaeger.WithProcessFromEnv(),
+		jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(jaegerEndpoint)),
 	)
 	if err != nil {
 		log.Fatalln("Couldn't initialize exporter", err)
@@ -119,6 +120,10 @@ func initTracer() {
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
 		sdktrace.WithSyncer(exporter),
 		sdktrace.WithSyncer(jaegerExporter),
+		sdktrace.WithResource(resource.NewWithAttributes(attribute.KeyValue{
+			Key:   semconv.ServiceNameKey,
+			Value: attribute.StringValue("cli"),
+		})),
 	)
 
 	otel.SetTracerProvider(tp)

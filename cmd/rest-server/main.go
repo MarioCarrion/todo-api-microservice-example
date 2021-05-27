@@ -19,12 +19,12 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.uber.org/zap"
 
-	// "github.com/MarioCarrion/todo-api/internal/rabbitmq"
+	// "github.com/MarioCarrion/todo-api/internal/kafka"
 	"github.com/MarioCarrion/todo-api/cmd/internal"
 	"github.com/MarioCarrion/todo-api/internal/elasticsearch"
 	"github.com/MarioCarrion/todo-api/internal/envvar"
-	"github.com/MarioCarrion/todo-api/internal/kafka"
 	"github.com/MarioCarrion/todo-api/internal/postgresql"
+	"github.com/MarioCarrion/todo-api/internal/rabbitmq"
 	"github.com/MarioCarrion/todo-api/internal/rest"
 	"github.com/MarioCarrion/todo-api/internal/service"
 )
@@ -78,15 +78,15 @@ func run(env, address string) (<-chan error, error) {
 		return nil, fmt.Errorf("internal.NewElasticSearch %w", err)
 	}
 
-	// rmq, err := internal.NewRabbitMQ(conf)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("internal.NewRabbitMQ %w", err)
-	// }
-
-	kafka, err := internal.NewKafkaProducer(conf)
+	rmq, err := internal.NewRabbitMQ(conf)
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewKafka %w", err)
+		return nil, fmt.Errorf("internal.NewRabbitMQ %w", err)
 	}
+
+	// kafka, err := internal.NewKafkaProducer(conf)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("internal.NewKafka %w", err)
+	// }
 
 	//-
 
@@ -112,10 +112,10 @@ func run(env, address string) (<-chan error, error) {
 		Address:       address,
 		DB:            db,
 		ElasticSearch: es,
-		Kafka:         kafka,
 		Metrics:       promExporter,
 		Middlewares:   []mux.MiddlewareFunc{otelmux.Middleware("todo-api-server"), logging},
-		// RabbitMQ:      rmq,
+		RabbitMQ:      rmq,
+		// Kafka:         kafka,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("newServer %w", err)
@@ -187,12 +187,12 @@ func newServer(conf serverConfig) (*http.Server, error) {
 
 	repo := postgresql.NewTask(conf.DB)
 	search := elasticsearch.NewTask(conf.ElasticSearch)
-	// msgBroker, err := rabbitmq.NewTask(conf.RabbitMQ.Channel)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("rabbitmq.NewTask %w", err)
-	// }
+	msgBroker, err := rabbitmq.NewTask(conf.RabbitMQ.Channel)
+	if err != nil {
+		return nil, fmt.Errorf("rabbitmq.NewTask %w", err)
+	}
 
-	msgBroker := kafka.NewTask(conf.Kafka.Producer, conf.Kafka.Topic)
+	// msgBroker := kafka.NewTask(conf.Kafka.Producer, conf.Kafka.Topic)
 
 	svc := service.NewTask(repo, search, msgBroker)
 
