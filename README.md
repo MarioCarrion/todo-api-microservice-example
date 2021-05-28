@@ -71,11 +71,10 @@ In no particular order:
 - [X] Project Layout [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/LUvid5TJ81Y) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2021/03/21/golang-microservices-domain-driven-design-project-layout.html)
 - [X] Dependency Injection [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/Z89UU4vSayY)
 - [X] [Secure Configuration](docs/SECURE\_CONFIGURATION.md)
-  - [X] Using Hashicorp Vault [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/7UmJR0dOkjM)
-  - [X] Using AWS SSM [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2019/11/20/golang-aws-ssm-env-vars-package.html)
+  - [X] Using [Hashicorp Vault](https://www.hashicorp.com/products/vault) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/7UmJR0dOkjM)
+  - [X] Using [AWS SSM](https://aws.amazon.com/systems-manager/features/#Parameter_Store) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2019/11/20/golang-aws-ssm-env-vars-package.html)
 - [ ] Infrastructure as code
 - [X] [Metrics, Traces and Logging using OpenTelemetry](docs/METRICS\_TRACES\_LOGGING.md) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/bytCFQJ43DE)
-- [X] Error Handling [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/uQOfXL6IFmQ)
 - [ ] Caching
   - [X] Memcached [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/yKI-sy70PwA) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2021/01/30/tips-building-microservices-in-go-golang-caching-memcached.html)
   - [ ] Redis [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/wj6-w0DLKRw)
@@ -91,10 +90,13 @@ In no particular order:
   - [X] HTTP Handlers [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/CLdxwJCvTZE) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2021/04/18/golang-microservices-rest-api-http-handlers.html)
   - [X] Custom JSON Types [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/UmVYkEYm4hw) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2021/04/28/golang-microservices-rest-api-custom-json-type.html)
   - [ ] Versioning [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/4THy4iBQpFA)
+  - [X] Error Handling [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/uQOfXL6IFmQ)
   - [X] [OpenAPI 3 and Swagger-UI](docs/OPENAPI3\_SWAGGER.md) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/HwtOAc0M08o) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2021/05/02/golang-microservices-rest-api-openapi3-swagger-ui.html)
   - [ ] Authorization
-- [ ] Events
-  - [ ] Using [RabbitMQ](https://www.rabbitmq.com/) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/L0yJxCKrkIY)
+- [ ] Events and Messaging
+  - [ ] [Apache Kafka](https://kafka.apache.org/) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/jr7OULxYm0A)
+  - [ ] [RabbitMQ](https://www.rabbitmq.com/) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/L0yJxCKrkIY)
+  - [ ] [Redis](https://redis.io/) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/uzuwZNiN4Y8)
 - [ ] Testing
   - [X] Type-safe mocks with [`maxbrunsfeld/counterfeiter`](https://github.com/maxbrunsfeld/counterfeiter) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/ENqwq64TsDk) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2019/06/24/golang-tools-counterfeiter.html)
   - [X] Equality with [`google/go-cmp`](https://github.com/google/go-cmp) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/ae15DzSwNnU) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2021/01/22/go-package-equality-google-go-cmp.html)
@@ -121,13 +123,13 @@ There's also a [docker-compose.yml](docker-compose.yml), covered in [Building Mi
 
 Notice that because of the way RabbitMQ and Kafka are being used they are sort of competing with each other, so at the moment we either have to enable Kafka and disable RabbitMQ or the other way around in both the code and the `docker-compose.yml` file, in either case there are Dockerfiles and services defined that cover building and running them.
 
-1. Run `docker-compose up`, here both _rest-server_ and _elasticsearch-indexer_ services will fail because the `postgres`, `rabbitmq`, `elasticsearch` and `kafka` services take too long to start.
-  1. If you're planning to use RabbitMQ, run `docker-compose up rest-server elasticsearch-indexer-rabbitmq`.
-  1. If you're planning to use Kafka, run `docker-compose up rest-server elasticsearch-indexer-kafka`.
-  1. If you're planning to use Redis, run `docker-compose up rest-server elasticsearch-indexer-redis`.
-1. For building the service images you can use:
-  1. `rest-server` image: `docker-compose build rest-server`.
-  1. `elasticsearch-indexer-rabbitmq` image: `docker-compose build elasticsearch-indexer-rabbitmq`.
-  1. `elasticsearch-indexer-kafka` image: `docker-compose build elasticsearch-indexer-kafka`.
-  1. `elasticsearch-indexer-redis` image: `docker-compose build elasticsearch-indexer-redis`.
-1. Run `docker-compose run rest-server migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname?sslmode=disable up` to finally have everything working correctly.
+* Run `docker-compose up`, here both _rest-server_ and _elasticsearch-indexer_ services will fail because the `postgres`, `rabbitmq`, `elasticsearch` and `kafka` services take too long to start.
+    * If you're planning to use RabbitMQ, run `docker-compose up rest-server elasticsearch-indexer-rabbitmq`.
+    * If you're planning to use Kafka, run `docker-compose up rest-server elasticsearch-indexer-kafka`.
+    * If you're planning to use Redis, run `docker-compose up rest-server elasticsearch-indexer-redis`.
+* For building the service images you can use:
+    * `rest-server` image: `docker-compose build rest-server`.
+    * `elasticsearch-indexer-rabbitmq` image: `docker-compose build elasticsearch-indexer-rabbitmq`.
+    * `elasticsearch-indexer-kafka` image: `docker-compose build elasticsearch-indexer-kafka`.
+    * `elasticsearch-indexer-redis` image: `docker-compose build elasticsearch-indexer-redis`.
+* Run `docker-compose run rest-server migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname?sslmode=disable up` to finally have everything working correctly.
