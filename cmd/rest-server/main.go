@@ -15,6 +15,7 @@ import (
 	"time"
 
 	esv7 "github.com/elastic/go-elasticsearch/v7"
+	rv8 "github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.uber.org/zap"
@@ -24,7 +25,7 @@ import (
 	"github.com/MarioCarrion/todo-api/internal/elasticsearch"
 	"github.com/MarioCarrion/todo-api/internal/envvar"
 	"github.com/MarioCarrion/todo-api/internal/postgresql"
-	"github.com/MarioCarrion/todo-api/internal/rabbitmq"
+	"github.com/MarioCarrion/todo-api/internal/redis"
 	"github.com/MarioCarrion/todo-api/internal/rest"
 	"github.com/MarioCarrion/todo-api/internal/service"
 )
@@ -78,15 +79,20 @@ func run(env, address string) (<-chan error, error) {
 		return nil, fmt.Errorf("internal.NewElasticSearch %w", err)
 	}
 
-	rmq, err := internal.NewRabbitMQ(conf)
-	if err != nil {
-		return nil, fmt.Errorf("internal.NewRabbitMQ %w", err)
-	}
+	// rmq, err := internal.NewRabbitMQ(conf)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("internal.NewRabbitMQ %w", err)
+	// }
 
 	// kafka, err := internal.NewKafkaProducer(conf)
 	// if err != nil {
 	// 	return nil, fmt.Errorf("internal.NewKafka %w", err)
 	// }
+
+	rdb, err := internal.NewRedis(conf)
+	if err != nil {
+		return nil, fmt.Errorf("internal.NewRabbitMQ %w", err)
+	}
 
 	//-
 
@@ -114,7 +120,8 @@ func run(env, address string) (<-chan error, error) {
 		ElasticSearch: es,
 		Metrics:       promExporter,
 		Middlewares:   []mux.MiddlewareFunc{otelmux.Middleware("todo-api-server"), logging},
-		RabbitMQ:      rmq,
+		Redis:         rdb,
+		// RabbitMQ:      rmq,
 		// Kafka:         kafka,
 	})
 	if err != nil {
@@ -139,6 +146,7 @@ func run(env, address string) (<-chan error, error) {
 			logger.Sync()
 			db.Close()
 			// rmq.Close()
+			rdb.Close()
 			stop()
 			cancel()
 			close(errC)
@@ -172,6 +180,7 @@ type serverConfig struct {
 	ElasticSearch *esv7.Client
 	Kafka         *internal.KafkaProducer
 	RabbitMQ      *internal.RabbitMQ
+	Redis         *rv8.Client
 	Metrics       http.Handler
 	Middlewares   []mux.MiddlewareFunc
 }
@@ -187,12 +196,14 @@ func newServer(conf serverConfig) (*http.Server, error) {
 
 	repo := postgresql.NewTask(conf.DB)
 	search := elasticsearch.NewTask(conf.ElasticSearch)
-	msgBroker, err := rabbitmq.NewTask(conf.RabbitMQ.Channel)
-	if err != nil {
-		return nil, fmt.Errorf("rabbitmq.NewTask %w", err)
-	}
+	// msgBroker, err := rabbitmq.NewTask(conf.RabbitMQ.Channel)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("rabbitmq.NewTask %w", err)
+	// }
 
 	// msgBroker := kafka.NewTask(conf.Kafka.Producer, conf.Kafka.Topic)
+
+	msgBroker := redis.NewTask(conf.Redis)
 
 	svc := service.NewTask(repo, search, msgBroker)
 

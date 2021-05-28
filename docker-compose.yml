@@ -21,8 +21,9 @@ services:
       - prometheus
       - jaeger
       - elasticsearch
-      - zookeeper
-      - kafka
+      - redis
+      # - zookeeper
+      # - kafka
       # - rabbitmq
 
   prometheus:
@@ -82,36 +83,56 @@ services:
   #   ports:
   #     - "5672:5672"
   #     - "15672:15672"
-  elasticsearch-indexer-kafka:
+  # elasticsearch-indexer-kafka:
+  #   build:
+  #     context: .
+  #     dockerfile: ./build/elasticsearch-indexer-kafka/Dockerfile
+  #   command: elasticsearch-indexer -env /api/env.example
+  #   environment:
+  #     JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
+  #     VAULT_ADDRESS: "http://vault:8300"
+  #     ELASTICSEARCH_URL: "http://elasticsearch:9200"
+  #     KAFKA_HOST: "kafka"
+  #   depends_on:
+  #     - vault
+  #     - prometheus
+  #     - jaeger
+  #     - elasticsearch
+  #     - kafka
+  #     - zookeeper
+  # zookeeper:
+  #   image: wurstmeister/zookeeper:3.4.6
+  #   ports:
+  #     - "2181:2181"
+  # kafka:
+  #   image: wurstmeister/kafka:2.13-2.7.0
+  #   ports:
+  #     - "9092:9092"
+  #   links:
+  #     - zookeeper
+  #   environment:
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_HOST_NAME: kafka
+  #     KAFKA_ADVERTISED_PORT: 9092
+  #     KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+  #     KAFKA_CREATE_TOPICS: 'tasks:1:1'
+  elasticsearch-indexer-redis:
     build:
       context: .
-      dockerfile: ./build/elasticsearch-indexer-kafka/Dockerfile
+      dockerfile: ./build/elasticsearch-indexer-redis/Dockerfile
     command: elasticsearch-indexer -env /api/env.example
     environment:
       JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
       VAULT_ADDRESS: "http://vault:8300"
       ELASTICSEARCH_URL: "http://elasticsearch:9200"
-      KAFKA_HOST: "kafka"
+      REDIS_URL: "redis:6379"
     depends_on:
       - vault
       - prometheus
       - jaeger
       - elasticsearch
-      - kafka
-      - zookeeper
-  zookeeper:
-    image: wurstmeister/zookeeper:3.4.6
+      - redis
+  redis:
+    image: redis:6.2.3-alpine3.13
     ports:
-      - "2181:2181"
-  kafka:
-    image: wurstmeister/kafka:2.13-2.7.0
-    ports:
-      - "9092:9092"
-    links:
-      - zookeeper
-    environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_HOST_NAME: kafka
-      KAFKA_ADVERTISED_PORT: 9092
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-      KAFKA_CREATE_TOPICS: 'tasks:1:1'
+      - "6379:6379"

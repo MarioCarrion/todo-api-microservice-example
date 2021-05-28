@@ -124,8 +124,10 @@ Notice that because of the way RabbitMQ and Kafka are being used they are sort o
 1. Run `docker-compose up`, here both _rest-server_ and _elasticsearch-indexer_ services will fail because the `postgres`, `rabbitmq`, `elasticsearch` and `kafka` services take too long to start.
   1. If you're planning to use RabbitMQ, run `docker-compose up rest-server elasticsearch-indexer-rabbitmq`.
   1. If you're planning to use Kafka, run `docker-compose up rest-server elasticsearch-indexer-kafka`.
+  1. If you're planning to use Redis, run `docker-compose up rest-server elasticsearch-indexer-redis`.
 1. For building the service images you can use:
   1. `rest-server` image: `docker-compose build rest-server`.
   1. `elasticsearch-indexer-rabbitmq` image: `docker-compose build elasticsearch-indexer-rabbitmq`.
   1. `elasticsearch-indexer-kafka` image: `docker-compose build elasticsearch-indexer-kafka`.
+  1. `elasticsearch-indexer-redis` image: `docker-compose build elasticsearch-indexer-redis`.
 1. Run `docker-compose run rest-server migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname?sslmode=disable up` to finally have everything working correctly.
