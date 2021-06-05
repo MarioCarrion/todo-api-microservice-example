@@ -2,3 +2,5 @@ bin/
 
 elasticsearch-indexer
 rest-server
+
+mdl--*

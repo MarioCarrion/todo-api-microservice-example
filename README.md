@@ -57,6 +57,8 @@ go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.
 go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.6.0
 go install github.com/maxbrunsfeld/counterfeiter/v6@v6.3.0
 go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.5.1
+go install goa.design/model/cmd/mdl@v1.7.6
+go install goa.design/model/cmd/stz@v1.7.6
 ```
 
 ## Features
@@ -133,3 +135,17 @@ Notice that because of the way RabbitMQ and Kafka are being used they are sort o
     * `elasticsearch-indexer-kafka` image: `docker-compose build elasticsearch-indexer-kafka`.
     * `elasticsearch-indexer-redis` image: `docker-compose build elasticsearch-indexer-redis`.
 * Run `docker-compose run rest-server migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname?sslmode=disable up` to finally have everything working correctly.
+
+## Diagrams
+
+To start a local HTTP server that serves a graphical editor:
+
+```
+mdl serve github.com/MarioCarrion/todo-api/internal/doc -dir docs/diagrams/
+```
+
+To generate JSON artifact for uploading to [structurizr](https://structurizr.com/):
+
+```
+stz gen github.com/MarioCarrion/todo-api/internal/doc
+```
