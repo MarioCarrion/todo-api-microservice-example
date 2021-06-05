@@ -107,6 +107,8 @@ In no particular order:
 - [ ] Containerization using Docker [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/u_ayzie9pAQ)
 - [ ] Graceful Shutdown [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/VXxe7-b5euo)
 - [ ] Search Engine using [ElasticSearch](https://www.elastic.co/elasticsearch/) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/ZrdbQRYst5E)
+- [ ] Documentation
+  - [C4 Model](https://c4model.com/) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/pZ2z2tZkMsE)
 - [ ] Whatever else I forgot to include
 
 ## More ideas
