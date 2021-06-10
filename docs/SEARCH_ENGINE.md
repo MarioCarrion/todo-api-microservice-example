@@ -12,3 +12,21 @@ docker run \
   -e "discovery.type=single-node" \
   docker.elastic.co/elasticsearch/elasticsearch:7.12.0
 ```
+
+Add mapping for sorting results **before creating new records**
+
+```
+curl -X PUT -H 'Content-Type: application/json' "http://localhost:9200/tasks" -d '
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "description": {
+        "type": "text"
+      }
+    }
+  }
+}'
+```

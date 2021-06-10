@@ -17,7 +17,7 @@ const uuidRegEx string = `[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-
 
 // TaskService ...
 type TaskService interface {
-	By(ctx context.Context, description *string, priority *internal.Priority, isDone *bool) ([]internal.Task, error)
+	By(ctx context.Context, args internal.SearchArgs) (internal.SearchResults, error)
 	Create(ctx context.Context, description string, priority internal.Priority, dates internal.Dates) (internal.Task, error)
 	Delete(ctx context.Context, id string) error
 	Task(ctx context.Context, id string) (internal.Task, error)
@@ -164,11 +164,14 @@ type SearchTasksRequest struct {
 	Description *string   `json:"description"`
 	Priority    *Priority `json:"priority"`
 	IsDone      *bool     `json:"is_done"`
+	From        int64     `json:"from"`
+	Size        int64     `json:"size"`
 }
 
 // SearchTasksResponse defines the response returned back after searching for any task.
 type SearchTasksResponse struct {
 	Tasks []Task `json:"tasks"`
+	Total int64  `json:"total"`
 }
 
 func (t *TaskHandler) search(w http.ResponseWriter, r *http.Request) {
@@ -186,20 +189,30 @@ func (t *TaskHandler) search(w http.ResponseWriter, r *http.Request) {
 		priority = &res
 	}
 
-	tasks, err := t.svc.By(r.Context(), req.Description, priority, req.IsDone)
+	res, err := t.svc.By(r.Context(), internal.SearchArgs{
+		Description: req.Description,
+		Priority:    priority,
+		IsDone:      req.IsDone,
+		From:        req.From,
+		Size:        req.Size,
+	})
 	if err != nil {
 		renderErrorResponse(r.Context(), w, "search failed", err)
 		return
 	}
 
-	res := make([]Task, len(tasks))
+	tasks := make([]Task, len(res.Tasks))
 
-	for i, task := range tasks {
-		res[i].ID = task.ID
-		res[i].Description = task.Description
-		res[i].Priority = NewPriority(task.Priority)
-		res[i].Dates = NewDates(task.Dates)
+	for i, task := range res.Tasks {
+		tasks[i].ID = task.ID
+		tasks[i].Description = task.Description
+		tasks[i].Priority = NewPriority(task.Priority)
+		tasks[i].Dates = NewDates(task.Dates)
 	}
 
-	renderResponse(w, &SearchTasksResponse{Tasks: res}, http.StatusOK)
+	renderResponse(w,
+		&SearchTasksResponse{
+			Tasks: tasks,
+			Total: res.Total,
+		}, http.StatusOK)
 }

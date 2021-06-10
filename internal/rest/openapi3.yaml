@@ -24,12 +24,20 @@ components:
                 minLength: 1
                 nullable: true
                 type: string
+              from:
+                default: 0
+                format: int64
+                type: integer
               is_done:
                 default: false
                 nullable: true
                 type: boolean
               priority:
                 $ref: '#/components/schemas/Priority'
+              size:
+                default: 10
+                format: int64
+                type: integer
       description: Request used for searching a task.
       required: true
     UpdateTasksRequest:
@@ -78,9 +86,14 @@ components:
       content:
         application/json:
           schema:
-            items:
-              $ref: '#/components/schemas/Task'
-            type: array
+            properties:
+              tasks:
+                items:
+                  $ref: '#/components/schemas/Task'
+                type: array
+              total:
+                format: int64
+                type: integer
       description: Response returned back after searching for any task.
   schemas:
     Dates:

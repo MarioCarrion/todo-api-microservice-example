@@ -108,37 +108,36 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 }
 
 // Search returns tasks matching a query.
-// XXX: Pagination will be implemented in future episodes
-func (t *Task) Search(ctx context.Context, description *string, priority *internal.Priority, isDone *bool) ([]internal.Task, error) {
+func (t *Task) Search(ctx context.Context, args internal.SearchArgs) (internal.SearchResults, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Search")
 	defer span.End()
 
-	if description == nil && priority == nil && isDone == nil {
-		return nil, nil
+	if args.IsZero() {
+		return internal.SearchResults{}, nil
 	}
 
 	should := make([]interface{}, 0, 3)
 
-	if description != nil {
+	if args.Description != nil {
 		should = append(should, map[string]interface{}{
 			"match": map[string]interface{}{
-				"description": *description,
+				"description": *args.Description,
 			},
 		})
 	}
 
-	if priority != nil {
+	if args.Priority != nil {
 		should = append(should, map[string]interface{}{
 			"match": map[string]interface{}{
-				"priority": *priority,
+				"priority": *args.Priority,
 			},
 		})
 	}
 
-	if isDone != nil {
+	if args.IsDone != nil {
 		should = append(should, map[string]interface{}{
 			"match": map[string]interface{}{
-				"is_done": *isDone,
+				"is_done": *args.IsDone,
 			},
 		})
 	}
@@ -159,10 +158,19 @@ func (t *Task) Search(ctx context.Context, description *string, priority *intern
 		}
 	}
 
+	query["sort"] = []interface{}{
+		"_score",
+		map[string]interface{}{"id": "asc"},
+	}
+
+	query["from"] = args.From
+	query["size"] = args.Size
+
 	var buf bytes.Buffer
 
 	if err := json.NewEncoder(&buf).Encode(query); err != nil {
-		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.NewEncoder.Encode")
+		fmt.Println(err)
+		return internal.SearchResults{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.NewEncoder.Encode")
 	}
 
 	req := esv7api.SearchRequest{
@@ -172,16 +180,21 @@ func (t *Task) Search(ctx context.Context, description *string, priority *intern
 
 	resp, err := req.Do(ctx, t.client)
 	if err != nil {
-		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "SearchRequest.Do")
+		fmt.Println(err)
+		return internal.SearchResults{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "SearchRequest.Do")
 	}
 	defer resp.Body.Close()
 
 	if resp.IsError() {
-		return nil, internal.NewErrorf(internal.ErrorCodeUnknown, "SearchRequest.Do %d", resp.StatusCode)
+		fmt.Println(resp.String())
+		return internal.SearchResults{}, internal.NewErrorf(internal.ErrorCodeUnknown, "SearchRequest.Do %d", resp.StatusCode)
 	}
 
 	var hits struct {
 		Hits struct {
+			Total struct {
+				Value int64 `json:"value"`
+			} `json:"total"`
 			Hits []struct {
 				Source indexedTask `json:"_source"`
 			} `json:"hits"`
@@ -189,8 +202,8 @@ func (t *Task) Search(ctx context.Context, description *string, priority *intern
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&hits); err != nil {
-		fmt.Println("Error here", err)
-		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.NewDecoder.Decode")
+		fmt.Println(err)
+		return internal.SearchResults{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.NewDecoder.Decode")
 	}
 
 	res := make([]internal.Task, len(hits.Hits.Hits))
@@ -203,5 +216,8 @@ func (t *Task) Search(ctx context.Context, description *string, priority *intern
 		res[i].Dates.Start = time.Unix(0, hit.Source.DateStart).UTC()
 	}
 
-	return res, nil
+	return internal.SearchResults{
+		Tasks: res,
+		Total: hits.Hits.Total.Value,
+	}, nil
 }

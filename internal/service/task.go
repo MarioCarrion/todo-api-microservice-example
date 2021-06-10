@@ -19,7 +19,7 @@ type TaskRepository interface {
 
 // TaskSearchRepository defines the datastore handling searching Task records.
 type TaskSearchRepository interface {
-	Search(ctx context.Context, description *string, priority *internal.Priority, isDone *bool) ([]internal.Task, error)
+	Search(ctx context.Context, args internal.SearchArgs) (internal.SearchResults, error)
 }
 
 // TaskMessageBrokerRepository defines the datastore handling persisting Searchable Task records.
@@ -46,13 +46,13 @@ func NewTask(repo TaskRepository, search TaskSearchRepository, msgBroker TaskMes
 }
 
 // By searches Tasks matching the received values.
-func (t *Task) By(ctx context.Context, description *string, priority *internal.Priority, isDone *bool) ([]internal.Task, error) {
+func (t *Task) By(ctx context.Context, args internal.SearchArgs) (internal.SearchResults, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.By")
 	defer span.End()
 
-	res, err := t.search.Search(ctx, description, priority, isDone)
+	res, err := t.search.Search(ctx, args)
 	if err != nil {
-		return nil, fmt.Errorf("search: %w", err)
+		return internal.SearchResults{}, fmt.Errorf("search: %w", err)
 	}
 
 	return res, nil

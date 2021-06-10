@@ -464,8 +464,11 @@ type ClientWithResponsesInterface interface {
 type SearchTaskResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]Task
-	JSON400      *struct {
+	JSON200      *struct {
+		Tasks *[]Task `json:"tasks,omitempty"`
+		Total *int64  `json:"total,omitempty"`
+	}
+	JSON400 *struct {
 		Error *string `json:"error,omitempty"`
 	}
 	JSON500 *struct {
@@ -681,7 +684,10 @@ func ParseSearchTaskResponse(rsp *http.Response) (*SearchTaskResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []Task
+		var dest struct {
+			Tasks *[]Task `json:"tasks,omitempty"`
+			Total *int64  `json:"total,omitempty"`
+		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

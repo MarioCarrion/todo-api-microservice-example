@@ -106,7 +106,11 @@ func NewOpenAPI3() openapi3.Swagger {
 						WithNullable()).
 					WithPropertyRef("priority", &openapi3.SchemaRef{
 						Ref: "#/components/schemas/Priority",
-					}).WithNullable()),
+					}).WithNullable().
+					WithProperty("from", openapi3.NewInt64Schema().
+						WithDefault(0)).
+					WithProperty("size", openapi3.NewInt64Schema().
+						WithDefault(10))),
 		},
 	}
 
@@ -136,12 +140,16 @@ func NewOpenAPI3() openapi3.Swagger {
 		"SearchTasksResponse": &openapi3.ResponseRef{
 			Value: openapi3.NewResponse().
 				WithDescription("Response returned back after searching for any task.").
-				WithContent(openapi3.NewContentWithJSONSchema(&openapi3.Schema{
-					Type: "array",
-					Items: &openapi3.SchemaRef{
-						Ref: "#/components/schemas/Task",
-					},
-				})),
+				WithContent(openapi3.NewContentWithJSONSchema(openapi3.NewSchema().
+					WithPropertyRef("tasks", &openapi3.SchemaRef{
+						Value: &openapi3.Schema{
+							Type: "array",
+							Items: &openapi3.SchemaRef{
+								Ref: "#/components/schemas/Task",
+							},
+						},
+					}).
+					WithProperty("total", openapi3.NewInt64Schema()))),
 		},
 	}
 
