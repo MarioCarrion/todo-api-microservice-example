@@ -14,7 +14,6 @@ var _ = Design("ToDo API Microservice Example", "Go microservice tutorial projec
 		Kafka                *expr.Container
 		PostgreSQL           *expr.Container
 		RESTfulAPI           *expr.Container
-		CLI                  *expr.Container
 		ElasticSearchIndexer *expr.Container
 	)
 
@@ -24,6 +23,7 @@ var _ = Design("ToDo API Microservice Example", "Go microservice tutorial projec
 		containerElasticsearchIndexer = "ElasticSearch Indexer"
 		softwareSystem                = "ToDo System"
 		restPackage                   = "internal.rest"
+		goBinary                      = "Go Binary"
 	)
 
 	const (
@@ -133,7 +133,7 @@ var _ = Design("ToDo API Microservice Example", "Go microservice tutorial projec
 			Tag(styleContainer)
 		})
 
-		CLI = Container(containerCLITool, "CLI Tool", "Go Binary", func() {
+		_ = Container(containerCLITool, "CLI Tool", goBinary, func() {
 			Uses(containerRESTfulAPI, "Uses", "HTTPS/JSON", Synchronous, func() {})
 
 			Uses(fmt.Sprintf("%s/%s", containerRESTfulAPI, "internal.rest"), "Reads and writes tasks using", "HTTPS/JSON", Synchronous, func() {
@@ -144,7 +144,7 @@ var _ = Design("ToDo API Microservice Example", "Go microservice tutorial projec
 			Tag(styleContainer)
 		})
 
-		ElasticSearchIndexer = Container(containerElasticsearchIndexer, "Updates searchable tasks", "Go Binary", func() {
+		ElasticSearchIndexer = Container(containerElasticsearchIndexer, "Updates searchable tasks", goBinary, func() {
 			Uses(ElasticSearch, "Writes to", "HTTPS", Synchronous, func() {})
 			Uses(Kafka, "Consumes", "Kafka", Synchronous, func() {})
 
@@ -156,7 +156,7 @@ var _ = Design("ToDo API Microservice Example", "Go microservice tutorial projec
 				Tag(styleComponent)
 			})
 
-			Component(componentElasticsearch, "interacts with ElasticSearch", "Go Binary", func() {
+			Component(componentElasticsearch, "interacts with ElasticSearch", goBinary, func() {
 				Uses(ElasticSearch, "Writes records to", Synchronous, func() {
 					Tag("Relationship", "Synchronous")
 				})

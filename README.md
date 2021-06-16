@@ -59,6 +59,7 @@ go install github.com/maxbrunsfeld/counterfeiter/v6@v6.3.0
 go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.5.1
 go install goa.design/model/cmd/mdl@v1.7.6
 go install goa.design/model/cmd/stz@v1.7.6
+go install github.com/fdaines/spm-go@v0.11.1
 ```
 
 ## Features

@@ -74,7 +74,7 @@ func (t *Task) Index(ctx context.Context, task internal.Task) error {
 	defer resp.Body.Close()
 
 	if resp.IsError() {
-		return internal.NewErrorf(internal.ErrorCodeUnknown, "IndexRequest.Do %s", resp.StatusCode)
+		return internal.NewErrorf(internal.ErrorCodeUnknown, "IndexRequest.Do %d", resp.StatusCode)
 	}
 
 	io.Copy(ioutil.Discard, resp.Body)
@@ -99,7 +99,7 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 	defer resp.Body.Close()
 
 	if resp.IsError() {
-		return internal.NewErrorf(internal.ErrorCodeUnknown, "DeleteRequest.Do %s", resp.StatusCode)
+		return internal.NewErrorf(internal.ErrorCodeUnknown, "DeleteRequest.Do %d", resp.StatusCode)
 	}
 
 	io.Copy(ioutil.Discard, resp.Body)
