@@ -110,6 +110,9 @@ In no particular order:
 - [ ] Search Engine using [ElasticSearch](https://www.elastic.co/elasticsearch/) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/ZrdbQRYst5E)
 - [ ] Documentation
   - [C4 Model](https://c4model.com/) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/pZ2z2tZkMsE)
+- [ ] Cloud Design Patterns
+  * Reliability
+    - [ ] [Circuit Breaker](https://en.wikipedia.org/wiki/Circuit_breaker_design_pattern) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/UnL2iGcD7vE)
 - [ ] Whatever else I forgot to include
 
 ## More ideas
