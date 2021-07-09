@@ -3,8 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/mercari/go-circuitbreaker"
 	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
 
 	"github.com/MarioCarrion/todo-api/internal"
 )
@@ -34,21 +37,41 @@ type Task struct {
 	repo      TaskRepository
 	search    TaskSearchRepository
 	msgBroker TaskMessageBrokerRepository
+	logger    *zap.Logger
+	cb        *circuitbreaker.CircuitBreaker
 }
 
 // NewTask ...
-func NewTask(repo TaskRepository, search TaskSearchRepository, msgBroker TaskMessageBrokerRepository) *Task {
+func NewTask(logger *zap.Logger, repo TaskRepository, search TaskSearchRepository, msgBroker TaskMessageBrokerRepository) *Task {
 	return &Task{
 		repo:      repo,
 		search:    search,
 		msgBroker: msgBroker,
+		cb: circuitbreaker.New(&circuitbreaker.Options{
+			ShouldTrip:  circuitbreaker.NewTripFuncConsecutiveFailures(3),
+			OpenTimeout: time.Minute * 2,
+			OnStateChange: func(oldState, newState circuitbreaker.State) {
+				logger.Info("state changed",
+					zap.String("old", string(oldState)),
+					zap.String("new", string(newState)),
+				)
+			},
+		}),
 	}
 }
 
 // By searches Tasks matching the received values.
-func (t *Task) By(ctx context.Context, args internal.SearchArgs) (internal.SearchResults, error) {
+func (t *Task) By(ctx context.Context, args internal.SearchArgs) (_ internal.SearchResults, err error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.By")
 	defer span.End()
+
+	if !t.cb.Ready() {
+		return internal.SearchResults{}, internal.NewErrorf(internal.ErrorCodeUnknown, "service not available")
+	}
+
+	defer func() {
+		err = t.cb.Done(ctx, err)
+	}()
 
 	res, err := t.search.Search(ctx, args)
 	if err != nil {

@@ -121,6 +121,7 @@ func run(env, address string) (<-chan error, error) {
 		Metrics:       promExporter,
 		Middlewares:   []mux.MiddlewareFunc{otelmux.Middleware("todo-api-server"), logging},
 		Redis:         rdb,
+		Logger:        logger,
 		// RabbitMQ:      rmq,
 		// Kafka:         kafka,
 	})
@@ -183,6 +184,7 @@ type serverConfig struct {
 	Redis         *rv8.Client
 	Metrics       http.Handler
 	Middlewares   []mux.MiddlewareFunc
+	Logger        *zap.Logger
 }
 
 func newServer(conf serverConfig) (*http.Server, error) {
@@ -205,7 +207,7 @@ func newServer(conf serverConfig) (*http.Server, error) {
 
 	msgBroker := redis.NewTask(conf.Redis)
 
-	svc := service.NewTask(repo, search, msgBroker)
+	svc := service.NewTask(conf.Logger, repo, search, msgBroker)
 
 	rest.RegisterOpenAPI(r)
 	rest.NewTaskHandler(svc).Register(r)
@@ -215,7 +217,7 @@ func newServer(conf serverConfig) (*http.Server, error) {
 	fsys, _ := fs.Sub(content, "static")
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.FS(fsys))))
 
-	r.Handle("/metrics", conf.Metrics)
+	// r.Handle("/metrics", conf.Metrics)
 
 	//-
 
