@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/confluentinc/confluent-kafka-go v1.7.0
 	github.com/deepmap/oapi-codegen v1.5.1
-	github.com/elastic/go-elasticsearch/v7 v7.12.0
+	github.com/elastic/go-elasticsearch/v7 v7.13.1
 	github.com/getkin/kin-openapi v0.37.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-redis/redis/v8 v8.9.0
