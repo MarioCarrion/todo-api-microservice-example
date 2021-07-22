@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/bradfitz/gomemcache/memcache"
 	esv7 "github.com/elastic/go-elasticsearch/v7"
 	rv8 "github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
@@ -24,6 +25,7 @@ import (
 	"github.com/MarioCarrion/todo-api/cmd/internal"
 	"github.com/MarioCarrion/todo-api/internal/elasticsearch"
 	"github.com/MarioCarrion/todo-api/internal/envvar"
+	"github.com/MarioCarrion/todo-api/internal/memcached"
 	"github.com/MarioCarrion/todo-api/internal/postgresql"
 	"github.com/MarioCarrion/todo-api/internal/redis"
 	"github.com/MarioCarrion/todo-api/internal/rest"
@@ -79,6 +81,11 @@ func run(env, address string) (<-chan error, error) {
 		return nil, fmt.Errorf("internal.NewElasticSearch %w", err)
 	}
 
+	memcached, err := internal.NewMemcached(conf)
+	if err != nil {
+		return nil, fmt.Errorf("internal.NewMemcached %w", err)
+	}
+
 	// rmq, err := internal.NewRabbitMQ(conf)
 	// if err != nil {
 	// 	return nil, fmt.Errorf("internal.NewRabbitMQ %w", err)
@@ -122,6 +129,7 @@ func run(env, address string) (<-chan error, error) {
 		Middlewares:   []mux.MiddlewareFunc{otelmux.Middleware("todo-api-server"), logging},
 		Redis:         rdb,
 		Logger:        logger,
+		Memcached:     memcached,
 		// RabbitMQ:      rmq,
 		// Kafka:         kafka,
 	})
@@ -182,6 +190,7 @@ type serverConfig struct {
 	Kafka         *internal.KafkaProducer
 	RabbitMQ      *internal.RabbitMQ
 	Redis         *rv8.Client
+	Memcached     *memcache.Client
 	Metrics       http.Handler
 	Middlewares   []mux.MiddlewareFunc
 	Logger        *zap.Logger
@@ -198,6 +207,7 @@ func newServer(conf serverConfig) (*http.Server, error) {
 
 	repo := postgresql.NewTask(conf.DB)
 	search := elasticsearch.NewTask(conf.ElasticSearch)
+	mclient := memcached.NewTask(conf.Memcached, search, conf.Logger)
 	// msgBroker, err := rabbitmq.NewTask(conf.RabbitMQ.Channel)
 	// if err != nil {
 	// 	return nil, fmt.Errorf("rabbitmq.NewTask %w", err)
@@ -207,7 +217,7 @@ func newServer(conf serverConfig) (*http.Server, error) {
 
 	msgBroker := redis.NewTask(conf.Redis)
 
-	svc := service.NewTask(conf.Logger, repo, search, msgBroker)
+	svc := service.NewTask(conf.Logger, repo, mclient, msgBroker)
 
 	rest.RegisterOpenAPI(r)
 	rest.NewTaskHandler(svc).Register(r)
