@@ -15,6 +15,8 @@ import (
 	"time"
 
 	"github.com/bradfitz/gomemcache/memcache"
+	"github.com/didip/tollbooth/v6"
+	"github.com/didip/tollbooth/v6/limiter"
 	esv7 "github.com/elastic/go-elasticsearch/v7"
 	rv8 "github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
@@ -231,8 +233,14 @@ func newServer(conf serverConfig) (*http.Server, error) {
 
 	//-
 
+	lmt := tollbooth.NewLimiter(3, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Second})
+
+	lmtmw := tollbooth.LimitHandler(lmt, r)
+
+	//-
+
 	return &http.Server{
-		Handler:           r,
+		Handler:           lmtmw,
 		Addr:              conf.Address,
 		ReadTimeout:       1 * time.Second,
 		ReadHeaderTimeout: 1 * time.Second,
