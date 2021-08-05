@@ -42,7 +42,7 @@ func (t *Task) Updated(ctx context.Context, task internal.Task) error {
 }
 
 func (t *Task) publish(ctx context.Context, spanName, routingKey string, e interface{}) error {
-	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, spanName)
+	_, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, spanName)
 	defer span.End()
 
 	span.SetAttributes(

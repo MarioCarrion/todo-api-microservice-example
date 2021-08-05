@@ -172,7 +172,7 @@ func newVault(tb testing.TB) *vaultClient {
 		tb.Fatalf("Couldn't start resource: %s", err)
 	}
 
-	resource.Expire(60)
+	_ = resource.Expire(60)
 
 	tb.Cleanup(func() {
 		if err := pool.Purge(resource); err != nil {

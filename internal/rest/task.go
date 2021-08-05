@@ -94,7 +94,8 @@ func (t *TaskHandler) create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *TaskHandler) delete(w http.ResponseWriter, r *http.Request) {
-	id, _ := mux.Vars(r)["id"] // NOTE: Safe to ignore error, because it's always defined.
+	// NOTE: Safe to ignore error, because it's always defined.
+	id, _ := mux.Vars(r)["id"] //nolint: gosimple
 
 	if err := t.svc.Delete(r.Context(), id); err != nil {
 		renderErrorResponse(r.Context(), w, "delete failed", err)
@@ -110,7 +111,8 @@ type ReadTasksResponse struct {
 }
 
 func (t *TaskHandler) task(w http.ResponseWriter, r *http.Request) {
-	id, _ := mux.Vars(r)["id"] // NOTE: Safe to ignore error, because it's always defined.
+	// NOTE: Safe to ignore error, because it's always defined.
+	id, _ := mux.Vars(r)["id"] //nolint: gosimple
 
 	task, err := t.svc.Task(r.Context(), id)
 	if err != nil {
@@ -148,7 +150,8 @@ func (t *TaskHandler) update(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	id, _ := mux.Vars(r)["id"] // NOTE: Safe to ignore error, because it's always defined.
+	// NOTE: Safe to ignore error, because it's always defined.
+	id, _ := mux.Vars(r)["id"] //nolint: gosimple
 
 	err := t.svc.Update(r.Context(), id, req.Description, req.Priority.Convert(), req.Dates.Convert(), req.IsDone)
 	if err != nil {

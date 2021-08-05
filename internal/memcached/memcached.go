@@ -64,7 +64,7 @@ func (t *Task) Search(ctx context.Context, args internal.SearchArgs) (internal.S
 			if err := gob.NewEncoder(&b).Encode(&res); err == nil {
 				t.logger.Info("settin value")
 
-				t.client.Set(&memcache.Item{
+				_ = t.client.Set(&memcache.Item{
 					Key:        key,
 					Value:      b.Bytes(),
 					Expiration: int32(time.Now().Add(25 * time.Second).Unix()),

@@ -55,7 +55,7 @@ func renderResponse(w http.ResponseWriter, res interface{}, status int) {
 
 	w.WriteHeader(status)
 
-	if _, err = w.Write(content); err != nil {
+	if _, err = w.Write(content); err != nil { //nolint: staticcheck
 		// XXX Do something with the error ;)
 	}
 }

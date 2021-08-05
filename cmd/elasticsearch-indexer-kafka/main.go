@@ -98,8 +98,8 @@ func run(env string) (<-chan error, error) {
 		ctxTimeout, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 		defer func() {
-			logger.Sync()
-			kafka.Consumer.Unsubscribe()
+			_ = logger.Sync()
+			_ = kafka.Consumer.Unsubscribe()
 			stop()
 			cancel()
 			close(errC)

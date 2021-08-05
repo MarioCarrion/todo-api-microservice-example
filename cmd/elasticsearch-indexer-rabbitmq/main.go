@@ -12,7 +12,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/streadway/amqp"
 	"go.uber.org/zap"
 
 	// "go.opentelemetry.io/otel/api/correlation"
@@ -101,7 +100,7 @@ func run(env string) (<-chan error, error) {
 		ctxTimeout, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 		defer func() {
-			logger.Sync()
+			_ = logger.Sync()
 			rmq.Close()
 			stop()
 			cancel()
@@ -130,7 +129,6 @@ type Server struct {
 	logger *zap.Logger
 	rmq    *internal.RabbitMQ
 	task   *elasticsearch.Task
-	queue  amqp.Queue
 	done   chan struct{}
 }
 
@@ -186,7 +184,6 @@ func (s *Server) ListenAndServe() error {
 			case "tasks.event.updated", "tasks.event.created":
 				task, err := decodeTask(msg.Body)
 				if err != nil {
-					nack = true
 					return
 				}
 
@@ -197,7 +194,6 @@ func (s *Server) ListenAndServe() error {
 				id, err := decodeID(msg.Body)
 
 				if err != nil {
-					nack = true
 					return
 				}
 
@@ -210,10 +206,10 @@ func (s *Server) ListenAndServe() error {
 
 			if nack {
 				s.logger.Info("NAcking :(")
-				msg.Nack(false, nack)
+				_ = msg.Nack(false, nack)
 			} else {
 				s.logger.Info("Acking :)")
-				msg.Ack(false)
+				_ = msg.Ack(false)
 			}
 		}
 
@@ -229,7 +225,7 @@ func (s *Server) ListenAndServe() error {
 func (s *Server) Shutdown(ctx context.Context) error {
 	s.logger.Info("Shutting down server")
 
-	s.rmq.Channel.Cancel(rabbitMQConsumerName, false)
+	_ = s.rmq.Channel.Cancel(rabbitMQConsumerName, false)
 
 	for {
 		select {

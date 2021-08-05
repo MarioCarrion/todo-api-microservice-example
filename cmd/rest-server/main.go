@@ -154,7 +154,7 @@ func run(env, address string) (<-chan error, error) {
 		ctxTimeout, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
 		defer func() {
-			logger.Sync()
+			_ = logger.Sync()
 			db.Close()
 			// rmq.Close()
 			rdb.Close()

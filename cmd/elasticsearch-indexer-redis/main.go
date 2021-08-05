@@ -21,8 +21,6 @@ import (
 	"github.com/MarioCarrion/todo-api/internal/envvar"
 )
 
-const rabbitMQConsumerName = "elasticsearch-indexer"
-
 func main() {
 	var env string
 
@@ -99,7 +97,7 @@ func run(env string) (<-chan error, error) {
 		ctxTimeout, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 		defer func() {
-			logger.Sync()
+			_ = logger.Sync()
 			rdb.Close()
 			stop()
 			cancel()

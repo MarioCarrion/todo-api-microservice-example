@@ -77,7 +77,7 @@ func (t *Task) Index(ctx context.Context, task internal.Task) error {
 		return internal.NewErrorf(internal.ErrorCodeUnknown, "IndexRequest.Do %d", resp.StatusCode)
 	}
 
-	io.Copy(ioutil.Discard, resp.Body)
+	io.Copy(ioutil.Discard, resp.Body) //nolint: typecheck, errcheck
 
 	return nil
 }
@@ -102,7 +102,7 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 		return internal.NewErrorf(internal.ErrorCodeUnknown, "DeleteRequest.Do %d", resp.StatusCode)
 	}
 
-	io.Copy(ioutil.Discard, resp.Body)
+	io.Copy(ioutil.Discard, resp.Body) //nolint: typecheck, errcheck
 
 	return nil
 }

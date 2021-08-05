@@ -37,7 +37,6 @@ type Task struct {
 	repo      TaskRepository
 	search    TaskSearchRepository
 	msgBroker TaskMessageBrokerRepository
-	logger    *zap.Logger
 	cb        *circuitbreaker.CircuitBreaker
 }
 

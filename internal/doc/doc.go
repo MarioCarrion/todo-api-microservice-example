@@ -22,7 +22,6 @@ var _ = Design("ToDo API Microservice Example", "Go microservice tutorial projec
 		containerCLITool              = "CLI Tool"
 		containerElasticsearchIndexer = "ElasticSearch Indexer"
 		softwareSystem                = "ToDo System"
-		restPackage                   = "internal.rest"
 		goBinary                      = "Go Binary"
 	)
 
