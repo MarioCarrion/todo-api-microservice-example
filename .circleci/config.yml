@@ -1,8 +1,0 @@
-version: 2.1
-jobs:
-  build:
-    docker:
-      - image: circleci/golang:1.16.4
-    steps:
-      - checkout
-      - run: go mod download

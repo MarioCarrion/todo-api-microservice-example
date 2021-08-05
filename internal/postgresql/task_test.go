@@ -186,7 +186,11 @@ func TestTask_Update(t *testing.T) {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		if !cmp.Equal(originalTask, actualTask) {
+		opts := cmp.Comparer(func(x, y time.Time) bool {
+			return x.Unix() == y.Unix()
+		})
+
+		if !cmp.Equal(originalTask, actualTask, opts) {
 			t.Fatalf("expected result does not match: %s", cmp.Diff(originalTask, actualTask))
 		}
 	})
