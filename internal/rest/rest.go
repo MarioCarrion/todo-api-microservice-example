@@ -6,8 +6,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/MarioCarrion/todo-api/internal"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/MarioCarrion/todo-api/internal"
 )
 
 // ErrorResponse represents a response containing an error message.
@@ -28,6 +29,10 @@ func renderErrorResponse(ctx context.Context, w http.ResponseWriter, msg string,
 			status = http.StatusNotFound
 		case internal.ErrorCodeInvalidArgument:
 			status = http.StatusBadRequest
+		case internal.ErrorCodeUnknown:
+			fallthrough
+		default:
+			status = http.StatusInternalServerError
 		}
 	}
 
@@ -50,6 +55,7 @@ func renderResponse(w http.ResponseWriter, res interface{}, status int) {
 	if err != nil {
 		// XXX Do something with the error ;)
 		w.WriteHeader(http.StatusInternalServerError)
+
 		return
 	}
 

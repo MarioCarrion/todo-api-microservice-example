@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"time"
@@ -22,6 +21,7 @@ type Task struct {
 	index  string
 }
 
+//nolint: tagliatelle
 type indexedTask struct {
 	// XXX: `SubTasks` and `Categories` will be added in future episodes
 	ID          string            `json:"id"`
@@ -77,7 +77,7 @@ func (t *Task) Index(ctx context.Context, task internal.Task) error {
 		return internal.NewErrorf(internal.ErrorCodeUnknown, "IndexRequest.Do %d", resp.StatusCode)
 	}
 
-	io.Copy(ioutil.Discard, resp.Body) //nolint: typecheck, errcheck
+	io.Copy(ioutil.Discard, resp.Body) //nolint: errcheck
 
 	return nil
 }
@@ -102,12 +102,13 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 		return internal.NewErrorf(internal.ErrorCodeUnknown, "DeleteRequest.Do %d", resp.StatusCode)
 	}
 
-	io.Copy(ioutil.Discard, resp.Body) //nolint: typecheck, errcheck
+	io.Copy(ioutil.Discard, resp.Body) //nolint: errcheck
 
 	return nil
 }
 
 // Search returns tasks matching a query.
+//nolint: funlen, cyclop
 func (t *Task) Search(ctx context.Context, args internal.SearchArgs) (internal.SearchResults, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Search")
 	defer span.End()
@@ -169,7 +170,6 @@ func (t *Task) Search(ctx context.Context, args internal.SearchArgs) (internal.S
 	var buf bytes.Buffer
 
 	if err := json.NewEncoder(&buf).Encode(query); err != nil {
-		fmt.Println(err)
 		return internal.SearchResults{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.NewEncoder.Encode")
 	}
 
@@ -180,16 +180,15 @@ func (t *Task) Search(ctx context.Context, args internal.SearchArgs) (internal.S
 
 	resp, err := req.Do(ctx, t.client)
 	if err != nil {
-		fmt.Println(err)
 		return internal.SearchResults{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "SearchRequest.Do")
 	}
 	defer resp.Body.Close()
 
 	if resp.IsError() {
-		fmt.Println(resp.String())
 		return internal.SearchResults{}, internal.NewErrorf(internal.ErrorCodeUnknown, "SearchRequest.Do %d", resp.StatusCode)
 	}
 
+	//nolint: tagliatelle
 	var hits struct {
 		Hits struct {
 			Total struct {
@@ -202,7 +201,6 @@ func (t *Task) Search(ctx context.Context, args internal.SearchArgs) (internal.S
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&hits); err != nil {
-		fmt.Println(err)
 		return internal.SearchResults{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.NewDecoder.Decode")
 	}
 
@@ -211,7 +209,7 @@ func (t *Task) Search(ctx context.Context, args internal.SearchArgs) (internal.S
 	for i, hit := range hits.Hits.Hits {
 		res[i].ID = hit.Source.ID
 		res[i].Description = hit.Source.Description
-		res[i].Priority = internal.Priority(hit.Source.Priority)
+		res[i].Priority = hit.Source.Priority
 		res[i].Dates.Due = time.Unix(0, hit.Source.DateDue).UTC()
 		res[i].Dates.Start = time.Unix(0, hit.Source.DateStart).UTC()
 	}

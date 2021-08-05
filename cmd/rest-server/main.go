@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"errors"
 	"flag"
-	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
@@ -23,8 +23,9 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.uber.org/zap"
 
-	// "github.com/MarioCarrion/todo-api/internal/kafka"
+	// "github.com/MarioCarrion/todo-api/internal/kafka" .
 	"github.com/MarioCarrion/todo-api/cmd/internal"
+	internaldomain "github.com/MarioCarrion/todo-api/internal"
 	"github.com/MarioCarrion/todo-api/internal/elasticsearch"
 	"github.com/MarioCarrion/todo-api/internal/envvar"
 	"github.com/MarioCarrion/todo-api/internal/memcached"
@@ -35,7 +36,7 @@ import (
 )
 
 //go:embed static
-var content embed.FS
+var content embed.FS //nolint: gochecknoglobals
 
 func main() {
 	var env, address string
@@ -57,16 +58,16 @@ func main() {
 func run(env, address string) (<-chan error, error) {
 	logger, err := zap.NewProduction()
 	if err != nil {
-		return nil, fmt.Errorf("zap.NewProduction %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "zap.NewProduction")
 	}
 
 	if err := envvar.Load(env); err != nil {
-		return nil, fmt.Errorf("envvar.Load %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "envvar.Load")
 	}
 
 	vault, err := internal.NewVaultProvider()
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewVaultProvider %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewVaultProvider")
 	}
 
 	conf := envvar.New(vault)
@@ -75,17 +76,17 @@ func run(env, address string) (<-chan error, error) {
 
 	db, err := internal.NewPostgreSQL(conf)
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewPostgreSQL %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewPostgreSQL")
 	}
 
 	es, err := internal.NewElasticSearch(conf)
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewElasticSearch %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewElasticSearch")
 	}
 
 	memcached, err := internal.NewMemcached(conf)
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewMemcached %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewMemcached")
 	}
 
 	// rmq, err := internal.NewRabbitMQ(conf)
@@ -100,14 +101,14 @@ func run(env, address string) (<-chan error, error) {
 
 	rdb, err := internal.NewRedis(conf)
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewRabbitMQ %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewRabbitMQ")
 	}
 
 	//-
 
 	promExporter, err := internal.NewOTExporter(conf)
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewOTExporter %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewOTExporter")
 	}
 
 	logging := func(h http.Handler) http.Handler {
@@ -136,7 +137,7 @@ func run(env, address string) (<-chan error, error) {
 		// Kafka:         kafka,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("newServer %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "newServer")
 	}
 
 	errC := make(chan error, 1)
@@ -155,6 +156,7 @@ func run(env, address string) (<-chan error, error) {
 
 		defer func() {
 			_ = logger.Sync()
+
 			db.Close()
 			// rmq.Close()
 			rdb.Close()
@@ -177,7 +179,7 @@ func run(env, address string) (<-chan error, error) {
 
 		// "ListenAndServe always returns a non-nil error. After Shutdown or Close, the returned error is
 		// ErrServerClosed."
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errC <- err
 		}
 	}()

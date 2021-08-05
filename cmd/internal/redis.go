@@ -2,11 +2,11 @@ package internal
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/go-redis/redis/v8"
 
+	"github.com/MarioCarrion/todo-api/internal"
 	"github.com/MarioCarrion/todo-api/internal/envvar"
 )
 
@@ -14,12 +14,12 @@ import (
 func NewRedis(conf *envvar.Configuration) (*redis.Client, error) {
 	host, err := conf.Get("REDIS_HOST")
 	if err != nil {
-		return nil, fmt.Errorf("conf.Get REDIS_HOST %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "conf.Get REDIS_HOST")
 	}
 
 	db, err := conf.Get("REDIS_DB")
 	if err != nil {
-		return nil, fmt.Errorf("conf.Get REDIS_DB %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "conf.Get REDIS_DB")
 	}
 
 	dbi, _ := strconv.Atoi(db)
@@ -30,7 +30,7 @@ func NewRedis(conf *envvar.Configuration) (*redis.Client, error) {
 	})
 
 	if _, err := rdb.Ping(context.Background()).Result(); err != nil {
-		return nil, fmt.Errorf("rdb.Ping %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "rdb.Ping")
 	}
 
 	return rdb, nil

@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"fmt"
 	"time"
 
 	"go.opentelemetry.io/contrib/instrumentation/runtime"
@@ -15,18 +14,19 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/semconv"
 
+	"github.com/MarioCarrion/todo-api/internal"
 	"github.com/MarioCarrion/todo-api/internal/envvar"
 )
 
 // NewOTExporter instantiates the OpenTelemetry exporters using configuration defined in environment variables.
 func NewOTExporter(conf *envvar.Configuration) (*prometheus.Exporter, error) {
 	if err := runtime.Start(runtime.WithMinimumReadMemStatsInterval(time.Second)); err != nil {
-		return nil, fmt.Errorf("runtime.Start %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "runtime.Start")
 	}
 
 	promExporter, err := prometheus.NewExportPipeline(prometheus.Config{})
 	if err != nil {
-		return nil, fmt.Errorf("prometheus.NewExportPipeline %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "prometheus.NewExportPipeline")
 	}
 
 	global.SetMeterProvider(promExporter.MeterProvider())
@@ -39,7 +39,7 @@ func NewOTExporter(conf *envvar.Configuration) (*prometheus.Exporter, error) {
 		jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(jaegerEndpoint)),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("jaeger.NewRawExporter %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "jaeger.NewRawExporter")
 	}
 
 	tp := sdktrace.NewTracerProvider(

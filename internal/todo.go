@@ -52,13 +52,13 @@ func (d Dates) Validate() error {
 
 // Task is an activity that needs to be completed within a period of time.
 type Task struct {
+	IsDone      bool
+	Priority    Priority
 	ID          string
 	Description string
-	Priority    Priority
 	Dates       Dates
 	SubTasks    []Task
 	Categories  []Category
-	IsDone      bool
 }
 
 // Validate ...

@@ -1,0 +1,63 @@
+linters:
+  enable-all: true
+
+  disable:
+    - exhaustivestruct # XXX: This will be re-enabled in future episodes to support Params-like structs
+    - goerr113
+    - gofumpt # Prefer `gofmt` rules / some rules conflict with `wsl`
+    - gomnd # XXX: For now
+    # The following are deprecated linters, added to avoid intial warning when running
+    - golint
+    - interfacer
+    - maligned
+    - scopelint
+
+linters-settings:
+  lll:
+    line-length: 130
+  gci:
+    local-prefixes: github.com/MarioCarrion/todo-api/
+  wrapcheck:
+    ignoreSigs:
+      - internaldomain.WrapErrorf(
+      - internaldomain.NewErrorf(
+      - internal.NewErrorf(
+      - internal.WrapErrorf(
+    ignorePackageGlobs:
+      - github.com/MarioCarrion/todo-api/* 
+issues:
+  exclude-rules:
+    # All tests
+    - path: _test\.go
+      linters:
+        - cyclop
+        - exhaustivestruct
+        - funlen
+        - goerr113
+        - lll
+        - wrapcheck
+    # Handles the C4 diagrams
+    - path: internal/doc/doc.go
+      linters:
+        - lll
+        - revive
+        - stylecheck
+    # Generates OpenAPI 3 documentation
+    - path: internal/rest/open_api.go
+      linters:
+        - funlen
+    # Final binaries
+    - path: cmd/
+      linters:
+        - cyclop
+        - funlen
+        - gocognit
+        - unparam
+    # Handles generating code from OpenAPI 3
+    - path: cmd/openapi-gen/main.go
+      linters:
+        - forbidigo
+    # XXX: This will be reremove in future episodes when "exhaustivestruct" is enabled
+    - path: internal/postgresql/task.go
+      linters:
+        - lll

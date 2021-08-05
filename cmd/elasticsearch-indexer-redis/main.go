@@ -40,16 +40,16 @@ func main() {
 func run(env string) (<-chan error, error) {
 	logger, err := zap.NewProduction()
 	if err != nil {
-		return nil, fmt.Errorf("zap.NewProduction %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "zap.NewProduction")
 	}
 
 	if err := envvar.Load(env); err != nil {
-		return nil, fmt.Errorf("envvar.Load %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "envvar.Load")
 	}
 
 	vault, err := internal.NewVaultProvider()
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewVaultProvider %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewVaultProvider")
 	}
 
 	conf := envvar.New(vault)
@@ -58,19 +58,19 @@ func run(env string) (<-chan error, error) {
 
 	es, err := internal.NewElasticSearch(conf)
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewElasticSearch %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewElasticSearch")
 	}
 
 	rdb, err := internal.NewRedis(conf)
 	if err != nil {
-		return nil, fmt.Errorf("newRedis %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "newRedis")
 	}
 
 	//-
 
 	_, err = internal.NewOTExporter(conf)
 	if err != nil {
-		return nil, fmt.Errorf("newOTExporter %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "newOTExporter")
 	}
 
 	//-
@@ -98,6 +98,7 @@ func run(env string) (<-chan error, error) {
 
 		defer func() {
 			_ = logger.Sync()
+
 			rdb.Close()
 			stop()
 			cancel()
@@ -136,7 +137,7 @@ func (s *Server) ListenAndServe() error {
 
 	_, err := pubsub.Receive(context.Background())
 	if err != nil {
-		return fmt.Errorf("pubsub.Receive %w", err)
+		return internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "pubsub.Receive")
 	}
 
 	s.pubsub = pubsub
@@ -156,6 +157,7 @@ func (s *Server) ListenAndServe() error {
 
 				if err := json.NewDecoder(strings.NewReader(msg.Payload)).Decode(&task); err != nil {
 					s.logger.Info("Ignoring message, invalid", zap.Error(err))
+
 					continue
 				}
 
@@ -167,6 +169,7 @@ func (s *Server) ListenAndServe() error {
 
 				if err := json.NewDecoder(strings.NewReader(msg.Payload)).Decode(&id); err != nil {
 					s.logger.Info("Ignoring message, invalid", zap.Error(err))
+
 					continue
 				}
 
@@ -193,8 +196,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("context.Done: %w", ctx.Err())
-
+			return internaldomain.WrapErrorf(ctx.Err(), internaldomain.ErrorCodeUnknown, "context.Done")
 		case <-s.done:
 			return nil
 		}

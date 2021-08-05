@@ -18,9 +18,9 @@ import (
 )
 
 func TestTasks_Delete(t *testing.T) {
-	// XXX: Test "serviceArgs"
-
 	t.Parallel()
+
+	// XXX: Test "serviceArgs"
 
 	type output struct {
 		expectedStatus int
@@ -97,9 +97,9 @@ func TestTasks_Delete(t *testing.T) {
 }
 
 func TestTasks_Post(t *testing.T) {
-	// XXX: Test "serviceArgs"
-
 	t.Parallel()
+
+	// XXX: Test "serviceArgs"
 
 	type output struct {
 		expectedStatus int
@@ -204,9 +204,9 @@ func TestTasks_Post(t *testing.T) {
 }
 
 func TestTasks_Read(t *testing.T) {
-	// XXX: Test "serviceArgs"
-
 	t.Parallel()
+
+	// XXX: Test "serviceArgs"
 
 	type output struct {
 		expectedStatus int
@@ -304,9 +304,9 @@ func TestTasks_Read(t *testing.T) {
 }
 
 func TestTasks_Update(t *testing.T) {
-	// XXX: Test "serviceArgs"
-
 	t.Parallel()
+
+	// XXX: Test "serviceArgs"
 
 	type output struct {
 		expectedStatus int

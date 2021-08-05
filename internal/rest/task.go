@@ -46,6 +46,7 @@ func (t *TaskHandler) Register(r *mux.Router) {
 }
 
 // Task is an activity that needs to be completed within a period of time.
+//nolint: tagliatelle
 type Task struct {
 	ID          string   `json:"id"`
 	Description string   `json:"description"`
@@ -69,7 +70,9 @@ type CreateTasksResponse struct {
 func (t *TaskHandler) create(w http.ResponseWriter, r *http.Request) {
 	var req CreateTasksRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		renderErrorResponse(r.Context(), w, "invalid request", internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
+		renderErrorResponse(r.Context(), w, "invalid request",
+			internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
+
 		return
 	}
 
@@ -78,6 +81,7 @@ func (t *TaskHandler) create(w http.ResponseWriter, r *http.Request) {
 	task, err := t.svc.Create(r.Context(), req.Description, req.Priority.Convert(), req.Dates.Convert())
 	if err != nil {
 		renderErrorResponse(r.Context(), w, "create failed", err)
+
 		return
 	}
 
@@ -99,6 +103,7 @@ func (t *TaskHandler) delete(w http.ResponseWriter, r *http.Request) {
 
 	if err := t.svc.Delete(r.Context(), id); err != nil {
 		renderErrorResponse(r.Context(), w, "delete failed", err)
+
 		return
 	}
 
@@ -117,6 +122,7 @@ func (t *TaskHandler) task(w http.ResponseWriter, r *http.Request) {
 	task, err := t.svc.Task(r.Context(), id)
 	if err != nil {
 		renderErrorResponse(r.Context(), w, "find failed", err)
+
 		return
 	}
 
@@ -134,6 +140,7 @@ func (t *TaskHandler) task(w http.ResponseWriter, r *http.Request) {
 }
 
 // UpdateTasksRequest defines the request used for updating a task.
+//nolint: tagliatelle
 type UpdateTasksRequest struct {
 	Description string   `json:"description"`
 	IsDone      bool     `json:"is_done"`
@@ -144,7 +151,9 @@ type UpdateTasksRequest struct {
 func (t *TaskHandler) update(w http.ResponseWriter, r *http.Request) {
 	var req UpdateTasksRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		renderErrorResponse(r.Context(), w, "invalid request", internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
+		renderErrorResponse(r.Context(), w, "invalid request",
+			internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
+
 		return
 	}
 
@@ -156,6 +165,7 @@ func (t *TaskHandler) update(w http.ResponseWriter, r *http.Request) {
 	err := t.svc.Update(r.Context(), id, req.Description, req.Priority.Convert(), req.Dates.Convert(), req.IsDone)
 	if err != nil {
 		renderErrorResponse(r.Context(), w, "update failed", err)
+
 		return
 	}
 
@@ -163,6 +173,7 @@ func (t *TaskHandler) update(w http.ResponseWriter, r *http.Request) {
 }
 
 // SearchTasksRequest defines the request used for searching tasks.
+//nolint: tagliatelle
 type SearchTasksRequest struct {
 	Description *string   `json:"description"`
 	Priority    *Priority `json:"priority"`
@@ -180,13 +191,16 @@ type SearchTasksResponse struct {
 func (t *TaskHandler) search(w http.ResponseWriter, r *http.Request) {
 	var req SearchTasksRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		renderErrorResponse(r.Context(), w, "invalid request", internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
+		renderErrorResponse(r.Context(), w, "invalid request",
+			internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
+
 		return
 	}
 
 	defer r.Body.Close()
 
 	var priority *internal.Priority
+
 	if req.Priority != nil {
 		res := req.Priority.Convert()
 		priority = &res
@@ -201,6 +215,7 @@ func (t *TaskHandler) search(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		renderErrorResponse(r.Context(), w, "search failed", err)
+
 		return
 	}
 

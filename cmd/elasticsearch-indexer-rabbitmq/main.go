@@ -14,8 +14,6 @@ import (
 
 	"go.uber.org/zap"
 
-	// "go.opentelemetry.io/otel/api/correlation"
-
 	"github.com/MarioCarrion/todo-api/cmd/internal"
 	internaldomain "github.com/MarioCarrion/todo-api/internal"
 	"github.com/MarioCarrion/todo-api/internal/elasticsearch"
@@ -43,16 +41,16 @@ func main() {
 func run(env string) (<-chan error, error) {
 	logger, err := zap.NewProduction()
 	if err != nil {
-		return nil, fmt.Errorf("zap.NewProduction %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "zap.NewProduction")
 	}
 
 	if err := envvar.Load(env); err != nil {
-		return nil, fmt.Errorf("envvar.Load %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "envvar.Load")
 	}
 
 	vault, err := internal.NewVaultProvider()
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewVaultProvider %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewVaultProvider")
 	}
 
 	conf := envvar.New(vault)
@@ -61,19 +59,19 @@ func run(env string) (<-chan error, error) {
 
 	es, err := internal.NewElasticSearch(conf)
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewElasticSearch %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewElasticSearch")
 	}
 
 	rmq, err := internal.NewRabbitMQ(conf)
 	if err != nil {
-		return nil, fmt.Errorf("newRabbitMQ %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.newRabbitMQ")
 	}
 
 	//-
 
 	_, err = internal.NewOTExporter(conf)
 	if err != nil {
-		return nil, fmt.Errorf("newOTExporter %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "newOTExporter")
 	}
 
 	//-
@@ -101,6 +99,7 @@ func run(env string) (<-chan error, error) {
 
 		defer func() {
 			_ = logger.Sync()
+
 			rmq.Close()
 			stop()
 			cancel()
@@ -133,8 +132,8 @@ type Server struct {
 }
 
 // ListenAndServe ...
+// XXX: Dead Letter Exchange will be implemented in future episodes.
 func (s *Server) ListenAndServe() error {
-	// XXX: Dead Letter Exchange will be implemented in future episodes
 	q, err := s.rmq.Channel.QueueDeclare(
 		"",    // name
 		false, // durable
@@ -144,7 +143,7 @@ func (s *Server) ListenAndServe() error {
 		nil,   // arguments
 	)
 	if err != nil {
-		return fmt.Errorf("channel.QueueDeclare %w", err)
+		return internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "channel.QueueDeclare")
 	}
 
 	err = s.rmq.Channel.QueueBind(
@@ -155,7 +154,7 @@ func (s *Server) ListenAndServe() error {
 		nil,
 	)
 	if err != nil {
-		return fmt.Errorf("channel.QueueBind %w", err)
+		return internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "channel.QueueBind")
 	}
 
 	msgs, err := s.rmq.Channel.Consume(
@@ -168,7 +167,7 @@ func (s *Server) ListenAndServe() error {
 		nil,                  // args
 	)
 	if err != nil {
-		return fmt.Errorf("channel.Consume %w", err)
+		return internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "channel.Consume")
 	}
 
 	go func() {
@@ -192,7 +191,6 @@ func (s *Server) ListenAndServe() error {
 				}
 			case "tasks.event.deleted":
 				id, err := decodeID(msg.Body)
-
 				if err != nil {
 					return
 				}
@@ -206,9 +204,11 @@ func (s *Server) ListenAndServe() error {
 
 			if nack {
 				s.logger.Info("NAcking :(")
+
 				_ = msg.Nack(false, nack)
 			} else {
 				s.logger.Info("Acking :)")
+
 				_ = msg.Ack(false)
 			}
 		}
@@ -230,8 +230,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("context.Done: %w", ctx.Err())
-
+			return internaldomain.WrapErrorf(ctx.Err(), internaldomain.ErrorCodeUnknown, "context.Done")
 		case <-s.done:
 			return nil
 		}

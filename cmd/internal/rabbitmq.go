@@ -1,10 +1,9 @@
 package internal
 
 import (
-	"fmt"
-
 	"github.com/streadway/amqp"
 
+	"github.com/MarioCarrion/todo-api/internal"
 	"github.com/MarioCarrion/todo-api/internal/envvar"
 )
 
@@ -21,17 +20,17 @@ func NewRabbitMQ(conf *envvar.Configuration) (*RabbitMQ, error) {
 	// clearly separate each field, like hostname, username, password, etc.
 	url, err := conf.Get("RABBITMQ_URL")
 	if err != nil {
-		return nil, fmt.Errorf("conf.Get %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "conf.Get")
 	}
 
 	conn, err := amqp.Dial(url)
 	if err != nil {
-		return nil, fmt.Errorf("amqp.Dial %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "amqp.Dial")
 	}
 
 	ch, err := conn.Channel()
 	if err != nil {
-		return nil, fmt.Errorf("conn.Channel %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "conn.Channel")
 	}
 
 	err = ch.ExchangeDeclare(
@@ -44,7 +43,7 @@ func NewRabbitMQ(conf *envvar.Configuration) (*RabbitMQ, error) {
 		nil,     // arguments
 	)
 	if err != nil {
-		return nil, fmt.Errorf("ch.ExchangeDeclare %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "ch.ExchangeDeclare")
 	}
 
 	if err := ch.Qos(
@@ -52,7 +51,7 @@ func NewRabbitMQ(conf *envvar.Configuration) (*RabbitMQ, error) {
 		0,     // prefetch size
 		false, // global
 	); err != nil {
-		return nil, fmt.Errorf("ch.Qos %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "ch.Qos")
 	}
 
 	// XXX: Dead Letter Exchange will be implemented in future episodes

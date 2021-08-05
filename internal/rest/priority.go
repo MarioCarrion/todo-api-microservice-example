@@ -2,8 +2,6 @@ package rest
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 
 	"github.com/MarioCarrion/todo-api/internal"
 )
@@ -18,7 +16,7 @@ const (
 	priorityHigh   Priority = "high"
 )
 
-// NewPriority convers the received domain type to a rest type, when the argument is unknown "none" is used.
+// NewPriority converts the received domain type to a rest type, when the argument is unknown "none" is used.
 func NewPriority(p internal.Priority) Priority {
 	switch p {
 	case internal.PriorityNone:
@@ -54,22 +52,22 @@ func (p Priority) Convert() internal.Priority {
 // Validate ...
 func (p Priority) Validate() error {
 	switch p {
-	case "none", "low", "medium", "high":
+	case priorityNone, priorityLow, priorityMedium, priorityHigh:
 		return nil
 	}
 
-	return errors.New("unknown value")
+	return internal.NewErrorf(internal.ErrorCodeInvalidArgument, "unknown value")
 }
 
 // MarshalJSON ...
 func (p Priority) MarshalJSON() ([]byte, error) {
 	if err := p.Validate(); err != nil {
-		return nil, fmt.Errorf("convert: %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "Validate")
 	}
 
 	b, err := json.Marshal(string(p))
 	if err != nil {
-		return nil, fmt.Errorf("json marshal: %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.Marshal")
 	}
 
 	return b, nil
@@ -79,11 +77,11 @@ func (p Priority) MarshalJSON() ([]byte, error) {
 func (p *Priority) UnmarshalJSON(b []byte) error {
 	var s string
 	if err := json.Unmarshal(b, &s); err != nil {
-		return fmt.Errorf("json unmarshal: %w", err)
+		return internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json.Unmarshal")
 	}
 
 	if err := Priority(s).Validate(); err != nil {
-		return fmt.Errorf("convert: %w", err)
+		return internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "Validate")
 	}
 
 	*p = Priority(s)

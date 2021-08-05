@@ -31,7 +31,7 @@ func main() {
 		log.Fatalf("Couldn't marshal json: %s", err)
 	}
 
-	if err := os.WriteFile(path.Join(output, "openapi3.json"), data, 0644); err != nil {
+	if err := os.WriteFile(path.Join(output, "openapi3.json"), data, 0600); err != nil {
 		log.Fatalf("Couldn't write json: %s", err)
 	}
 
@@ -41,7 +41,7 @@ func main() {
 		log.Fatalf("Couldn't marshal json: %s", err)
 	}
 
-	if err := os.WriteFile(path.Join(output, "openapi3.yaml"), data, 0644); err != nil {
+	if err := os.WriteFile(path.Join(output, "openapi3.yaml"), data, 0600); err != nil {
 		log.Fatalf("Couldn't write json: %s", err)
 	}
 

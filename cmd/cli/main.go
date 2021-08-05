@@ -40,7 +40,7 @@ func main() {
 		return &t
 	}
 
-	var count int = 1
+	count := 1
 
 	for count < 101 {
 		priority := openapi3.Priority_low

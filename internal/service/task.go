@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/mercari/go-circuitbreaker"
@@ -74,13 +73,14 @@ func (t *Task) By(ctx context.Context, args internal.SearchArgs) (_ internal.Sea
 
 	res, err := t.search.Search(ctx, args)
 	if err != nil {
-		return internal.SearchResults{}, fmt.Errorf("search: %w", err)
+		return internal.SearchResults{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "search")
 	}
 
 	return res, nil
 }
 
 // Create stores a new record.
+//nolint: lll
 func (t *Task) Create(ctx context.Context, description string, priority internal.Priority, dates internal.Dates) (internal.Task, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Create")
 	defer span.End()
@@ -88,7 +88,7 @@ func (t *Task) Create(ctx context.Context, description string, priority internal
 	// XXX: We will revisit the number of received arguments in future episodes.
 	task, err := t.repo.Create(ctx, description, priority, dates)
 	if err != nil {
-		return internal.Task{}, fmt.Errorf("repo create: %w", err)
+		return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "repo.Create")
 	}
 
 	// XXX: Transactions will be revisited in future episodes.
@@ -104,7 +104,7 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 
 	// XXX: We will revisit the number of received arguments in future episodes.
 	if err := t.repo.Delete(ctx, id); err != nil {
-		return fmt.Errorf("repo delete: %w", err)
+		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "Delete")
 	}
 
 	// XXX: Transactions will be revisited in future episodes.
@@ -121,20 +121,21 @@ func (t *Task) Task(ctx context.Context, id string) (internal.Task, error) {
 	// XXX: We will revisit the number of received arguments in future episodes.
 	task, err := t.repo.Find(ctx, id)
 	if err != nil {
-		return internal.Task{}, fmt.Errorf("repo find: %w", err)
+		return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "Find")
 	}
 
 	return task, nil
 }
 
 // Update updates an existing Task in the datastore.
+//nolint: lll
 func (t *Task) Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Update")
 	defer span.End()
 
 	// XXX: We will revisit the number of received arguments in future episodes.
 	if err := t.repo.Update(ctx, id, description, priority, dates, isDone); err != nil {
-		return fmt.Errorf("repo update: %w", err)
+		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "repo.Update")
 	}
 
 	{

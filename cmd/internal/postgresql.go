@@ -6,8 +6,10 @@ import (
 	"log"
 	"net/url"
 
+	// Initialize "pgx".
 	_ "github.com/jackc/pgx/v4/stdlib"
 
+	"github.com/MarioCarrion/todo-api/internal"
 	"github.com/MarioCarrion/todo-api/internal/envvar"
 )
 
@@ -45,11 +47,11 @@ func NewPostgreSQL(conf *envvar.Configuration) (*sql.DB, error) {
 
 	db, err := sql.Open("pgx", dsn.String())
 	if err != nil {
-		return nil, fmt.Errorf("sql.Open %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "sql.Open")
 	}
 
 	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("db.Ping %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "db.Ping")
 	}
 
 	return db, nil

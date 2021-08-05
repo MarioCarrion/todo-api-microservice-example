@@ -15,7 +15,9 @@ import (
 	migratepostgres "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/google/go-cmp/cmp"
-	_ "github.com/jackc/pgx/v4/stdlib" // to initialize "pgx"
+
+	// Initialize "pgx".
+	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 
@@ -261,6 +263,8 @@ func TestTask_Update(t *testing.T) {
 }
 
 func newDB(tb testing.TB) *sql.DB {
+	tb.Helper()
+
 	dsn := &url.URL{
 		Scheme: "postgres",
 		User:   url.UserPassword("username", "password"),
@@ -297,7 +301,6 @@ func newDB(tb testing.TB) *sql.DB {
 			Name: "no",
 		}
 	})
-
 	if err != nil {
 		tb.Fatalf("Couldn't start resource: %s", err)
 	}
@@ -344,7 +347,7 @@ func newDB(tb testing.TB) *sql.DB {
 		tb.Fatalf("Couldn't migrate (2): %s", err)
 	}
 
-	if err = m.Up(); err != nil && err != migrate.ErrNoChange {
+	if err = m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		tb.Fatalf("Couldnt' migrate (3): %s", err)
 	}
 

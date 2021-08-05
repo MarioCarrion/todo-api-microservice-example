@@ -19,6 +19,7 @@ type vaultClient struct {
 	Client  *api.Client
 }
 
+//nolint: paralleltest,tparallel
 func TestProvider_Get(t *testing.T) {
 	t.Parallel()
 
@@ -29,23 +30,24 @@ func TestProvider_Get(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		setup  func(*testing.T, *vaultClient)
+		setup  func(*vaultClient) error
 		input  string
 		output output
 	}{
 		{
 			"OK",
-			func(t *testing.T, v *vaultClient) {
-				_, err := v.Client.Logical().Write("/secret/data/ok",
+			func(v *vaultClient) error {
+				if _, err := v.Client.Logical().Write("/secret/data/ok",
 					map[string]interface{}{
 						"data": map[string]interface{}{
 							"one": "1",
 							"two": "2",
 						},
-					})
-				if err != nil {
-					t.Fatalf("couldn't write: %s", err)
+					}); err != nil {
+					return fmt.Errorf("couldn't write: %w", err)
 				}
+
+				return nil
 			},
 			"/ok:one",
 			output{
@@ -54,7 +56,7 @@ func TestProvider_Get(t *testing.T) {
 		},
 		{
 			"OK: cached",
-			func(t *testing.T, v *vaultClient) {},
+			func(v *vaultClient) error { return nil },
 			"/ok:two",
 			output{
 				res: "2",
@@ -62,7 +64,7 @@ func TestProvider_Get(t *testing.T) {
 		},
 		{
 			"ERR: missing key value",
-			func(t *testing.T, v *vaultClient) {},
+			func(v *vaultClient) error { return nil },
 			"/ok",
 			output{
 				withErr: true,
@@ -70,7 +72,7 @@ func TestProvider_Get(t *testing.T) {
 		},
 		{
 			"ERR: key not found in cached data",
-			func(t *testing.T, v *vaultClient) {},
+			func(v *vaultClient) error { return nil },
 			"/ok:three",
 			output{
 				withErr: true,
@@ -78,7 +80,7 @@ func TestProvider_Get(t *testing.T) {
 		},
 		{
 			"ERR: secret not found",
-			func(t *testing.T, v *vaultClient) {},
+			func(v *vaultClient) error { return nil },
 			"/not:found",
 			output{
 				withErr: true,
@@ -86,16 +88,17 @@ func TestProvider_Get(t *testing.T) {
 		},
 		{
 			"ERR: key not found in retrieved data",
-			func(t *testing.T, v *vaultClient) {
-				_, err := v.Client.Logical().Write("/secret/data/err",
+			func(v *vaultClient) error {
+				if _, err := v.Client.Logical().Write("/secret/data/err",
 					map[string]interface{}{
 						"data": map[string]interface{}{
 							"hello": "world",
 						},
-					})
-				if err != nil {
-					t.Fatalf("couldn't write: %s", err)
+					}); err != nil {
+					return fmt.Errorf("couldn't write: %w", err)
 				}
+
+				return nil
 			},
 			"/err:something",
 			output{
@@ -108,6 +111,7 @@ func TestProvider_Get(t *testing.T) {
 
 	client := newVault(t)
 	provider, err := vault.New(client.Token, client.Address, "/secret")
+
 	if err != nil {
 		t.Fatalf("expected no error, got %s", err)
 	}
@@ -118,7 +122,9 @@ func TestProvider_Get(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Not calling t.Parallel() because vault.Provider is not goroutine safe.
 
-			tt.setup(t, client)
+			if err := tt.setup(client); err != nil {
+				t.Fatalf("could not set up %s", err)
+			}
 
 			actualRes, actualErr := provider.Get(tt.input)
 
@@ -134,7 +140,10 @@ func TestProvider_Get(t *testing.T) {
 }
 
 func newVault(tb testing.TB) *vaultClient {
+	tb.Helper()
+
 	pool, err := dockertest.NewPool("")
+
 	if err != nil {
 		tb.Fatalf("Couldn't connect to docker: %s", err)
 	}
@@ -153,7 +162,7 @@ func newVault(tb testing.TB) *vaultClient {
 		},
 		ExposedPorts: []string{"8300/tcp"},
 		PortBindings: map[docker.Port][]docker.PortBinding{ // Because of the way Vault works internally we bind to a port on the host
-			"8300/tcp": []docker.PortBinding{
+			"8300/tcp": {
 				{
 					HostIP:   "0.0.0.0",
 					HostPort: "8300/tcp",
@@ -167,7 +176,6 @@ func newVault(tb testing.TB) *vaultClient {
 			Name: "no",
 		}
 	})
-
 	if err != nil {
 		tb.Fatalf("Couldn't start resource: %s", err)
 	}

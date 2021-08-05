@@ -2,7 +2,6 @@ package rest
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/MarioCarrion/todo-api/internal"
@@ -39,7 +38,7 @@ func (t Time) MarshalJSON() ([]byte, error) {
 
 	b, err := json.Marshal(str)
 	if err != nil {
-		return nil, fmt.Errorf("json marshal: %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.Marshal")
 	}
 
 	return b, nil
@@ -49,12 +48,12 @@ func (t Time) MarshalJSON() ([]byte, error) {
 func (t *Time) UnmarshalJSON(b []byte) error {
 	var s string
 	if err := json.Unmarshal(b, &s); err != nil {
-		return fmt.Errorf("json unmarshal: %w", err)
+		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.Unmarshal")
 	}
 
 	tt, err := time.Parse(time.RFC3339, s)
 	if err != nil {
-		return fmt.Errorf("convert: %w", err)
+		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "time.Parse")
 	}
 
 	*t = Time(tt)

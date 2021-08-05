@@ -1,11 +1,12 @@
 package vault
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/hashicorp/vault/api"
+
+	"github.com/MarioCarrion/todo-api/internal"
 )
 
 // Provider ...
@@ -23,7 +24,7 @@ func New(token, addr, path string) (*Provider, error) {
 
 	client, err := api.NewClient(config)
 	if err != nil {
-		return nil, fmt.Errorf("new client: %w", err)
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "api.NewClient")
 	}
 
 	client.SetToken(token)
@@ -42,7 +43,7 @@ func (p *Provider) Get(v string) (string, error) {
 	// <path>/data/<path-secret>:key
 	split := strings.Split(v, ":")
 	if len(split) == 1 {
-		return "", errors.New("missing key value")
+		return "", internal.NewErrorf(internal.ErrorCodeUnknown, "missing key value")
 	}
 
 	pathSecret := split[0]
@@ -52,7 +53,7 @@ func (p *Provider) Get(v string) (string, error) {
 	if ok {
 		val, ok := res[key]
 		if !ok {
-			return "", errors.New("key not found in cached data")
+			return "", internal.NewErrorf(internal.ErrorCodeUnknown, "key not found in cached data")
 		}
 
 		return val, nil
@@ -60,16 +61,16 @@ func (p *Provider) Get(v string) (string, error) {
 
 	secret, err := p.client.Read(fmt.Sprintf("%s/data/%s", p.path, pathSecret))
 	if err != nil {
-		return "", fmt.Errorf("reading: %w", err)
+		return "", internal.WrapErrorf(err, internal.ErrorCodeUnknown, "reading")
 	}
 
 	if secret == nil {
-		return "", errors.New("secret not found")
+		return "", internal.NewErrorf(internal.ErrorCodeUnknown, "secret not found")
 	}
 
 	data, ok := secret.Data["data"].(map[string]interface{})
 	if !ok {
-		return "", errors.New("invalid data in secret")
+		return "", internal.NewErrorf(internal.ErrorCodeUnknown, "invalid data in secret")
 	}
 
 	secrets := make(map[string]string)
@@ -77,7 +78,7 @@ func (p *Provider) Get(v string) (string, error) {
 	for k, v := range data {
 		val, ok := v.(string)
 		if !ok {
-			return "", errors.New("secret value in data is not string")
+			return "", internal.NewErrorf(internal.ErrorCodeUnknown, "secret value in data is not string")
 		}
 
 		secrets[k] = val
@@ -85,7 +86,7 @@ func (p *Provider) Get(v string) (string, error) {
 
 	val, ok := secrets[key]
 	if !ok {
-		return "", errors.New("key not found in retrieved data")
+		return "", internal.NewErrorf(internal.ErrorCodeUnknown, "key not found in retrieved data")
 	}
 
 	p.results[pathSecret] = secrets

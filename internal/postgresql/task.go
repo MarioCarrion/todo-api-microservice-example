@@ -18,7 +18,7 @@ type Task struct {
 }
 
 // NewTask instantiates the Task repository.
-func NewTask(db *sql.DB) *Task {
+func NewTask(db DBTX) *Task {
 	return &Task{
 		q: New(db),
 	}
@@ -28,6 +28,7 @@ func NewTask(db *sql.DB) *Task {
 func (t *Task) Create(ctx context.Context, description string, priority internal.Priority, dates internal.Dates) (internal.Task, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Create")
 	span.SetAttributes(attribute.String("db.system", "postgresql"))
+
 	defer span.End()
 
 	// XXX: `ID` and `IsDone` make no sense when creating new records, that's why those are ignored.
@@ -56,6 +57,7 @@ func (t *Task) Create(ctx context.Context, description string, priority internal
 func (t *Task) Delete(ctx context.Context, id string) error {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Delete")
 	span.SetAttributes(attribute.String("db.system", "postgresql"))
+
 	defer span.End()
 
 	val, err := uuid.Parse(id)
@@ -79,6 +81,7 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 func (t *Task) Find(ctx context.Context, id string) (internal.Task, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Find")
 	span.SetAttributes(attribute.String("db.system", "postgresql"))
+
 	defer span.End()
 
 	val, err := uuid.Parse(id)
@@ -116,6 +119,7 @@ func (t *Task) Find(ctx context.Context, id string) (internal.Task, error) {
 func (t *Task) Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Update")
 	span.SetAttributes(attribute.String("db.system", "postgresql"))
+
 	defer span.End()
 
 	// XXX: We will revisit the number of received arguments in future episodes.

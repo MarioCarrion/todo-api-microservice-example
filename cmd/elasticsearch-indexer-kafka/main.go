@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -40,16 +39,16 @@ func main() {
 func run(env string) (<-chan error, error) {
 	logger, err := zap.NewProduction()
 	if err != nil {
-		return nil, fmt.Errorf("zap.NewProduction %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "zap.NewProduction")
 	}
 
 	if err := envvar.Load(env); err != nil {
-		return nil, fmt.Errorf("envvar.Load %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "envvar.Load")
 	}
 
 	vault, err := internal.NewVaultProvider()
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewVaultProvider %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewVaultProvider")
 	}
 
 	conf := envvar.New(vault)
@@ -58,19 +57,19 @@ func run(env string) (<-chan error, error) {
 
 	es, err := internal.NewElasticSearch(conf)
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewElasticSearch %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewElasticSearch")
 	}
 
 	kafka, err := internal.NewKafkaConsumer(conf, "elasticsearch-indexer")
 	if err != nil {
-		return nil, fmt.Errorf("internal.NewKafkaConsumer %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewKafkaConsumer")
 	}
 
 	//-
 
 	_, err = internal.NewOTExporter(conf)
 	if err != nil {
-		return nil, fmt.Errorf("newOTExporter %w", err)
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.newOTExporter ")
 	}
 
 	//-
@@ -100,6 +99,7 @@ func run(env string) (<-chan error, error) {
 		defer func() {
 			_ = logger.Sync()
 			_ = kafka.Consumer.Unsubscribe()
+
 			stop()
 			cancel()
 			close(errC)
@@ -146,6 +146,7 @@ func (s *Server) ListenAndServe() error {
 			select {
 			case <-s.closeC:
 				run = false
+
 				break
 			default:
 				msg, ok := s.kafka.Consumer.Poll(150).(*kafka.Message)
@@ -161,6 +162,7 @@ func (s *Server) ListenAndServe() error {
 				if err := json.NewDecoder(bytes.NewReader(msg.Value)).Decode(&evt); err != nil {
 					s.logger.Info("Ignoring message, invalid", zap.Error(err))
 					commit(msg)
+
 					continue
 				}
 
@@ -201,8 +203,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("context.Done: %w", ctx.Err())
-
+			return internaldomain.WrapErrorf(ctx.Err(), internaldomain.ErrorCodeUnknown, "context.Done")
 		case <-s.doneC:
 			return nil
 		}

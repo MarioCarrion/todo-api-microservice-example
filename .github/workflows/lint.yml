@@ -3,7 +3,7 @@ name: Lint
 on: push
 
 jobs:
-  test:
+  lint:
     strategy:
       matrix:
         go-version: [1.16.x]
@@ -17,4 +17,4 @@ jobs:
       - name: lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.29
+          version: latest

@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+
+	"github.com/MarioCarrion/todo-api/internal"
 )
 
 //go:generate counterfeiter -o envvartesting/provider.gen.go . Provider
@@ -22,7 +24,7 @@ type Configuration struct {
 // Load read the env filename and load it into ENV for this process.
 func Load(filename string) error {
 	if err := godotenv.Load(filename); err != nil {
-		return fmt.Errorf("loading env var file: %w", err)
+		return internal.NewErrorf(internal.ErrorCodeUnknown, "loading env var file")
 	}
 
 	return nil
@@ -44,7 +46,7 @@ func (c *Configuration) Get(key string) (string, error) {
 	if valSecret != "" {
 		valSecretRes, err := c.provider.Get(valSecret)
 		if err != nil {
-			return "", fmt.Errorf("provider get: %w", err)
+			return "", internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "provider.Get")
 		}
 
 		res = valSecretRes

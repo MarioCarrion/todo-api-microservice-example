@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"time"
 
@@ -37,22 +38,31 @@ func NewTask(client *memcache.Client, orig Datastore, logger *zap.Logger) *Task 
 
 // Index ...
 func (t *Task) Index(ctx context.Context, task internal.Task) error {
-	return t.orig.Index(ctx, task)
+	if err := t.orig.Index(ctx, task); err != nil {
+		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "orig.Index")
+	}
+
+	return nil
 }
 
 // Delete ...
 func (t *Task) Delete(ctx context.Context, id string) error {
-	return t.orig.Delete(ctx, id)
+	if err := t.orig.Delete(ctx, id); err != nil {
+		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "orig.Delete")
+	}
+
+	return nil
 }
 
 // Search ...
+//nolint: nestif
 func (t *Task) Search(ctx context.Context, args internal.SearchArgs) (internal.SearchResults, error) {
 	key := newKey(args)
 
 	item, err := t.client.Get(key)
 	if err != nil {
-		if err == memcache.ErrCacheMiss {
-			t.logger.Info("values NOT found", zap.String("key", string(key)))
+		if errors.Is(err, memcache.ErrCacheMiss) {
+			t.logger.Info("values NOT found", zap.String("key", key))
 
 			res, err := t.orig.Search(ctx, args)
 			if err != nil {
@@ -71,13 +81,13 @@ func (t *Task) Search(ctx context.Context, args internal.SearchArgs) (internal.S
 				})
 			}
 
-			return res, err
+			return res, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "gob.NewEncoder")
 		}
 
 		return internal.SearchResults{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "client.Get")
 	}
 
-	t.logger.Info("values found", zap.String("key", string(key)))
+	t.logger.Info("values found", zap.String("key", key))
 
 	var res internal.SearchResults
 
