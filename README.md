@@ -1,5 +1,7 @@
 # "ToDo API" Microservice Example
 
+[![codecov](https://codecov.io/gh/MarioCarrion/todo-api-microservice-example/branch/main/graph/badge.svg)](https://codecov.io/gh/MarioCarrion/todo-api-microservice-example)
+
 ## Introduction
 
 Welcome! 👋
