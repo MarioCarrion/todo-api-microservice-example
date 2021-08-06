@@ -58,7 +58,7 @@ define a package like `internal/<bounded-context>` that then should follow the s
 go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.14.1
 go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.6.0
 go install github.com/maxbrunsfeld/counterfeiter/v6@v6.3.0
-go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.5.1
+go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.8.2
 go install goa.design/model/cmd/mdl@v1.7.6
 go install goa.design/model/cmd/stz@v1.7.6
 go install github.com/fdaines/spm-go@v0.11.1
