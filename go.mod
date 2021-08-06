@@ -16,7 +16,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/vault/api v1.0.4
-	github.com/jackc/pgx/v4 v4.10.1
+	github.com/jackc/pgx/v4 v4.13.0
 	github.com/joho/godotenv v1.3.0
 	github.com/mercari/go-circuitbreaker v0.0.0-20201130021310-aff740600e91
 	github.com/ory/dockertest/v3 v3.7.0
