@@ -13,8 +13,8 @@ import (
 //go:generate oapi-codegen -package openapi3 -generate client -o ../../pkg/openapi3/client.gen.go     openapi3.yaml
 
 // NewOpenAPI3 instantiates the OpenAPI specification for this service.
-func NewOpenAPI3() openapi3.Swagger {
-	swagger := openapi3.Swagger{
+func NewOpenAPI3() openapi3.T {
+	swagger := openapi3.T{
 		OpenAPI: "3.0.0",
 		Info: &openapi3.Info{
 			Title:       "ToDo API",
