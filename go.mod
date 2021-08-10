@@ -10,12 +10,12 @@ require (
 	github.com/elastic/go-elasticsearch/v7 v7.14.0
 	github.com/getkin/kin-openapi v0.69.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/go-redis/redis/v8 v8.9.0
+	github.com/go-redis/redis/v8 v8.11.2
 	github.com/golang-migrate/migrate/v4 v4.14.1
 	github.com/google/go-cmp v0.5.6
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
-	github.com/hashicorp/vault/api v1.0.4
+	github.com/hashicorp/vault/api v1.1.1
 	github.com/jackc/pgx/v4 v4.13.0
 	github.com/joho/godotenv v1.3.0
 	github.com/mercari/go-circuitbreaker v0.0.0-20201130021310-aff740600e91
