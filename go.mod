@@ -8,7 +8,7 @@ require (
 	github.com/deepmap/oapi-codegen v1.8.2
 	github.com/didip/tollbooth/v6 v6.1.1
 	github.com/elastic/go-elasticsearch/v7 v7.14.0
-	github.com/getkin/kin-openapi v0.69.0
+	github.com/getkin/kin-openapi v0.72.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-redis/redis/v8 v8.11.2
 	github.com/golang-migrate/migrate/v4 v4.14.1
@@ -31,6 +31,6 @@ require (
 	go.opentelemetry.io/otel/metric v0.20.0
 	go.opentelemetry.io/otel/sdk v0.20.0
 	go.opentelemetry.io/otel/trace v0.20.0
-	go.uber.org/zap v1.18.1
+	go.uber.org/zap v1.19.0
 	goa.design/model v1.7.6
 )
