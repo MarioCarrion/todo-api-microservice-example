@@ -45,16 +45,16 @@ func NewTask(logger *zap.Logger, repo TaskRepository, search TaskSearchRepositor
 		repo:      repo,
 		search:    search,
 		msgBroker: msgBroker,
-		cb: circuitbreaker.New(&circuitbreaker.Options{
-			ShouldTrip:  circuitbreaker.NewTripFuncConsecutiveFailures(3),
-			OpenTimeout: time.Minute * 2,
-			OnStateChange: func(oldState, newState circuitbreaker.State) {
+		cb: circuitbreaker.New(
+			circuitbreaker.WithOpenTimeout(time.Minute*2),
+			circuitbreaker.WithTripFunc(circuitbreaker.NewTripFuncConsecutiveFailures(3)),
+			circuitbreaker.WithOnStateChangeHookFn(func(oldState, newState circuitbreaker.State) {
 				logger.Info("state changed",
 					zap.String("old", string(oldState)),
 					zap.String("new", string(newState)),
 				)
-			},
-		}),
+			}),
+		),
 	}
 }
 

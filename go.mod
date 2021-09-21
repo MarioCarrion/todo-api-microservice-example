@@ -18,7 +18,7 @@ require (
 	github.com/hashicorp/vault/api v1.1.1
 	github.com/jackc/pgx/v4 v4.13.0
 	github.com/joho/godotenv v1.3.0
-	github.com/mercari/go-circuitbreaker v0.0.0-20201130021310-aff740600e91
+	github.com/mercari/go-circuitbreaker v0.0.1
 	github.com/ory/dockertest/v3 v3.7.0
 	github.com/streadway/amqp v1.0.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.20.0
