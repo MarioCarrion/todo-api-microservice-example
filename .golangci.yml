@@ -61,3 +61,6 @@ issues:
     - path: internal/postgresql/task.go
       linters:
         - lll
+    - path: internal/memcached/task.go
+      linters:
+        - lll

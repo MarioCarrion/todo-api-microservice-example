@@ -101,7 +101,7 @@ func run(env, address string) (<-chan error, error) {
 
 	rdb, err := internal.NewRedis(conf)
 	if err != nil {
-		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewRabbitMQ")
+		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewRedis")
 	}
 
 	//-
@@ -210,8 +210,12 @@ func newServer(conf serverConfig) (*http.Server, error) {
 	//-
 
 	repo := postgresql.NewTask(conf.DB)
+	mrepo := memcached.NewTask(conf.Memcached, repo, conf.Logger)
+
 	search := elasticsearch.NewTask(conf.ElasticSearch)
-	mclient := memcached.NewTask(conf.Memcached, search, conf.Logger)
+	msearch := memcached.NewSearchableTask(conf.Memcached, search)
+
+	// XXX mclient := memcached.NewSearchableTask(conf.Memcached, search, conf.Logger)
 	// msgBroker, err := rabbitmq.NewTask(conf.RabbitMQ.Channel)
 	// if err != nil {
 	// 	return nil, fmt.Errorf("rabbitmq.NewTask %w", err)
@@ -221,7 +225,7 @@ func newServer(conf serverConfig) (*http.Server, error) {
 
 	msgBroker := redis.NewTask(conf.Redis)
 
-	svc := service.NewTask(conf.Logger, repo, mclient, msgBroker)
+	svc := service.NewTask(conf.Logger, mrepo, msearch, msgBroker)
 
 	rest.RegisterOpenAPI(r)
 	rest.NewTaskHandler(svc).Register(r)
