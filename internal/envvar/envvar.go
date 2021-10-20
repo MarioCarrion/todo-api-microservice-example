@@ -9,7 +9,9 @@ import (
 	"github.com/MarioCarrion/todo-api/internal"
 )
 
-//go:generate counterfeiter -o envvartesting/provider.gen.go . Provider
+//go:generate counterfeiter -generate
+
+//counterfeiter:generate -o envvartesting/provider.gen.go . Provider
 
 // Provider ...
 type Provider interface {

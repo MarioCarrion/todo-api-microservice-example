@@ -13,7 +13,9 @@ import (
 
 const uuidRegEx string = `[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}`
 
-//go:generate counterfeiter -o resttesting/task_service.gen.go . TaskService
+//go:generate counterfeiter -generate
+
+//counterfeiter:generate -o resttesting/task_service.gen.go . TaskService
 
 // TaskService ...
 type TaskService interface {

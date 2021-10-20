@@ -43,7 +43,7 @@ func main() {
 	count := 1
 
 	for count < 101 {
-		priority := openapi3.Priority_low
+		priority := openapi3.PriorityLow
 
 		_, err := client.CreateTaskWithResponse(context.Background(),
 			openapi3.CreateTaskJSONRequestBody{
