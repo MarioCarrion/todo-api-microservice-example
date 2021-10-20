@@ -6,19 +6,20 @@ import (
 	"time"
 
 	"github.com/MarioCarrion/todo-api/internal"
+	"github.com/MarioCarrion/todo-api/internal/postgresql/db"
 )
 
 //go:generate sqlc generate
 
-func convertPriority(p Priority) (internal.Priority, error) {
+func convertPriority(p db.Priority) (internal.Priority, error) {
 	switch p {
-	case PriorityNone:
+	case db.PriorityNone:
 		return internal.PriorityNone, nil
-	case PriorityLow:
+	case db.PriorityLow:
 		return internal.PriorityLow, nil
-	case PriorityMedium:
+	case db.PriorityMedium:
 		return internal.PriorityMedium, nil
-	case PriorityHigh:
+	case db.PriorityHigh:
 		return internal.PriorityHigh, nil
 	}
 
@@ -32,16 +33,16 @@ func newNullTime(t time.Time) sql.NullTime {
 	}
 }
 
-func newPriority(p internal.Priority) Priority {
+func newPriority(p internal.Priority) db.Priority {
 	switch p {
 	case internal.PriorityNone:
-		return PriorityNone
+		return db.PriorityNone
 	case internal.PriorityLow:
-		return PriorityLow
+		return db.PriorityLow
 	case internal.PriorityMedium:
-		return PriorityMedium
+		return db.PriorityMedium
 	case internal.PriorityHigh:
-		return PriorityHigh
+		return db.PriorityHigh
 	}
 
 	// XXX: because we are using an enum type, postgres will fail with the following value.

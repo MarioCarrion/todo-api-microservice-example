@@ -2,9 +2,7 @@
 
 ## Requirements
 
-```
-go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.14.1
-```
+Install the `migrate` tool using [`install_tools`](../bin/install_tools), you can [read more](../internal/tools/) about how those are versioned as well.
 
 ## Local PostgreSQL
 

@@ -2,25 +2,26 @@ package postgresql
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v4"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/MarioCarrion/todo-api/internal"
+	"github.com/MarioCarrion/todo-api/internal/postgresql/db"
 )
 
 // Task represents the repository used for interacting with Task records.
 type Task struct {
-	q *Queries
+	q *db.Queries
 }
 
 // NewTask instantiates the Task repository.
-func NewTask(db DBTX) *Task {
+func NewTask(d db.DBTX) *Task {
 	return &Task{
-		q: New(db),
+		q: db.New(d),
 	}
 }
 
@@ -35,7 +36,7 @@ func (t *Task) Create(ctx context.Context, description string, priority internal
 	// XXX: We will revisit the number of received arguments in future episodes.
 	// XXX: We are intentionally NOT SUPPORTING `SubTasks` and `Categories` JUST YET.
 
-	id, err := t.q.InsertTask(ctx, InsertTaskParams{
+	id, err := t.q.InsertTask(ctx, db.InsertTaskParams{
 		Description: description,
 		Priority:    newPriority(priority),
 		StartDate:   newNullTime(dates.Start),
@@ -67,7 +68,7 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 
 	_, err = t.q.DeleteTask(ctx, val)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return internal.WrapErrorf(err, internal.ErrorCodeNotFound, "task not found")
 		}
 
@@ -91,7 +92,7 @@ func (t *Task) Find(ctx context.Context, id string) (internal.Task, error) {
 
 	res, err := t.q.SelectTask(ctx, val)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeNotFound, "task not found")
 		}
 
@@ -128,7 +129,7 @@ func (t *Task) Update(ctx context.Context, id string, description string, priori
 		return internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "invalid uuid")
 	}
 
-	if _, err := t.q.UpdateTask(ctx, UpdateTaskParams{
+	if _, err := t.q.UpdateTask(ctx, db.UpdateTaskParams{
 		ID:          val,
 		Description: description,
 		Priority:    newPriority(priority),
@@ -136,7 +137,7 @@ func (t *Task) Update(ctx context.Context, id string, description string, priori
 		DueDate:     newNullTime(dates.Due),
 		Done:        isDone,
 	}); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return internal.WrapErrorf(err, internal.ErrorCodeNotFound, "task not found")
 		}
 

@@ -17,6 +17,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 
 	// Initialize "pgx".
+	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
@@ -73,7 +75,7 @@ func TestTask_Delete(t *testing.T) {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		if _, err = store.Find(context.Background(), createdTask.ID); !errors.Is(err, sql.ErrNoRows) {
+		if _, err = store.Find(context.Background(), createdTask.ID); !errors.Is(err, pgx.ErrNoRows) {
 			t.Fatalf("expected no error, got %s", err)
 		}
 	})
@@ -262,7 +264,7 @@ func TestTask_Update(t *testing.T) {
 	})
 }
 
-func newDB(tb testing.TB) *sql.DB {
+func newDB(tb testing.TB) *pgxpool.Pool {
 	tb.Helper()
 
 	dsn := &url.URL{
@@ -323,11 +325,7 @@ func newDB(tb testing.TB) *sql.DB {
 		tb.Fatalf("Couldn't open DB: %s", err)
 	}
 
-	tb.Cleanup(func() {
-		if err := db.Close(); err != nil {
-			tb.Fatalf("Couldn't close DB: %s", err)
-		}
-	})
+	defer db.Close()
 
 	if err := pool.Retry(func() (err error) {
 		return db.Ping()
@@ -351,5 +349,16 @@ func newDB(tb testing.TB) *sql.DB {
 		tb.Fatalf("Couldnt' migrate (3): %s", err)
 	}
 
-	return db
+	//-
+
+	dbpool, err := pgxpool.Connect(context.Background(), dsn.String())
+	if err != nil {
+		tb.Fatalf("Couldn't open DB Pool: %s", err)
+	}
+
+	tb.Cleanup(func() {
+		dbpool.Close()
+	})
+
+	return dbpool
 }

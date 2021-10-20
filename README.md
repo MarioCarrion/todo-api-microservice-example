@@ -107,6 +107,7 @@ In no particular order:
 - [ ] Cloud Design Patterns
   * Reliability
     - [ ] [Circuit Breaker](https://en.wikipedia.org/wiki/Circuit_breaker_design_pattern) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/UnL2iGcD7vE)
+- [ ] Tools as Dependencies [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/g_5n0W27XcY)
 - [ ] Whatever else I forgot to include
 
 ## More ideas

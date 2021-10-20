@@ -1,8 +1,9 @@
 version: "1"
 packages:
-  - name: "postgresql"
-    path: "."
+  - name: "db"
+    path: "db"
     queries: "./query/"
+    sql_package: "pgx/v4"
     schema: "../../db/migrations/"
     engine: "postgresql"
     emit_json_tags: false
@@ -11,3 +12,4 @@ packages:
     emit_interface: false
     emit_exact_table_names: true
     emit_empty_slices: true
+    emit_exported_queries: true

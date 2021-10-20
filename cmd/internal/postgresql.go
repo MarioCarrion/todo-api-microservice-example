@@ -1,10 +1,12 @@
 package internal
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"log"
 	"net/url"
+
+	"github.com/jackc/pgx/v4/pgxpool"
 
 	// Initialize "pgx".
 	_ "github.com/jackc/pgx/v4/stdlib"
@@ -14,7 +16,7 @@ import (
 )
 
 // NewPostgreSQL instantiates the PostgreSQL database using configuration defined in environment variables.
-func NewPostgreSQL(conf *envvar.Configuration) (*sql.DB, error) {
+func NewPostgreSQL(conf *envvar.Configuration) (*pgxpool.Pool, error) {
 	get := func(v string) string {
 		res, err := conf.Get(v)
 		if err != nil {
@@ -45,14 +47,14 @@ func NewPostgreSQL(conf *envvar.Configuration) (*sql.DB, error) {
 
 	dsn.RawQuery = q.Encode()
 
-	db, err := sql.Open("pgx", dsn.String())
+	pool, err := pgxpool.Connect(context.Background(), dsn.String())
 	if err != nil {
-		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "sql.Open")
+		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "pgxpool.Connect")
 	}
 
-	if err := db.Ping(); err != nil {
+	if err := pool.Ping(context.Background()); err != nil {
 		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "db.Ping")
 	}
 
-	return db, nil
+	return pool, nil
 }

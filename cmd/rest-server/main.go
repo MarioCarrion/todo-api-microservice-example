@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"embed"
 	"errors"
 	"flag"
@@ -20,6 +19,7 @@ import (
 	esv7 "github.com/elastic/go-elasticsearch/v7"
 	rv8 "github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.uber.org/zap"
 
@@ -74,7 +74,7 @@ func run(env, address string) (<-chan error, error) {
 
 	//-
 
-	db, err := internal.NewPostgreSQL(conf)
+	pool, err := internal.NewPostgreSQL(conf)
 	if err != nil {
 		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewPostgreSQL")
 	}
@@ -126,7 +126,7 @@ func run(env, address string) (<-chan error, error) {
 
 	srv, err := newServer(serverConfig{
 		Address:       address,
-		DB:            db,
+		DB:            pool,
 		ElasticSearch: es,
 		Metrics:       promExporter,
 		Middlewares:   []mux.MiddlewareFunc{otelmux.Middleware("todo-api-server"), logging},
@@ -157,7 +157,7 @@ func run(env, address string) (<-chan error, error) {
 		defer func() {
 			_ = logger.Sync()
 
-			db.Close()
+			pool.Close()
 			// rmq.Close()
 			rdb.Close()
 			stop()
@@ -189,7 +189,7 @@ func run(env, address string) (<-chan error, error) {
 
 type serverConfig struct {
 	Address       string
-	DB            *sql.DB
+	DB            *pgxpool.Pool
 	ElasticSearch *esv7.Client
 	Kafka         *internal.KafkaProducer
 	RabbitMQ      *internal.RabbitMQ
