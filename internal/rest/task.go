@@ -19,8 +19,8 @@ const uuidRegEx string = `[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-
 
 // TaskService ...
 type TaskService interface {
-	By(ctx context.Context, args internal.SearchArgs) (internal.SearchResults, error)
-	Create(ctx context.Context, description string, priority internal.Priority, dates internal.Dates) (internal.Task, error)
+	By(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error)
+	Create(ctx context.Context, params internal.CreateParams) (internal.Task, error)
 	Delete(ctx context.Context, id string) error
 	Task(ctx context.Context, id string) (internal.Task, error)
 	Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error
@@ -80,7 +80,11 @@ func (t *TaskHandler) create(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	task, err := t.svc.Create(r.Context(), req.Description, req.Priority.Convert(), req.Dates.Convert())
+	task, err := t.svc.Create(r.Context(), internal.CreateParams{
+		Description: req.Description,
+		Priority:    req.Priority.Convert(),
+		Dates:       req.Dates.Convert(),
+	})
 	if err != nil {
 		renderErrorResponse(r.Context(), w, "create failed", err)
 
@@ -208,7 +212,7 @@ func (t *TaskHandler) search(w http.ResponseWriter, r *http.Request) {
 		priority = &res
 	}
 
-	res, err := t.svc.By(r.Context(), internal.SearchArgs{
+	res, err := t.svc.By(r.Context(), internal.SearchParams{
 		Description: req.Description,
 		Priority:    priority,
 		IsDone:      req.IsDone,

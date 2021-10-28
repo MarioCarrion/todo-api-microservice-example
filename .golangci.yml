@@ -2,7 +2,6 @@ linters:
   enable-all: true
 
   disable:
-    - exhaustivestruct # XXX: This will be re-enabled in future episodes to support Params-like structs
     - goerr113
     - gofumpt # Prefer `gofmt` rules / some rules conflict with `wsl`
     - gomnd # XXX: For now
@@ -17,6 +16,9 @@ linters-settings:
     line-length: 130
   gci:
     local-prefixes: github.com/MarioCarrion/todo-api/
+  exhaustivestruct:
+    struct-patterns:
+      - 'github.com/MarioCarrion/todo-api/internal.*Params'
   wrapcheck:
     ignoreSigs:
       - internaldomain.WrapErrorf(

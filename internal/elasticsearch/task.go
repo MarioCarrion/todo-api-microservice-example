@@ -109,7 +109,7 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 
 // Search returns tasks matching a query.
 //nolint: funlen, cyclop
-func (t *Task) Search(ctx context.Context, args internal.SearchArgs) (internal.SearchResults, error) {
+func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Search")
 	defer span.End()
 

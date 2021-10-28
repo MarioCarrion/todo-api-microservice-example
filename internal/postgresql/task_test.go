@@ -33,7 +33,12 @@ func TestTask_Create(t *testing.T) {
 	t.Run("Create: OK", func(t *testing.T) {
 		t.Parallel()
 
-		task, err := postgresql.NewTask(newDB(t)).Create(context.Background(), "test", internal.PriorityNone, internal.Dates{})
+		task, err := postgresql.NewTask(newDB(t)).Create(context.Background(),
+			internal.CreateParams{
+				Description: "test",
+				Priority:    internal.PriorityNone,
+				Dates:       internal.Dates{},
+			})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
@@ -46,7 +51,12 @@ func TestTask_Create(t *testing.T) {
 	t.Run("Create: ERR", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := postgresql.NewTask(newDB(t)).Create(context.Background(), "", internal.Priority(-1), internal.Dates{})
+		_, err := postgresql.NewTask(newDB(t)).Create(context.Background(),
+			internal.CreateParams{
+				Description: "",
+				Priority:    internal.Priority(-1),
+				Dates:       internal.Dates{},
+			})
 		if err == nil { // because of invalid priority
 			t.Fatalf("expected error, got no value")
 		}
@@ -66,7 +76,11 @@ func TestTask_Delete(t *testing.T) {
 
 		store := postgresql.NewTask(newDB(t))
 
-		createdTask, err := store.Create(context.Background(), "test", internal.PriorityNone, internal.Dates{})
+		createdTask, err := store.Create(context.Background(), internal.CreateParams{
+			Description: "test",
+			Priority:    internal.PriorityNone,
+			Dates:       internal.Dates{},
+		})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
@@ -115,7 +129,11 @@ func TestTask_Find(t *testing.T) {
 
 		store := postgresql.NewTask(newDB(t))
 
-		originalTask, err := store.Create(context.Background(), "test", internal.PriorityNone, internal.Dates{})
+		originalTask, err := store.Create(context.Background(), internal.CreateParams{
+			Description: "test",
+			Priority:    internal.PriorityNone,
+			Dates:       internal.Dates{},
+		})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
@@ -167,7 +185,11 @@ func TestTask_Update(t *testing.T) {
 
 		store := postgresql.NewTask(newDB(t))
 
-		originalTask, err := store.Create(context.Background(), "test", internal.PriorityNone, internal.Dates{})
+		originalTask, err := store.Create(context.Background(), internal.CreateParams{
+			Description: "test",
+			Priority:    internal.PriorityNone,
+			Dates:       internal.Dates{},
+		})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
@@ -223,7 +245,11 @@ func TestTask_Update(t *testing.T) {
 
 		store := postgresql.NewTask(newDB(t))
 
-		task, err := store.Create(context.Background(), "test", internal.PriorityNone, internal.Dates{})
+		task, err := store.Create(context.Background(), internal.CreateParams{
+			Description: "test",
+			Priority:    internal.PriorityNone,
+			Dates:       internal.Dates{},
+		})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}

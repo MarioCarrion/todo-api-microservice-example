@@ -18,7 +18,7 @@ type Task struct {
 }
 
 type TaskStore interface {
-	Create(ctx context.Context, description string, priority internal.Priority, dates internal.Dates) (internal.Task, error)
+	Create(ctx context.Context, params internal.CreateParams) (internal.Task, error)
 	Delete(ctx context.Context, id string) error
 	Find(ctx context.Context, id string) (internal.Task, error)
 	Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error
@@ -33,8 +33,8 @@ func NewTask(client *memcache.Client, orig TaskStore, logger *zap.Logger) *Task 
 	}
 }
 
-func (t *Task) Create(ctx context.Context, description string, priority internal.Priority, dates internal.Dates) (internal.Task, error) {
-	task, err := t.orig.Create(ctx, description, priority, dates)
+func (t *Task) Create(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
+	task, err := t.orig.Create(ctx, params)
 	if err != nil {
 		return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "orig.Create")
 	}

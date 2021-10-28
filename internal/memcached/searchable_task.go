@@ -20,7 +20,7 @@ type SearchableTask struct {
 type SearchableTaskStore interface {
 	Delete(ctx context.Context, id string) error
 	Index(ctx context.Context, task internal.Task) error
-	Search(ctx context.Context, args internal.SearchArgs) (internal.SearchResults, error)
+	Search(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error)
 }
 
 // NewSearchableTask instantiates the Task repository.
@@ -50,7 +50,7 @@ func (t *SearchableTask) Delete(ctx context.Context, id string) error {
 }
 
 // Search ...
-func (t *SearchableTask) Search(ctx context.Context, args internal.SearchArgs) (internal.SearchResults, error) {
+func (t *SearchableTask) Search(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
 	key := newSearchableKey(args)
 
 	var res internal.SearchResults
@@ -73,7 +73,7 @@ func (t *SearchableTask) Search(ctx context.Context, args internal.SearchArgs) (
 	return res, nil
 }
 
-func newSearchableKey(args internal.SearchArgs) string {
+func newSearchableKey(args internal.SearchParams) string {
 	var (
 		description string
 		priority    int8

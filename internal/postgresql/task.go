@@ -26,21 +26,20 @@ func NewTask(d db.DBTX) *Task {
 }
 
 // Create inserts a new task record.
-func (t *Task) Create(ctx context.Context, description string, priority internal.Priority, dates internal.Dates) (internal.Task, error) {
+func (t *Task) Create(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Create")
 	span.SetAttributes(attribute.String("db.system", "postgresql"))
 
 	defer span.End()
 
 	// XXX: `ID` and `IsDone` make no sense when creating new records, that's why those are ignored.
-	// XXX: We will revisit the number of received arguments in future episodes.
 	// XXX: We are intentionally NOT SUPPORTING `SubTasks` and `Categories` JUST YET.
 
 	id, err := t.q.InsertTask(ctx, db.InsertTaskParams{
-		Description: description,
-		Priority:    newPriority(priority),
-		StartDate:   newNullTime(dates.Start),
-		DueDate:     newNullTime(dates.Due),
+		Description: params.Description,
+		Priority:    newPriority(params.Priority),
+		StartDate:   newNullTime(params.Dates.Start),
+		DueDate:     newNullTime(params.Dates.Due),
 	})
 	if err != nil {
 		return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "insert task")
@@ -48,9 +47,9 @@ func (t *Task) Create(ctx context.Context, description string, priority internal
 
 	return internal.Task{
 		ID:          id.String(),
-		Description: description,
-		Priority:    priority,
-		Dates:       dates,
+		Description: params.Description,
+		Priority:    params.Priority,
+		Dates:       params.Dates,
 	}, nil
 }
 

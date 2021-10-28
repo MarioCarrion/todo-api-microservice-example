@@ -13,7 +13,7 @@ import (
 
 // TaskRepository defines the datastore handling persisting Task records.
 type TaskRepository interface {
-	Create(ctx context.Context, description string, priority internal.Priority, dates internal.Dates) (internal.Task, error)
+	Create(ctx context.Context, dates internal.CreateParams) (internal.Task, error)
 	Delete(ctx context.Context, id string) error
 	Find(ctx context.Context, id string) (internal.Task, error)
 	Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error
@@ -21,7 +21,7 @@ type TaskRepository interface {
 
 // TaskSearchRepository defines the datastore handling searching Task records.
 type TaskSearchRepository interface {
-	Search(ctx context.Context, args internal.SearchArgs) (internal.SearchResults, error)
+	Search(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error)
 }
 
 // TaskMessageBrokerRepository defines the datastore handling persisting Searchable Task records.
@@ -59,7 +59,7 @@ func NewTask(logger *zap.Logger, repo TaskRepository, search TaskSearchRepositor
 }
 
 // By searches Tasks matching the received values.
-func (t *Task) By(ctx context.Context, args internal.SearchArgs) (_ internal.SearchResults, err error) {
+func (t *Task) By(ctx context.Context, args internal.SearchParams) (_ internal.SearchResults, err error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.By")
 	defer span.End()
 
@@ -80,13 +80,15 @@ func (t *Task) By(ctx context.Context, args internal.SearchArgs) (_ internal.Sea
 }
 
 // Create stores a new record.
-//nolint: lll
-func (t *Task) Create(ctx context.Context, description string, priority internal.Priority, dates internal.Dates) (internal.Task, error) {
+func (t *Task) Create(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Create")
 	defer span.End()
 
-	// XXX: We will revisit the number of received arguments in future episodes.
-	task, err := t.repo.Create(ctx, description, priority, dates)
+	if err := params.Validate(); err != nil {
+		return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "params.Validate")
+	}
+
+	task, err := t.repo.Create(ctx, params)
 	if err != nil {
 		return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "repo.Create")
 	}

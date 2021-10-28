@@ -10,11 +10,11 @@ import (
 )
 
 type FakeTaskService struct {
-	ByStub        func(context.Context, internal.SearchArgs) (internal.SearchResults, error)
+	ByStub        func(context.Context, internal.SearchParams) (internal.SearchResults, error)
 	byMutex       sync.RWMutex
 	byArgsForCall []struct {
 		arg1 context.Context
-		arg2 internal.SearchArgs
+		arg2 internal.SearchParams
 	}
 	byReturns struct {
 		result1 internal.SearchResults
@@ -24,13 +24,11 @@ type FakeTaskService struct {
 		result1 internal.SearchResults
 		result2 error
 	}
-	CreateStub        func(context.Context, string, internal.Priority, internal.Dates) (internal.Task, error)
+	CreateStub        func(context.Context, internal.CreateParams) (internal.Task, error)
 	createMutex       sync.RWMutex
 	createArgsForCall []struct {
 		arg1 context.Context
-		arg2 string
-		arg3 internal.Priority
-		arg4 internal.Dates
+		arg2 internal.CreateParams
 	}
 	createReturns struct {
 		result1 internal.Task
@@ -86,12 +84,12 @@ type FakeTaskService struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeTaskService) By(arg1 context.Context, arg2 internal.SearchArgs) (internal.SearchResults, error) {
+func (fake *FakeTaskService) By(arg1 context.Context, arg2 internal.SearchParams) (internal.SearchResults, error) {
 	fake.byMutex.Lock()
 	ret, specificReturn := fake.byReturnsOnCall[len(fake.byArgsForCall)]
 	fake.byArgsForCall = append(fake.byArgsForCall, struct {
 		arg1 context.Context
-		arg2 internal.SearchArgs
+		arg2 internal.SearchParams
 	}{arg1, arg2})
 	stub := fake.ByStub
 	fakeReturns := fake.byReturns
@@ -112,13 +110,13 @@ func (fake *FakeTaskService) ByCallCount() int {
 	return len(fake.byArgsForCall)
 }
 
-func (fake *FakeTaskService) ByCalls(stub func(context.Context, internal.SearchArgs) (internal.SearchResults, error)) {
+func (fake *FakeTaskService) ByCalls(stub func(context.Context, internal.SearchParams) (internal.SearchResults, error)) {
 	fake.byMutex.Lock()
 	defer fake.byMutex.Unlock()
 	fake.ByStub = stub
 }
 
-func (fake *FakeTaskService) ByArgsForCall(i int) (context.Context, internal.SearchArgs) {
+func (fake *FakeTaskService) ByArgsForCall(i int) (context.Context, internal.SearchParams) {
 	fake.byMutex.RLock()
 	defer fake.byMutex.RUnlock()
 	argsForCall := fake.byArgsForCall[i]
@@ -151,21 +149,19 @@ func (fake *FakeTaskService) ByReturnsOnCall(i int, result1 internal.SearchResul
 	}{result1, result2}
 }
 
-func (fake *FakeTaskService) Create(arg1 context.Context, arg2 string, arg3 internal.Priority, arg4 internal.Dates) (internal.Task, error) {
+func (fake *FakeTaskService) Create(arg1 context.Context, arg2 internal.CreateParams) (internal.Task, error) {
 	fake.createMutex.Lock()
 	ret, specificReturn := fake.createReturnsOnCall[len(fake.createArgsForCall)]
 	fake.createArgsForCall = append(fake.createArgsForCall, struct {
 		arg1 context.Context
-		arg2 string
-		arg3 internal.Priority
-		arg4 internal.Dates
-	}{arg1, arg2, arg3, arg4})
+		arg2 internal.CreateParams
+	}{arg1, arg2})
 	stub := fake.CreateStub
 	fakeReturns := fake.createReturns
-	fake.recordInvocation("Create", []interface{}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("Create", []interface{}{arg1, arg2})
 	fake.createMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -179,17 +175,17 @@ func (fake *FakeTaskService) CreateCallCount() int {
 	return len(fake.createArgsForCall)
 }
 
-func (fake *FakeTaskService) CreateCalls(stub func(context.Context, string, internal.Priority, internal.Dates) (internal.Task, error)) {
+func (fake *FakeTaskService) CreateCalls(stub func(context.Context, internal.CreateParams) (internal.Task, error)) {
 	fake.createMutex.Lock()
 	defer fake.createMutex.Unlock()
 	fake.CreateStub = stub
 }
 
-func (fake *FakeTaskService) CreateArgsForCall(i int) (context.Context, string, internal.Priority, internal.Dates) {
+func (fake *FakeTaskService) CreateArgsForCall(i int) (context.Context, internal.CreateParams) {
 	fake.createMutex.RLock()
 	defer fake.createMutex.RUnlock()
 	argsForCall := fake.createArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FakeTaskService) CreateReturns(result1 internal.Task, result2 error) {
