@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -435,7 +436,7 @@ func assertResponse(t *testing.T, res *http.Response, test test) {
 	}
 	defer res.Body.Close()
 
-	if !cmp.Equal(test.expected, test.target, cmpopts.IgnoreUnexported(rest.Time{})) {
-		t.Fatalf("expected results don't match: %s", cmp.Diff(test.expected, test.target, cmpopts.IgnoreUnexported(rest.Time{})))
+	if !cmp.Equal(test.expected, test.target, cmpopts.IgnoreUnexported(time.Time{})) {
+		t.Fatalf("expected results don't match: %s", cmp.Diff(test.expected, test.target, cmpopts.IgnoreUnexported(time.Time{})))
 	}
 }
