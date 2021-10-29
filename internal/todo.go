@@ -3,6 +3,8 @@ package internal
 
 import (
 	"time"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 const (
@@ -63,16 +65,12 @@ type Task struct {
 
 // Validate ...
 func (t Task) Validate() error {
-	if t.Description == "" {
-		return NewErrorf(ErrorCodeInvalidArgument, "description is required")
-	}
-
-	if err := t.Priority.Validate(); err != nil {
-		return WrapErrorf(err, ErrorCodeInvalidArgument, "priority is invalid")
-	}
-
-	if err := t.Dates.Validate(); err != nil {
-		return WrapErrorf(err, ErrorCodeInvalidArgument, "dates are invalid")
+	if err := validation.ValidateStruct(&t,
+		validation.Field(&t.Description, validation.Required),
+		validation.Field(&t.Priority),
+		validation.Field(&t.Dates),
+	); err != nil {
+		return WrapErrorf(err, ErrorCodeInvalidArgument, "invalid values")
 	}
 
 	return nil

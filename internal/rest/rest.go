@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/MarioCarrion/todo-api/internal"
@@ -13,7 +14,8 @@ import (
 
 // ErrorResponse represents a response containing an error message.
 type ErrorResponse struct {
-	Error string `json:"error"`
+	Error       string            `json:"error"`
+	Validations validation.Errors `json:"validations,omitempty"`
 }
 
 func renderErrorResponse(ctx context.Context, w http.ResponseWriter, msg string, err error) {
@@ -29,6 +31,11 @@ func renderErrorResponse(ctx context.Context, w http.ResponseWriter, msg string,
 			status = http.StatusNotFound
 		case internal.ErrorCodeInvalidArgument:
 			status = http.StatusBadRequest
+
+			var verrors validation.Errors
+			if errors.As(ierr, &verrors) {
+				resp.Validations = verrors
+			}
 		case internal.ErrorCodeUnknown:
 			fallthrough
 		default:

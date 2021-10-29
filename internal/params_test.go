@@ -4,6 +4,8 @@ import (
 	"errors"
 	"testing"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+
 	"github.com/MarioCarrion/todo-api/internal"
 )
 
@@ -19,8 +21,14 @@ func TestCreateParams_Validate(t *testing.T) {
 			"OK",
 			internal.CreateParams{
 				Description: "Description",
+				Priority:    internal.PriorityLow,
 			},
 			false,
+		},
+		{
+			"ERR",
+			internal.CreateParams{},
+			true,
 		},
 		{
 			"ERR",
@@ -40,7 +48,7 @@ func TestCreateParams_Validate(t *testing.T) {
 				t.Fatalf("expected error %t, got %s", tt.withErr, actualErr)
 			}
 
-			var ierr *internal.Error
+			var ierr validation.Errors
 			if tt.withErr && !errors.As(actualErr, &ierr) {
 				t.Fatalf("expected %T error, got %T", ierr, actualErr)
 			}

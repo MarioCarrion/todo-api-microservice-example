@@ -1,5 +1,9 @@
 package internal
 
+import (
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+)
+
 // CreateParams defines the arguments used for creating Task records.
 type CreateParams struct {
 	Description string
@@ -9,14 +13,20 @@ type CreateParams struct {
 
 // Validate indicates whether the fields are valid or not.
 func (c CreateParams) Validate() error {
+	if c.Priority == PriorityNone {
+		return validation.Errors{
+			"priority": NewErrorf(ErrorCodeInvalidArgument, "must be set"),
+		}
+	}
+
 	t := Task{
 		Description: c.Description,
 		Priority:    c.Priority,
 		Dates:       c.Dates,
 	}
 
-	if err := t.Validate(); err != nil {
-		return WrapErrorf(err, ErrorCodeInvalidArgument, "Validate")
+	if err := validation.Validate(&t); err != nil {
+		return WrapErrorf(err, ErrorCodeInvalidArgument, "validation.Validate")
 	}
 
 	return nil
