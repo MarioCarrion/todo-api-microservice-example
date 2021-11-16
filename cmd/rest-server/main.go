@@ -36,7 +36,7 @@ import (
 )
 
 //go:embed static
-var content embed.FS //nolint: gochecknoglobals
+var content embed.FS
 
 func main() {
 	var env, address string
@@ -79,7 +79,7 @@ func run(env, address string) (<-chan error, error) {
 		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewPostgreSQL")
 	}
 
-	es, err := internal.NewElasticSearch(conf)
+	esClient, err := internal.NewElasticSearch(conf)
 	if err != nil {
 		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewElasticSearch")
 	}
@@ -127,7 +127,7 @@ func run(env, address string) (<-chan error, error) {
 	srv, err := newServer(serverConfig{
 		Address:       address,
 		DB:            pool,
-		ElasticSearch: es,
+		ElasticSearch: esClient,
 		Metrics:       promExporter,
 		Middlewares:   []mux.MiddlewareFunc{otelmux.Middleware("todo-api-server"), logging},
 		Redis:         rdb,
@@ -167,7 +167,7 @@ func run(env, address string) (<-chan error, error) {
 
 		srv.SetKeepAlivesEnabled(false)
 
-		if err := srv.Shutdown(ctxTimeout); err != nil {
+		if err := srv.Shutdown(ctxTimeout); err != nil { //nolint: contextcheck
 			errC <- err
 		}
 
@@ -201,10 +201,10 @@ type serverConfig struct {
 }
 
 func newServer(conf serverConfig) (*http.Server, error) {
-	r := mux.NewRouter()
+	router := mux.NewRouter()
 
 	for _, mw := range conf.Middlewares {
-		r.Use(mw)
+		router.Use(mw)
 	}
 
 	//-
@@ -227,13 +227,13 @@ func newServer(conf serverConfig) (*http.Server, error) {
 
 	svc := service.NewTask(conf.Logger, mrepo, msearch, msgBroker)
 
-	rest.RegisterOpenAPI(r)
-	rest.NewTaskHandler(svc).Register(r)
+	rest.RegisterOpenAPI(router)
+	rest.NewTaskHandler(svc).Register(router)
 
 	//-
 
 	fsys, _ := fs.Sub(content, "static")
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.FS(fsys))))
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.FS(fsys))))
 
 	// r.Handle("/metrics", conf.Metrics)
 
@@ -241,7 +241,7 @@ func newServer(conf serverConfig) (*http.Server, error) {
 
 	lmt := tollbooth.NewLimiter(3, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Second})
 
-	lmtmw := tollbooth.LimitHandler(lmt, r)
+	lmtmw := tollbooth.LimitHandler(lmt, router)
 
 	//-
 

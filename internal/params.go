@@ -19,13 +19,13 @@ func (c CreateParams) Validate() error {
 		}
 	}
 
-	t := Task{
+	task := Task{
 		Description: c.Description,
 		Priority:    c.Priority,
 		Dates:       c.Dates,
 	}
 
-	if err := validation.Validate(&t); err != nil {
+	if err := validation.Validate(&task); err != nil {
 		return WrapErrorf(err, ErrorCodeInvalidArgument, "validation.Validate")
 	}
 

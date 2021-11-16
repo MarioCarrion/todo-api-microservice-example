@@ -28,12 +28,12 @@ func NewRabbitMQ(conf *envvar.Configuration) (*RabbitMQ, error) {
 		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "amqp.Dial")
 	}
 
-	ch, err := conn.Channel()
+	channel, err := conn.Channel()
 	if err != nil {
 		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "conn.Channel")
 	}
 
-	err = ch.ExchangeDeclare(
+	err = channel.ExchangeDeclare(
 		"tasks", // name
 		"topic", // type
 		true,    // durable
@@ -46,7 +46,7 @@ func NewRabbitMQ(conf *envvar.Configuration) (*RabbitMQ, error) {
 		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "ch.ExchangeDeclare")
 	}
 
-	if err := ch.Qos(
+	if err := channel.Qos(
 		1,     // prefetch count
 		0,     // prefetch size
 		false, // global
@@ -58,7 +58,7 @@ func NewRabbitMQ(conf *envvar.Configuration) (*RabbitMQ, error) {
 
 	return &RabbitMQ{
 		Connection: conn,
-		Channel:    ch,
+		Channel:    channel,
 	}, nil
 }
 

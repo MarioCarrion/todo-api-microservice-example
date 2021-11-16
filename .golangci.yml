@@ -19,6 +19,18 @@ linters-settings:
   exhaustivestruct:
     struct-patterns:
       - 'github.com/MarioCarrion/todo-api/internal.*Params'
+  varnamelen:
+    max-distance: 10
+    ignore-type-assert-ok: true
+    ignore-map-index-ok: true
+    ignore-chan-recv-ok: true
+    ignore-decls:
+      - b bytes.Buffer
+      - h http.Handler
+      - id string
+      - ok bool
+      - r *http.Request
+      - w http.ResponseWriter
   wrapcheck:
     ignoreSigs:
       - internaldomain.WrapErrorf(
@@ -37,6 +49,7 @@ issues:
         - funlen
         - goerr113
         - lll
+        - varnamelen
         - wrapcheck
     # Handles the C4 diagrams
     - path: internal/doc/doc.go

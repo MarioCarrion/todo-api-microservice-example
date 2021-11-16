@@ -75,16 +75,16 @@ func (p Priority) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON ...
 func (p *Priority) UnmarshalJSON(b []byte) error {
-	var s string
-	if err := json.Unmarshal(b, &s); err != nil {
+	var str string
+	if err := json.Unmarshal(b, &str); err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json.Unmarshal")
 	}
 
-	if err := Priority(s).Validate(); err != nil {
+	if err := Priority(str).Validate(); err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "Validate")
 	}
 
-	*p = Priority(s)
+	*p = Priority(str)
 
 	return nil
 }

@@ -57,7 +57,7 @@ func run(env string) (<-chan error, error) {
 
 	//-
 
-	es, err := internal.NewElasticSearch(conf)
+	esClient, err := internal.NewElasticSearch(conf)
 	if err != nil {
 		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewElasticSearch")
 	}
@@ -79,7 +79,7 @@ func run(env string) (<-chan error, error) {
 	srv := &Server{
 		logger: logger,
 		rmq:    rmq,
-		task:   elasticsearch.NewTask(es),
+		task:   elasticsearch.NewTask(esClient),
 		done:   make(chan struct{}),
 	}
 
@@ -106,7 +106,7 @@ func run(env string) (<-chan error, error) {
 			close(errC)
 		}()
 
-		if err := srv.Shutdown(ctxTimeout); err != nil {
+		if err := srv.Shutdown(ctxTimeout); err != nil { //nolint: contextcheck
 			errC <- err
 		}
 
@@ -134,7 +134,7 @@ type Server struct {
 // ListenAndServe ...
 // XXX: Dead Letter Exchange will be implemented in future episodes.
 func (s *Server) ListenAndServe() error {
-	q, err := s.rmq.Channel.QueueDeclare(
+	queue, err := s.rmq.Channel.QueueDeclare(
 		"",    // name
 		false, // durable
 		false, // delete when unused
@@ -147,7 +147,7 @@ func (s *Server) ListenAndServe() error {
 	}
 
 	err = s.rmq.Channel.QueueBind(
-		q.Name,          // queue name
+		queue.Name,      // queue name
 		"tasks.event.*", // routing key
 		"tasks",         // exchange
 		false,
@@ -158,7 +158,7 @@ func (s *Server) ListenAndServe() error {
 	}
 
 	msgs, err := s.rmq.Channel.Consume(
-		q.Name,               // queue
+		queue.Name,           // queue
 		rabbitMQConsumerName, // consumer
 		false,                // auto-ack
 		false,                // exclusive

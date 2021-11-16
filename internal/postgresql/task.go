@@ -35,7 +35,7 @@ func (t *Task) Create(ctx context.Context, params internal.CreateParams) (intern
 	// XXX: `ID` and `IsDone` make no sense when creating new records, that's why those are ignored.
 	// XXX: We are intentionally NOT SUPPORTING `SubTasks` and `Categories` JUST YET.
 
-	id, err := t.q.InsertTask(ctx, db.InsertTaskParams{
+	newID, err := t.q.InsertTask(ctx, db.InsertTaskParams{
 		Description: params.Description,
 		Priority:    newPriority(params.Priority),
 		StartDate:   newNullTime(params.Dates.Start),
@@ -46,7 +46,7 @@ func (t *Task) Create(ctx context.Context, params internal.CreateParams) (intern
 	}
 
 	return internal.Task{
-		ID:          id.String(),
+		ID:          newID.String(),
 		Description: params.Description,
 		Priority:    params.Priority,
 		Dates:       params.Dates,

@@ -41,7 +41,7 @@ func (t *Task) Updated(ctx context.Context, task internal.Task) error {
 	return t.publish(ctx, "Task.Updated", "tasks.event.updated", task)
 }
 
-func (t *Task) publish(ctx context.Context, spanName, routingKey string, e interface{}) error {
+func (t *Task) publish(ctx context.Context, spanName, routingKey string, event interface{}) error {
 	_, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, spanName)
 	defer span.End()
 
@@ -60,7 +60,7 @@ func (t *Task) publish(ctx context.Context, spanName, routingKey string, e inter
 
 	var b bytes.Buffer
 
-	if err := gob.NewEncoder(&b).Encode(e); err != nil {
+	if err := gob.NewEncoder(&b).Encode(event); err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "gob.Encode")
 	}
 

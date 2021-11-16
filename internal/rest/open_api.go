@@ -265,14 +265,14 @@ func NewOpenAPI3() openapi3.T {
 	return swagger
 }
 
-func RegisterOpenAPI(r *mux.Router) {
+func RegisterOpenAPI(router *mux.Router) {
 	swagger := NewOpenAPI3()
 
-	r.HandleFunc("/openapi3.json", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/openapi3.json", func(w http.ResponseWriter, r *http.Request) {
 		renderResponse(w, &swagger, http.StatusOK)
 	}).Methods(http.MethodGet)
 
-	r.HandleFunc("/openapi3.yaml", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/openapi3.yaml", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/x-yaml")
 
 		data, _ := yaml.Marshal(&swagger)

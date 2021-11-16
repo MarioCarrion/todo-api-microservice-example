@@ -11,8 +11,8 @@ import (
 
 //go:generate sqlc generate
 
-func convertPriority(p db.Priority) (internal.Priority, error) {
-	switch p {
+func convertPriority(priority db.Priority) (internal.Priority, error) {
+	switch priority {
 	case db.PriorityNone:
 		return internal.PriorityNone, nil
 	case db.PriorityLow:
@@ -23,7 +23,7 @@ func convertPriority(p db.Priority) (internal.Priority, error) {
 		return internal.PriorityHigh, nil
 	}
 
-	return internal.Priority(-1), fmt.Errorf("unknown value: %s", p)
+	return internal.Priority(-1), fmt.Errorf("unknown value: %s", priority)
 }
 
 func newNullTime(t time.Time) sql.NullTime {

@@ -55,7 +55,7 @@ func run(env string) (<-chan error, error) {
 
 	//-
 
-	es, err := internal.NewElasticSearch(conf)
+	esClient, err := internal.NewElasticSearch(conf)
 	if err != nil {
 		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewElasticSearch")
 	}
@@ -77,7 +77,7 @@ func run(env string) (<-chan error, error) {
 	srv := &Server{
 		logger: logger,
 		kafka:  kafka,
-		task:   elasticsearch.NewTask(es),
+		task:   elasticsearch.NewTask(esClient),
 		doneC:  make(chan struct{}),
 		closeC: make(chan struct{}),
 	}
@@ -105,7 +105,7 @@ func run(env string) (<-chan error, error) {
 			close(errC)
 		}()
 
-		if err := srv.Shutdown(ctxTimeout); err != nil {
+		if err := srv.Shutdown(ctxTimeout); err != nil { //nolint: contextcheck
 			errC <- err
 		}
 
