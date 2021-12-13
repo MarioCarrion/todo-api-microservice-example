@@ -5,11 +5,14 @@ import (
 	"time"
 
 	"github.com/mercari/go-circuitbreaker"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
 	"github.com/MarioCarrion/todo-api/internal"
 )
+
+const otelName = "github.com/MarioCarrion/todo-api/internal/service"
 
 // TaskRepository defines the datastore handling persisting Task records.
 type TaskRepository interface {
@@ -60,8 +63,9 @@ func NewTask(logger *zap.Logger, repo TaskRepository, search TaskSearchRepositor
 
 // By searches Tasks matching the received values.
 func (t *Task) By(ctx context.Context, args internal.SearchParams) (_ internal.SearchResults, err error) {
-	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.By")
-	defer span.End()
+	defer newOTELSpan(ctx, "Task.By").End()
+
+	//-
 
 	if !t.cb.Ready() {
 		return internal.SearchResults{}, internal.NewErrorf(internal.ErrorCodeUnknown, "service not available")
@@ -81,8 +85,9 @@ func (t *Task) By(ctx context.Context, args internal.SearchParams) (_ internal.S
 
 // Create stores a new record.
 func (t *Task) Create(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
-	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Create")
-	defer span.End()
+	defer newOTELSpan(ctx, "Task.Create").End()
+
+	//-
 
 	if err := params.Validate(); err != nil {
 		return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "params.Validate")
@@ -101,8 +106,9 @@ func (t *Task) Create(ctx context.Context, params internal.CreateParams) (intern
 
 // Delete removes an existing Task from the datastore.
 func (t *Task) Delete(ctx context.Context, id string) error {
-	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Delete")
-	defer span.End()
+	defer newOTELSpan(ctx, "Task.Delete").End()
+
+	//-
 
 	// XXX: We will revisit the number of received arguments in future episodes.
 	if err := t.repo.Delete(ctx, id); err != nil {
@@ -117,8 +123,9 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 
 // Task gets an existing Task from the datastore.
 func (t *Task) Task(ctx context.Context, id string) (internal.Task, error) {
-	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Task")
-	defer span.End()
+	defer newOTELSpan(ctx, "Task.Task").End()
+
+	//-
 
 	// XXX: We will revisit the number of received arguments in future episodes.
 	task, err := t.repo.Find(ctx, id)
@@ -132,8 +139,9 @@ func (t *Task) Task(ctx context.Context, id string) (internal.Task, error) {
 // Update updates an existing Task in the datastore.
 //nolint: lll
 func (t *Task) Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error {
-	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Update")
-	defer span.End()
+	defer newOTELSpan(ctx, "Task.Update").End()
+
+	//-
 
 	// XXX: We will revisit the number of received arguments in future episodes.
 	if err := t.repo.Update(ctx, id, description, priority, dates, isDone); err != nil {
@@ -150,4 +158,12 @@ func (t *Task) Update(ctx context.Context, id string, description string, priori
 	}
 
 	return nil
+}
+
+//-
+
+func newOTELSpan(ctx context.Context, name string) trace.Span {
+	ctx, span := otel.Tracer(otelName).Start(ctx, name)
+
+	return span
 }

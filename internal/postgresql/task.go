@@ -6,8 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/trace"
 
 	"github.com/MarioCarrion/todo-api/internal"
 	"github.com/MarioCarrion/todo-api/internal/postgresql/db"
@@ -27,10 +25,9 @@ func NewTask(d db.DBTX) *Task {
 
 // Create inserts a new task record.
 func (t *Task) Create(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
-	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Create")
-	span.SetAttributes(attribute.String("db.system", "postgresql"))
+	defer newOTELSpan(ctx, "Task.Create").End()
 
-	defer span.End()
+	//-
 
 	// XXX: `ID` and `IsDone` make no sense when creating new records, that's why those are ignored.
 	// XXX: We are intentionally NOT SUPPORTING `SubTasks` and `Categories` JUST YET.
@@ -55,10 +52,9 @@ func (t *Task) Create(ctx context.Context, params internal.CreateParams) (intern
 
 // Delete deletes the existing record matching the id.
 func (t *Task) Delete(ctx context.Context, id string) error {
-	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Delete")
-	span.SetAttributes(attribute.String("db.system", "postgresql"))
+	defer newOTELSpan(ctx, "Task.Delete").End()
 
-	defer span.End()
+	//-
 
 	val, err := uuid.Parse(id)
 	if err != nil {
@@ -79,10 +75,9 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 
 // Find returns the requested task by searching its id.
 func (t *Task) Find(ctx context.Context, id string) (internal.Task, error) {
-	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Find")
-	span.SetAttributes(attribute.String("db.system", "postgresql"))
+	defer newOTELSpan(ctx, "Task.Find").End()
 
-	defer span.End()
+	//-
 
 	val, err := uuid.Parse(id)
 	if err != nil {
@@ -117,10 +112,9 @@ func (t *Task) Find(ctx context.Context, id string) (internal.Task, error) {
 
 // Update updates the existing record with new values.
 func (t *Task) Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error {
-	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Update")
-	span.SetAttributes(attribute.String("db.system", "postgresql"))
+	defer newOTELSpan(ctx, "Task.Update").End()
 
-	defer span.End()
+	//-
 
 	// XXX: We will revisit the number of received arguments in future episodes.
 	val, err := uuid.Parse(id)

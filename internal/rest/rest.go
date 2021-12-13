@@ -7,10 +7,12 @@ import (
 	"net/http"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel"
 
 	"github.com/MarioCarrion/todo-api/internal"
 )
+
+const otelName = "github.com/MarioCarrion/todo-api/internal/rest"
 
 // ErrorResponse represents a response containing an error message.
 type ErrorResponse struct {
@@ -44,7 +46,7 @@ func renderErrorResponse(ctx context.Context, w http.ResponseWriter, msg string,
 	}
 
 	if err != nil {
-		_, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "rest.renderErrorResponse")
+		_, span := otel.Tracer(otelName).Start(ctx, "renderErrorResponse")
 		defer span.End()
 
 		span.RecordError(err)

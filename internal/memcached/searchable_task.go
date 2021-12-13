@@ -33,6 +33,10 @@ func NewSearchableTask(client *memcache.Client, orig SearchableTaskStore) *Searc
 
 // Index ...
 func (t *SearchableTask) Index(ctx context.Context, task internal.Task) error {
+	defer newOTELSpan(ctx, "SearchableTask.Index").End()
+
+	//-
+
 	if err := t.orig.Index(ctx, task); err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "orig.Index")
 	}
@@ -42,6 +46,10 @@ func (t *SearchableTask) Index(ctx context.Context, task internal.Task) error {
 
 // Delete ...
 func (t *SearchableTask) Delete(ctx context.Context, id string) error {
+	defer newOTELSpan(ctx, "SearchableTask.Delete").End()
+
+	//-
+
 	if err := t.orig.Delete(ctx, id); err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "orig.Delete")
 	}
@@ -51,18 +59,22 @@ func (t *SearchableTask) Delete(ctx context.Context, id string) error {
 
 // Search ...
 func (t *SearchableTask) Search(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
+	defer newOTELSpan(ctx, "SearchableTask.Search").End()
+
+	//-
+
 	key := newSearchableKey(args)
 
 	var res internal.SearchResults
 
-	if err := getTask(t.client, key, &res); err != nil {
+	if err := getTask(ctx, t.client, key, &res); err != nil {
 		if errors.Is(err, memcache.ErrCacheMiss) {
 			res, err := t.orig.Search(ctx, args)
 			if err != nil {
 				return internal.SearchResults{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "orig.Search")
 			}
 
-			setTask(t.client, key, &res, 25*time.Second)
+			setTask(ctx, t.client, key, &res, 25*time.Second)
 
 			return res, nil
 		}

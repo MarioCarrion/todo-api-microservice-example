@@ -8,7 +8,7 @@ docker run \
   -d \
   -v "${PWD}/prometheus.yml:/etc/prometheus/prometheus.yml" \
   -p 9090:9090 \
-  prom/prometheus:v2.25.2
+  prom/prometheus:v2.31.1
 ```
 
 Then open http://localhost:9090/
@@ -23,7 +23,7 @@ docker run \
   -d \
   -p 16686:16686 \
   -p 14268:14268 \
-  jaegertracing/all-in-one:1.22.0
+  jaegertracing/all-in-one:1.29.0
 ```
 
 Then open http://localhost:16686/search

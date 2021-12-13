@@ -1,15 +1,21 @@
 package postgresql
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
 
 	"github.com/MarioCarrion/todo-api/internal"
 	"github.com/MarioCarrion/todo-api/internal/postgresql/db"
+	"go.opentelemetry.io/otel"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	"go.opentelemetry.io/otel/trace"
 )
 
 //go:generate sqlc generate
+
+const otelName = "github.com/MarioCarrion/todo-api/internal/postgresql"
 
 func convertPriority(priority db.Priority) (internal.Priority, error) {
 	switch priority {
@@ -48,4 +54,14 @@ func newPriority(p internal.Priority) db.Priority {
 	// XXX: because we are using an enum type, postgres will fail with the following value.
 
 	return "invalid"
+}
+
+//-
+
+func newOTELSpan(ctx context.Context, name string) trace.Span {
+	ctx, span := otel.Tracer(otelName).Start(ctx, name)
+
+	span.SetAttributes(semconv.DBSystemPostgreSQL)
+
+	return span
 }

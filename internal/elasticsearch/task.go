@@ -10,10 +10,14 @@ import (
 
 	esv7 "github.com/elastic/go-elasticsearch/v7"
 	esv7api "github.com/elastic/go-elasticsearch/v7/esapi"
+	"go.opentelemetry.io/otel"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/MarioCarrion/todo-api/internal"
 )
+
+const otelName = "github.com/MarioCarrion/todo-api/internal/elasticsearch"
 
 // Task represents the repository used for interacting with Task records.
 type Task struct {
@@ -42,8 +46,9 @@ func NewTask(client *esv7.Client) *Task {
 
 // Index creates or updates a task in an index.
 func (t *Task) Index(ctx context.Context, task internal.Task) error {
-	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Index")
-	defer span.End()
+	defer newOTELSpan(ctx, "Task.Index").End()
+
+	//-
 
 	body := indexedTask{
 		ID:          task.ID,
@@ -84,8 +89,9 @@ func (t *Task) Index(ctx context.Context, task internal.Task) error {
 
 // Delete removes a task from the index.
 func (t *Task) Delete(ctx context.Context, id string) error {
-	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Delete")
-	defer span.End()
+	defer newOTELSpan(ctx, "Task.Delete").End()
+
+	//-
 
 	req := esv7api.DeleteRequest{
 		Index:      t.index,
@@ -110,8 +116,9 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 // Search returns tasks matching a query.
 //nolint: funlen, cyclop
 func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
-	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "Task.Search")
-	defer span.End()
+	defer newOTELSpan(ctx, "Task.Search").End()
+
+	//-
 
 	if args.IsZero() {
 		return internal.SearchResults{}, nil
@@ -218,4 +225,14 @@ func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal
 		Tasks: res,
 		Total: hits.Hits.Total.Value,
 	}, nil
+}
+
+//-
+
+func newOTELSpan(ctx context.Context, name string) trace.Span {
+	ctx, span := otel.Tracer(otelName).Start(ctx, name)
+
+	span.SetAttributes(semconv.DBSystemElasticsearch)
+
+	return span
 }

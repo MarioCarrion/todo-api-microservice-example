@@ -6,12 +6,14 @@ import (
 	"encoding/json"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/semconv"
-	"go.opentelemetry.io/otel/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 
 	"github.com/MarioCarrion/todo-api/internal"
 )
+
+const otelName = "github.com/MarioCarrion/todo-api/internal/kafka"
 
 // Task represents the repository used for publishing Task records.
 type Task struct {
@@ -48,13 +50,17 @@ func (t *Task) Updated(ctx context.Context, task internal.Task) error {
 }
 
 func (t *Task) publish(ctx context.Context, spanName, msgType string, task internal.Task) error {
-	_, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, spanName)
+	ctx, span := otel.Tracer(otelName).Start(ctx, spanName)
 	defer span.End()
 
 	span.SetAttributes(
 		attribute.KeyValue{
 			Key:   semconv.MessagingSystemKey,
 			Value: attribute.StringValue("kafka"),
+		},
+		attribute.KeyValue{
+			Key:   semconv.MessagingDestinationKey,
+			Value: attribute.StringValue(t.topicName),
 		},
 	)
 

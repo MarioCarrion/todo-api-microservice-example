@@ -6,12 +6,14 @@ import (
 	"encoding/json"
 
 	"github.com/go-redis/redis/v8"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/semconv"
-	"go.opentelemetry.io/otel/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 
 	"github.com/MarioCarrion/todo-api/internal"
 )
+
+const otelName = "github.com/MarioCarrion/todo-api/internal/redis"
 
 // Task represents the repository used for publishing Task records.
 type Task struct {
@@ -41,13 +43,13 @@ func (t *Task) Updated(ctx context.Context, task internal.Task) error {
 }
 
 func (t *Task) publish(ctx context.Context, spanName, channel string, event interface{}) error {
-	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, spanName)
+	ctx, span := otel.Tracer(otelName).Start(ctx, spanName)
 	defer span.End()
 
 	span.SetAttributes(
 		semconv.DBSystemRedis,
 		attribute.KeyValue{
-			Key:   "db.statement",
+			Key:   semconv.DBStatementKey,
 			Value: attribute.StringValue("PUBLISH"),
 		},
 	)

@@ -10,12 +10,12 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/stdout"
-	"go.opentelemetry.io/otel/exporters/trace/jaeger"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"go.opentelemetry.io/otel/semconv"
+	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 
 	"github.com/MarioCarrion/todo-api/pkg/openapi3"
 )
@@ -65,7 +65,7 @@ func main() {
 func initTracer() {
 	jaegerEndpoint := "http://localhost:14268/api/traces"
 
-	jaegerExporter, err := jaeger.NewRawExporter(
+	jaegerExporter, err := jaeger.New(
 		jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(jaegerEndpoint)),
 	)
 	if err != nil {
@@ -73,18 +73,17 @@ func initTracer() {
 	}
 
 	// Create stdout exporter to be able to retrieve the collected spans.
-	exporter, err := stdout.NewExporter(stdout.WithPrettyPrint())
+	_, err = stdouttrace.New(stdouttrace.WithPrettyPrint())
 	if err != nil {
 		log.Fatalln("Couldn't initialize exporter", err)
 	}
 
-	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithSyncer(exporter),
-		sdktrace.WithSyncer(jaegerExporter),
-		sdktrace.WithResource(resource.NewWithAttributes(attribute.KeyValue{
+	tp := trace.NewTracerProvider(
+		trace.WithSampler(trace.AlwaysSample()),
+		trace.WithBatcher(jaegerExporter),
+		trace.WithResource(resource.NewSchemaless(attribute.KeyValue{
 			Key:   semconv.ServiceNameKey,
-			Value: attribute.StringValue("cli"),
+			Value: attribute.StringValue("rest-server"),
 		})),
 	)
 
