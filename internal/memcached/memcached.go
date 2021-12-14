@@ -67,8 +67,8 @@ func setTask(ctx context.Context, client *memcache.Client, key string, value int
 
 //-
 
-func newOTELSpan(ctx context.Context, name string) trace.Span {
-	ctx, span := otel.Tracer(otelName).Start(ctx, name)
+func newOTELSpan(ctx context.Context, name string) trace.Span { //nolint: ireturn
+	_, span := otel.Tracer(otelName).Start(ctx, name)
 
 	span.SetAttributes(semconv.DBSystemMemcached)
 

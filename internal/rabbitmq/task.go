@@ -44,7 +44,7 @@ func (t *Task) Updated(ctx context.Context, task internal.Task) error {
 }
 
 func (t *Task) publish(ctx context.Context, spanName, routingKey string, event interface{}) error {
-	ctx, span := otel.Tracer(otelName).Start(ctx, spanName)
+	_, span := otel.Tracer(otelName).Start(ctx, spanName)
 	defer span.End()
 
 	span.SetAttributes(

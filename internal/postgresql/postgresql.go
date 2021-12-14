@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/MarioCarrion/todo-api/internal"
-	"github.com/MarioCarrion/todo-api/internal/postgresql/db"
 	"go.opentelemetry.io/otel"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/MarioCarrion/todo-api/internal"
+	"github.com/MarioCarrion/todo-api/internal/postgresql/db"
 )
 
 //go:generate sqlc generate
@@ -58,8 +59,8 @@ func newPriority(p internal.Priority) db.Priority {
 
 //-
 
-func newOTELSpan(ctx context.Context, name string) trace.Span {
-	ctx, span := otel.Tracer(otelName).Start(ctx, name)
+func newOTELSpan(ctx context.Context, name string) trace.Span { //nolint: ireturn
+	_, span := otel.Tracer(otelName).Start(ctx, name)
 
 	span.SetAttributes(semconv.DBSystemPostgreSQL)
 

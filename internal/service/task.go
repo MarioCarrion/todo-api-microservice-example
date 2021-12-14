@@ -162,8 +162,8 @@ func (t *Task) Update(ctx context.Context, id string, description string, priori
 
 //-
 
-func newOTELSpan(ctx context.Context, name string) trace.Span {
-	ctx, span := otel.Tracer(otelName).Start(ctx, name)
+func newOTELSpan(ctx context.Context, name string) trace.Span { //nolint: ireturn
+	_, span := otel.Tracer(otelName).Start(ctx, name)
 
 	return span
 }
