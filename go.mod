@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
-	github.com/confluentinc/confluent-kafka-go v1.7.0
+	github.com/confluentinc/confluent-kafka-go v1.8.2
 	github.com/deepmap/oapi-codegen v1.9.0
 	github.com/didip/tollbooth/v6 v6.1.1
 	github.com/elastic/go-elasticsearch/v7 v7.14.0
@@ -17,7 +17,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/vault/api v1.1.1
-	github.com/jackc/pgconn v1.10.0
+	github.com/jackc/pgconn v1.10.1
 	github.com/jackc/pgx/v4 v4.13.0
 	github.com/joho/godotenv v1.3.0
 	github.com/mercari/go-circuitbreaker v0.0.1
