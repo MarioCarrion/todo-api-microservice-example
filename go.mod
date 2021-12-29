@@ -19,7 +19,7 @@ require (
 	github.com/hashicorp/vault/api v1.1.1
 	github.com/jackc/pgconn v1.10.1
 	github.com/jackc/pgx/v4 v4.14.1
-	github.com/joho/godotenv v1.3.0
+	github.com/joho/godotenv v1.4.0
 	github.com/mercari/go-circuitbreaker v0.0.1
 	github.com/ory/dockertest/v3 v3.8.1
 	github.com/streadway/amqp v1.0.0
