@@ -8,7 +8,7 @@ require (
 	github.com/deepmap/oapi-codegen v1.9.0
 	github.com/didip/tollbooth/v6 v6.1.1
 	github.com/elastic/go-elasticsearch/v7 v7.16.0
-	github.com/getkin/kin-openapi v0.86.0
+	github.com/getkin/kin-openapi v0.87.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/go-redis/redis/v8 v8.11.4
