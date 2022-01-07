@@ -2,7 +2,6 @@ package envvar_test
 
 import (
 	"errors"
-	"path"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -64,8 +63,6 @@ func TestConfiguration_Get(t *testing.T) {
 			"/failed",
 		},
 	}
-
-	_ = envvar.Load(path.Join("fixtures", "env"))
 
 	for _, tt := range tests {
 		tt := tt
