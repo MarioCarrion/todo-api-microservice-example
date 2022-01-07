@@ -2,7 +2,6 @@ package envvar_test
 
 import (
 	"errors"
-	"os"
 	"path"
 	"testing"
 
@@ -22,17 +21,15 @@ func TestConfiguration_Get(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		setup  func(p *envvartesting.FakeProvider) (teardown func())
+		setup  func(t *testing.T, p *envvartesting.FakeProvider)
 		input  string
 		output output
 		arg    string
 	}{
 		{
 			"OK: no secret",
-			func(_ *envvartesting.FakeProvider) func() {
-				return func() {
-					os.Setenv("ENVVAR_OK", "")
-				}
+			func(t *testing.T, _ *envvartesting.FakeProvider) {
+				t.Setenv("ENVVAR_OK", "value")
 			},
 			"ENVVAR_OK",
 			output{
@@ -42,15 +39,10 @@ func TestConfiguration_Get(t *testing.T) {
 		},
 		{
 			"OK: secure",
-			func(p *envvartesting.FakeProvider) func() {
-				os.Setenv("ENVVAR_OK1_SECURE", "/secret/value")
+			func(t *testing.T, p *envvartesting.FakeProvider) {
+				t.Setenv("ENVVAR_OK1_SECURE", "/secret/value")
 
 				p.GetReturns("provider value", nil)
-
-				return func() {
-					os.Setenv("ENVVAR_OK1", "")
-					os.Setenv("ENVVAR_OK1_SECURE", "")
-				}
 			},
 			"ENVVAR_OK1",
 			output{
@@ -60,14 +52,10 @@ func TestConfiguration_Get(t *testing.T) {
 		},
 		{
 			"ERR: provider failed",
-			func(p *envvartesting.FakeProvider) func() {
-				os.Setenv("ENVVAR_ERR_SECURE", "/failed")
+			func(t *testing.T, p *envvartesting.FakeProvider) {
+				t.Setenv("ENVVAR_ERR_SECURE", "/failed")
 
 				p.GetReturns("", errors.New("failed"))
-
-				return func() {
-					os.Setenv("ENVVAR_ERR_SECURE", "")
-				}
 			},
 			"ENVVAR_ERR",
 			output{
@@ -83,12 +71,9 @@ func TestConfiguration_Get(t *testing.T) {
 		tt := tt
 
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			provider := envvartesting.FakeProvider{}
 
-			teardown := tt.setup(&provider)
-			t.Cleanup(teardown)
+			tt.setup(t, &provider)
 
 			actual, actualErr := envvar.New(&provider).Get(tt.input)
 
