@@ -79,3 +79,9 @@ issues:
     - path: internal/memcached/task.go
       linters:
         - lll
+    # Because of the env var testing and using t.Setenv
+    - path: internal/envvar/envvar_test.go
+      linters:
+        - paralleltest
+        - thelper
+        - tparallel
