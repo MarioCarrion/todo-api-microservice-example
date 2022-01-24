@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
 	github.com/confluentinc/confluent-kafka-go v1.8.2
-	github.com/deepmap/oapi-codegen v1.9.0
+	github.com/deepmap/oapi-codegen v1.9.1
 	github.com/didip/tollbooth/v6 v6.1.1
 	github.com/elastic/go-elasticsearch/v7 v7.16.0
 	github.com/getkin/kin-openapi v0.88.0
@@ -100,7 +100,7 @@ require (
 	github.com/lib/pq v1.10.2 // indirect
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/manveru/faker v0.0.0-20171103152722-9fbc68a78c4d // indirect
-	github.com/mattn/go-colorable v0.1.8 // indirect
+	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/mitchellh/copystructure v1.0.0 // indirect
@@ -133,7 +133,7 @@ require (
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/net v0.0.0-20211013171255-e13a2654a71e // indirect
-	golang.org/x/sys v0.0.0-20211031064116-611d5d643895 // indirect
+	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
 	golang.org/x/tools v0.1.5 // indirect
