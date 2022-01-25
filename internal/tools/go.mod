@@ -3,7 +3,7 @@ module github.com/MarioCarrion/todo-api/internal/tools
 go 1.17
 
 require (
-	github.com/deepmap/oapi-codegen v1.9.0
+	github.com/deepmap/oapi-codegen v1.9.1
 	github.com/fdaines/spm-go v0.11.1
 	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/golangci/golangci-lint v1.43.1-0.20211114223346-ec58c4818038
@@ -75,7 +75,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/fzipp/gocyclo v0.3.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.0 // indirect
-	github.com/getkin/kin-openapi v0.80.0 // indirect
+	github.com/getkin/kin-openapi v0.87.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-critic/go-critic v0.6.1 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
@@ -150,8 +150,8 @@ require (
 	github.com/kulti/thelper v0.4.0 // indirect
 	github.com/kunwardeep/paralleltest v1.0.3 // indirect
 	github.com/kyoh86/exportloopref v0.1.8 // indirect
-	github.com/labstack/echo/v4 v4.2.1 // indirect
-	github.com/labstack/gommon v0.3.0 // indirect
+	github.com/labstack/echo/v4 v4.6.3 // indirect
+	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/ldez/gomoddirectives v0.2.2 // indirect
 	github.com/ldez/tagliatelle v0.2.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
