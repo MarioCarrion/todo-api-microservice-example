@@ -20,6 +20,12 @@ linters-settings:
   exhaustivestruct:
     struct-patterns:
       - 'github.com/MarioCarrion/todo-api/internal.*Params'
+  ireturn:
+    allow:
+      - error
+      - stdlib
+      #
+      - 'go.opentelemetry.io/otel/trace.Span'
   varnamelen:
     max-distance: 10
     ignore-type-assert-ok: true

@@ -33,7 +33,7 @@ require (
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/OpenPeeDeeP/depguard v1.1.0 // indirect
 	github.com/alexkohler/prealloc v1.0.0 // indirect
-	github.com/antlr/antlr4 v0.0.0-20200209180723-1177c0b58d07 // indirect
+	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20211208212222-82c441726976 // indirect
 	github.com/apache/arrow/go/arrow v0.0.0-20211013220434-5962184e7a30 // indirect
 	github.com/ashanbrown/forbidigo v1.3.0 // indirect
 	github.com/ashanbrown/makezero v1.1.0 // indirect
