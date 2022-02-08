@@ -17,7 +17,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/vault/api v1.3.1
-	github.com/jackc/pgconn v1.10.1
+	github.com/jackc/pgconn v1.11.0
 	github.com/jackc/pgx/v4 v4.14.1
 	github.com/joho/godotenv v1.4.0
 	github.com/mercari/go-circuitbreaker v0.0.1
