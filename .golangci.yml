@@ -2,9 +2,10 @@ linters:
   enable-all: true
 
   disable:
+    - errchkjson # Because it panics with: "fatal error: stack overflow" XXX Revisit
     - goerr113
-    - gofumpt # Prefer `gofmt` rules / some rules conflict with `wsl`
-    - gomnd # XXX: For now
+    - gofumpt    # Prefer `gofmt` rules / some rules conflict with `wsl`
+    - gomnd      # XXX: For now
     # The following are deprecated linters, added to avoid intial warning when running
     - golint
     - interfacer
@@ -45,6 +46,7 @@ issues:
     - path: _test\.go
       linters:
         - cyclop
+        - errchkjson
         - exhaustivestruct
         - funlen
         - goerr113
