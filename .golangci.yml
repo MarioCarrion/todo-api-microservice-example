@@ -16,7 +16,14 @@ linters-settings:
   lll:
     line-length: 130
   gci:
-    local-prefixes: github.com/MarioCarrion/todo-api/
+    no-inline-comments: true
+    no-prefix-comments: true
+    sections:
+      - standard
+      - default
+      - prefix(github.com/MarioCarrion/todo-api)
+    section-separators:
+      - newLine
   exhaustivestruct:
     struct-patterns:
       - 'github.com/MarioCarrion/todo-api/internal.*Params'
@@ -80,6 +87,9 @@ issues:
     - path: cmd/openapi-gen/main.go
       linters:
         - forbidigo
+    - path: cmd/internal/postgresql.go
+      linters:
+        - revive # blank-imports
     # XXX: This will be reremove in future episodes when "exhaustivestruct" is enabled
     - path: internal/postgresql/task.go
       linters:

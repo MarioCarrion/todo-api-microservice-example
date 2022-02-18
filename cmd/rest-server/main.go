@@ -23,7 +23,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.uber.org/zap"
 
-	// "github.com/MarioCarrion/todo-api/internal/kafka" .
 	"github.com/MarioCarrion/todo-api/cmd/internal"
 	internaldomain "github.com/MarioCarrion/todo-api/internal"
 	"github.com/MarioCarrion/todo-api/internal/elasticsearch"

@@ -7,8 +7,6 @@ import (
 	"net/url"
 
 	"github.com/jackc/pgx/v4/pgxpool"
-
-	// Initialize "pgx".
 	_ "github.com/jackc/pgx/v4/stdlib"
 
 	"github.com/MarioCarrion/todo-api/internal"
