@@ -9,7 +9,7 @@ require (
 	github.com/golangci/golangci-lint v1.44.2
 	github.com/kyleconroy/sqlc v1.12.0
 	github.com/lib/pq v1.10.4
-	github.com/maxbrunsfeld/counterfeiter/v6 v6.4.1
+	github.com/maxbrunsfeld/counterfeiter/v6 v6.5.0
 	goa.design/model v1.7.6
 )
 
@@ -261,13 +261,13 @@ require (
 	go.uber.org/zap v1.19.1 // indirect
 	goa.design/goa/v3 v3.2.3 // indirect
 	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce // indirect
-	golang.org/x/mod v0.5.1 // indirect
-	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f // indirect
+	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
+	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220111092808-5a964db01320 // indirect
+	golang.org/x/sys v0.0.0-20220315194320-039c03cc5b86 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.9 // indirect
+	golang.org/x/tools v0.1.10 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/api v0.63.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
