@@ -26,7 +26,7 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.28.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.29.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.27.0
-	go.opentelemetry.io/otel v1.4.0
+	go.opentelemetry.io/otel v1.5.0
 	go.opentelemetry.io/otel/exporters/jaeger v1.4.0
 	go.opentelemetry.io/otel/exporters/prometheus v0.26.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.3.0
@@ -34,7 +34,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.4.0
 	go.opentelemetry.io/otel/sdk/export/metric v0.26.0
 	go.opentelemetry.io/otel/sdk/metric v0.26.0
-	go.opentelemetry.io/otel/trace v1.4.0
+	go.opentelemetry.io/otel/trace v1.5.0
 	go.uber.org/zap v1.21.0
 	goa.design/model v1.7.6
 )
