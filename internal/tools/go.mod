@@ -6,7 +6,7 @@ require (
 	github.com/deepmap/oapi-codegen v1.9.1
 	github.com/fdaines/spm-go v0.11.1
 	github.com/golang-migrate/migrate/v4 v4.15.1
-	github.com/golangci/golangci-lint v1.44.2
+	github.com/golangci/golangci-lint v1.45.0
 	github.com/kyleconroy/sqlc v1.12.0
 	github.com/lib/pq v1.10.4
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.5.0
@@ -36,7 +36,7 @@ require (
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20211208212222-82c441726976 // indirect
 	github.com/apache/arrow/go/arrow v0.0.0-20211013220434-5962184e7a30 // indirect
 	github.com/ashanbrown/forbidigo v1.3.0 // indirect
-	github.com/ashanbrown/makezero v1.1.0 // indirect
+	github.com/ashanbrown/makezero v1.1.1 // indirect
 	github.com/aws/aws-sdk-go v1.36.30 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.9.2 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.4.3 // indirect
@@ -64,9 +64,9 @@ require (
 	github.com/cockroachdb/cockroach-go/v2 v2.1.1 // indirect
 	github.com/containerd/containerd v1.6.1 // indirect
 	github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548 // indirect
-	github.com/daixiang0/gci v0.3.1-0.20220208004058-76d765e3ab48 // indirect
+	github.com/daixiang0/gci v0.3.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/denis-tingajkin/go-header v0.4.2 // indirect
+	github.com/denis-tingaikin/go-header v0.4.3 // indirect
 	github.com/denisenkom/go-mssqldb v0.10.0 // indirect
 	github.com/dimfeld/httppath v0.0.0-20170720192232-ee938bf73598 // indirect
 	github.com/dimfeld/httptreemux/v5 v5.2.2 // indirect
@@ -128,6 +128,7 @@ require (
 	github.com/hailocab/go-hostpool v0.0.0-20160125115350-e80d13ce29ed // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/hashicorp/go-version v1.2.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
@@ -176,7 +177,6 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.6 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/mbilski/exhaustivestruct v1.2.0 // indirect
-	github.com/mgechev/dots v0.0.0-20210922191527-e955255bf517 // indirect
 	github.com/mgechev/revive v1.1.4 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
@@ -212,19 +212,19 @@ require (
 	github.com/ryancurrah/gomodguard v1.2.3 // indirect
 	github.com/ryanrolds/sqlclosecheck v0.3.0 // indirect
 	github.com/sanposhiho/wastedassign/v2 v2.0.6 // indirect
-	github.com/securego/gosec/v2 v2.9.6 // indirect
+	github.com/securego/gosec/v2 v2.10.0 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/shazow/go-diff v0.0.0-20160112020656-b6b7b6733b8c // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/sivchari/containedctx v1.0.1 // indirect
+	github.com/sivchari/containedctx v1.0.2 // indirect
 	github.com/sivchari/tenv v1.4.7 // indirect
 	github.com/snowflakedb/gosnowflake v1.6.3 // indirect
 	github.com/sonatard/noctx v0.0.1 // indirect
 	github.com/sourcegraph/go-diff v0.6.1 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
-	github.com/spf13/cobra v1.3.0 // indirect
+	github.com/spf13/cobra v1.4.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.10.1 // indirect
@@ -236,7 +236,7 @@ require (
 	github.com/tdakkota/asciicheck v0.1.1 // indirect
 	github.com/tetafro/godot v1.4.11 // indirect
 	github.com/timakin/bodyclose v0.0.0-20210704033933-f49887972144 // indirect
-	github.com/tomarrell/wrapcheck/v2 v2.4.0 // indirect
+	github.com/tomarrell/wrapcheck/v2 v2.5.0 // indirect
 	github.com/tommy-muehle/go-mnd/v2 v2.5.0 // indirect
 	github.com/ultraware/funlen v0.0.3 // indirect
 	github.com/ultraware/whitespace v0.0.5 // indirect
@@ -260,7 +260,7 @@ require (
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect
 	goa.design/goa/v3 v3.2.3 // indirect
-	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce // indirect
+	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
@@ -299,7 +299,7 @@ require (
 	modernc.org/strutil v1.1.0 // indirect
 	modernc.org/token v1.0.0 // indirect
 	modernc.org/zappy v1.0.0 // indirect
-	mvdan.cc/gofumpt v0.2.1 // indirect
+	mvdan.cc/gofumpt v0.3.0 // indirect
 	mvdan.cc/interfacer v0.0.0-20180901003855-c20040233aed // indirect
 	mvdan.cc/lint v0.0.0-20170908181259-adc824a0674b // indirect
 	mvdan.cc/unparam v0.0.0-20211214103731-d0ef000c54e5 // indirect
