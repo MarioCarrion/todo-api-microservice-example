@@ -33,7 +33,7 @@ require (
 	go.opentelemetry.io/otel/metric v0.27.0
 	go.opentelemetry.io/otel/sdk v1.4.0
 	go.opentelemetry.io/otel/sdk/export/metric v0.26.0
-	go.opentelemetry.io/otel/sdk/metric v0.26.0
+	go.opentelemetry.io/otel/sdk/metric v0.27.0
 	go.opentelemetry.io/otel/trace v1.5.0
 	go.uber.org/zap v1.21.0
 	goa.design/model v1.7.6
