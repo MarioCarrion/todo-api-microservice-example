@@ -23,10 +23,10 @@ require (
 	github.com/mercari/go-circuitbreaker v0.0.2
 	github.com/ory/dockertest/v3 v3.8.1
 	github.com/streadway/amqp v1.0.0
-	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.28.0
+	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.31.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.29.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.27.0
-	go.opentelemetry.io/otel v1.5.0
+	go.opentelemetry.io/otel v1.6.1
 	go.opentelemetry.io/otel/exporters/jaeger v1.4.0
 	go.opentelemetry.io/otel/exporters/prometheus v0.26.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.3.0
@@ -34,7 +34,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.4.0
 	go.opentelemetry.io/otel/sdk/export/metric v0.26.0
 	go.opentelemetry.io/otel/sdk/metric v0.26.0
-	go.opentelemetry.io/otel/trace v1.5.0
+	go.opentelemetry.io/otel/trace v1.6.1
 	go.uber.org/zap v1.21.0
 	goa.design/model v1.7.6
 )
@@ -62,7 +62,7 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/fatih/color v1.7.0 // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
-	github.com/go-logr/logr v1.2.2 // indirect
+	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/swag v0.19.14 // indirect
