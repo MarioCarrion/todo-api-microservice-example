@@ -2,15 +2,28 @@ linters:
   enable-all: true
 
   disable:
-    - errchkjson # Because it panics with: "fatal error: stack overflow" XXX Revisit
     - goerr113
-    - gofumpt    # Prefer `gofmt` rules / some rules conflict with `wsl`
-    - gomnd      # XXX: For now
-    # The following are deprecated linters, added to avoid intial warning when running
+    - gofumpt        # Prefer `gofmt` rules / some rules conflict with `wsl`
+    - gomnd          # XXX: For now
+    - nonamedreturns # I disagree with the rationale behind this linter
+    # The following are deprecated linters, added to avoid initial warning when running
+    - exhaustivestruct
     - golint
     - interfacer
     - maligned
     - scopelint
+    # The following are disabled because of go1.18, added to avoid the initial warning when running
+    # https://github.com/golangci/golangci-lint/issues/2649
+    - bodyclose
+    - contextcheck
+    - nilerr
+    - noctx
+    - rowserrcheck
+    - sqlclosecheck
+    - structcheck
+    - tparallel
+    - unparam
+    - wastedassign
 
 linters-settings:
   lll:
@@ -24,8 +37,8 @@ linters-settings:
       - prefix(github.com/MarioCarrion/todo-api)
     section-separators:
       - newLine
-  exhaustivestruct:
-    struct-patterns:
+  exhaustruct:
+    include:
       - 'github.com/MarioCarrion/todo-api/internal.*Params'
   ireturn:
     allow:
@@ -52,7 +65,7 @@ linters-settings:
       - internal.NewErrorf(
       - internal.WrapErrorf(
     ignorePackageGlobs:
-      - github.com/MarioCarrion/todo-api/* 
+      - github.com/MarioCarrion/todo-api/*
 issues:
   exclude-rules:
     # All tests
@@ -60,10 +73,11 @@ issues:
       linters:
         - cyclop
         - errchkjson
-        - exhaustivestruct
+        - exhaustruct
         - funlen
         - goerr113
         - lll
+        - nonamedreturns
         - varnamelen
         - wrapcheck
     # Handles the C4 diagrams
@@ -90,7 +104,7 @@ issues:
     - path: cmd/internal/postgresql.go
       linters:
         - revive # blank-imports
-    # XXX: This will be reremove in future episodes when "exhaustivestruct" is enabled
+    # XXX: This will be reremove in future episodes when "exhaustruct" is enabled
     - path: internal/postgresql/task.go
       linters:
         - lll
@@ -103,3 +117,7 @@ issues:
         - paralleltest
         - thelper
         - tparallel
+    # Because these are tools
+    - path: internal/tools/tools.go
+      linters:
+        - typecheck
