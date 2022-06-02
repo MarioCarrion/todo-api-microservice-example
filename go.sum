@@ -380,8 +380,8 @@ github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f/go.mod h1:cu
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
 github.com/dhui/dktest v0.3.7 h1:jWjWgHAPDAdqgUr7lAsB3bqB2DKWC3OaA+isfekjRew=
 github.com/dhui/dktest v0.3.7/go.mod h1:nYMOkafiA07WchSwKnKFUSbGMb2hMm5DrCGiXYG6gwM=
-github.com/didip/tollbooth/v6 v6.1.1 h1:Nt7PvWLa9Y94OrykXsFNBinVRQIu8xdy4avpl99Dc1M=
-github.com/didip/tollbooth/v6 v6.1.1/go.mod h1:xjcse6CTHCLuOkzsWrEgdy9WPJFv+p/x6v+MyfP+O9s=
+github.com/didip/tollbooth/v6 v6.1.2 h1:Kdqxmqw9YTv0uKajBUiWQg+GURL/k4vy9gmLCL01PjQ=
+github.com/didip/tollbooth/v6 v6.1.2/go.mod h1:xjcse6CTHCLuOkzsWrEgdy9WPJFv+p/x6v+MyfP+O9s=
 github.com/dimfeld/httppath v0.0.0-20170720192232-ee938bf73598 h1:MGKhKyiYrvMDZsmLR/+RGffQSXwEkXgfLSA08qDn9AI=
 github.com/dimfeld/httppath v0.0.0-20170720192232-ee938bf73598/go.mod h1:0FpDmbrt36utu8jEmeU05dPC9AB5tsLYVVi+ZHfyuwI=
 github.com/dimfeld/httptreemux/v5 v5.2.2 h1:8JAUcuNrLbL5uwmvQ4lZVCjuQ/Ioojc+7VGt89aMElU=

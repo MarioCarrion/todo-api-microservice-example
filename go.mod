@@ -6,7 +6,7 @@ require (
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
 	github.com/confluentinc/confluent-kafka-go v1.8.2
 	github.com/deepmap/oapi-codegen v1.9.1
-	github.com/didip/tollbooth/v6 v6.1.1
+	github.com/didip/tollbooth/v6 v6.1.2
 	github.com/elastic/go-elasticsearch/v7 v7.17.0
 	github.com/getkin/kin-openapi v0.89.0
 	github.com/ghodss/yaml v1.0.0
