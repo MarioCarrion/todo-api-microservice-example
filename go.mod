@@ -21,7 +21,7 @@ require (
 	github.com/jackc/pgx/v4 v4.15.0
 	github.com/joho/godotenv v1.4.0
 	github.com/mercari/go-circuitbreaker v0.0.2
-	github.com/ory/dockertest/v3 v3.8.1
+	github.com/ory/dockertest/v3 v3.9.1
 	github.com/streadway/amqp v1.0.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.32.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.29.0
@@ -41,21 +41,21 @@ require (
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
-	github.com/Microsoft/go-winio v0.5.1 // indirect
+	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/armon/go-metrics v0.3.9 // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v3 v3.1.1 // indirect
-	github.com/cenkalti/backoff/v4 v4.1.2 // indirect
+	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/containerd/containerd v1.6.6 // indirect
-	github.com/containerd/continuity v0.2.2 // indirect
+	github.com/containerd/continuity v0.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dimfeld/httppath v0.0.0-20170720192232-ee938bf73598 // indirect
 	github.com/dimfeld/httptreemux/v5 v5.2.2 // indirect
-	github.com/docker/cli v20.10.11+incompatible // indirect
+	github.com/docker/cli v20.10.14+incompatible // indirect
 	github.com/docker/distribution v2.8.0+incompatible // indirect
 	github.com/docker/docker v20.10.9+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
