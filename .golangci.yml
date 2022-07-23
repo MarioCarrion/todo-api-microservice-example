@@ -78,6 +78,7 @@ issues:
         - goerr113
         - lll
         - nonamedreturns
+        - nosnakecase
         - varnamelen
         - wrapcheck
     # Handles the C4 diagrams
