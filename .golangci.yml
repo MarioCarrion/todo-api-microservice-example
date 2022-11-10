@@ -124,3 +124,7 @@ issues:
     - path: internal/tools/tools.go
       linters:
         - typecheck
+    # Because go:generate
+    - path: internal/rest/open_api.go
+      linters:
+        - lll
