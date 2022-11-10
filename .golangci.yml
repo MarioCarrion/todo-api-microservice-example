@@ -33,8 +33,6 @@ linters-settings:
   lll:
     line-length: 130
   gci:
-    # no-inline-comments: true
-    # no-prefix-comments: true
     sections:
       - standard
       - default
