@@ -8,7 +8,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/golangci/golangci-lint v1.50.1
 	github.com/kyleconroy/sqlc v1.14.0
-	github.com/lib/pq v1.10.6
+	github.com/lib/pq v1.10.7
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.5.0
 	goa.design/model v1.7.9
 )
