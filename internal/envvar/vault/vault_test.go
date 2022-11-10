@@ -19,7 +19,7 @@ type vaultClient struct {
 	Client  *api.Client
 }
 
-//nolint: paralleltest,tparallel
+//nolint:paralleltest,tparallel
 func TestProvider_Get(t *testing.T) {
 	t.Parallel()
 

@@ -137,8 +137,7 @@ func (t *Task) Task(ctx context.Context, id string) (internal.Task, error) {
 }
 
 // Update updates an existing Task in the datastore.
-//nolint: lll
-func (t *Task) Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error {
+func (t *Task) Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error { //nolint: lll
 	defer newOTELSpan(ctx, "Task.Update").End()
 
 	//-

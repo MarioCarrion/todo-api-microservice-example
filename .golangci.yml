@@ -7,11 +7,15 @@ linters:
     - gomnd          # XXX: For now
     - nonamedreturns # I disagree with the rationale behind this linter
     # The following are deprecated linters, added to avoid initial warning when running
+    - deadcode
     - exhaustivestruct
     - golint
+    - ifshort
     - interfacer
     - maligned
+    - nosnakecase
     - scopelint
+    - varcheck
     # The following are disabled because of go1.18, added to avoid the initial warning when running
     # https://github.com/golangci/golangci-lint/issues/2649
     - bodyclose
@@ -29,8 +33,8 @@ linters-settings:
   lll:
     line-length: 130
   gci:
-    no-inline-comments: true
-    no-prefix-comments: true
+    # no-inline-comments: true
+    # no-prefix-comments: true
     sections:
       - standard
       - default

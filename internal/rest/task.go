@@ -48,7 +48,8 @@ func (t *TaskHandler) Register(r *mux.Router) {
 }
 
 // Task is an activity that needs to be completed within a period of time.
-//nolint: tagliatelle
+//
+//nolint:tagliatelle
 type Task struct {
 	ID          string   `json:"id"`
 	Description string   `json:"description"`
@@ -146,7 +147,8 @@ func (t *TaskHandler) task(w http.ResponseWriter, r *http.Request) {
 }
 
 // UpdateTasksRequest defines the request used for updating a task.
-//nolint: tagliatelle
+//
+//nolint:tagliatelle
 type UpdateTasksRequest struct {
 	Description string   `json:"description"`
 	IsDone      bool     `json:"is_done"`
@@ -179,7 +181,8 @@ func (t *TaskHandler) update(w http.ResponseWriter, r *http.Request) {
 }
 
 // SearchTasksRequest defines the request used for searching tasks.
-//nolint: tagliatelle
+//
+//nolint:tagliatelle
 type SearchTasksRequest struct {
 	Description *string   `json:"description"`
 	Priority    *Priority `json:"priority"`

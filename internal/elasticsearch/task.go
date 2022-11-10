@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"time"
 
 	esv7 "github.com/elastic/go-elasticsearch/v7"
@@ -25,7 +24,7 @@ type Task struct {
 	index  string
 }
 
-//nolint: tagliatelle
+//nolint:tagliatelle
 type indexedTask struct {
 	// XXX: `SubTasks` and `Categories` will be added in future episodes
 	ID          string            `json:"id"`
@@ -82,7 +81,7 @@ func (t *Task) Index(ctx context.Context, task internal.Task) error {
 		return internal.NewErrorf(internal.ErrorCodeUnknown, "IndexRequest.Do %d", resp.StatusCode)
 	}
 
-	io.Copy(ioutil.Discard, resp.Body) //nolint: errcheck
+	io.Copy(io.Discard, resp.Body) //nolint: errcheck
 
 	return nil
 }
@@ -108,13 +107,14 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 		return internal.NewErrorf(internal.ErrorCodeUnknown, "DeleteRequest.Do %d", resp.StatusCode)
 	}
 
-	io.Copy(ioutil.Discard, resp.Body) //nolint: errcheck
+	io.Copy(io.Discard, resp.Body) //nolint: errcheck
 
 	return nil
 }
 
 // Search returns tasks matching a query.
-//nolint: funlen, cyclop
+//
+//nolint:funlen,cyclop
 func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
 	defer newOTELSpan(ctx, "Task.Search").End()
 
