@@ -9,8 +9,8 @@ import (
 )
 
 //go:generate go run ../../cmd/openapi-gen/main.go -path .
-//go:generate oapi-codegen -package openapi3 -generate types  -o ../../pkg/openapi3/task_types.gen.go openapi3.yaml
-//go:generate oapi-codegen -package openapi3 -generate client -o ../../pkg/openapi3/client.gen.go     openapi3.yaml
+//go:generate oapi-codegen -package openapi3 -old-config-style -generate types  -o ../../pkg/openapi3/task_types.gen.go openapi3.yaml
+//go:generate oapi-codegen -package openapi3 -old-config-style -generate client -o ../../pkg/openapi3/client.gen.go     openapi3.yaml
 
 // NewOpenAPI3 instantiates the OpenAPI specification for this service.
 func NewOpenAPI3() openapi3.T {
