@@ -1,10 +1,28 @@
 version: 2
 updates:
+  # Go
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "daily"
   - package-ecosystem: "gomod"
     directory: "/internal/tools/"
+    schedule:
+      interval: "daily"
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/build/elasticsearch-indexer-kafka/"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/build/elasticsearch-indexer-rabbitmq/"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/build/elasticsearch-indexer-redis/"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/build/rest-server/"
     schedule:
       interval: "daily"
