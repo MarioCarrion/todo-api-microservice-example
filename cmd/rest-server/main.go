@@ -17,10 +17,10 @@ import (
 	"github.com/didip/tollbooth/v6"
 	"github.com/didip/tollbooth/v6/limiter"
 	esv7 "github.com/elastic/go-elasticsearch/v7"
+	"github.com/gin-gonic/gin"
 	rv8 "github.com/go-redis/redis/v8"
-	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/zap"
 
 	"github.com/MarioCarrion/todo-api/cmd/internal"
@@ -110,15 +110,11 @@ func run(env, address string) (<-chan error, error) {
 		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewOTExporter")
 	}
 
-	logging := func(h http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			logger.Info(r.Method,
-				zap.Time("time", time.Now()),
-				zap.String("url", r.URL.String()),
-			)
-
-			h.ServeHTTP(w, r)
-		})
+	logging := func(c *gin.Context) {
+		logger.Info(c.Request.Method,
+			zap.Time("time", time.Now()),
+			zap.String("url", c.Request.URL.String()),
+		)
 	}
 
 	//-
@@ -128,7 +124,7 @@ func run(env, address string) (<-chan error, error) {
 		DB:            pool,
 		ElasticSearch: esClient,
 		Metrics:       promExporter,
-		Middlewares:   []mux.MiddlewareFunc{otelmux.Middleware("todo-api-server"), logging},
+		Middlewares:   []gin.HandlerFunc{otelgin.Middleware("top-api-server"), logging},
 		Redis:         rdb,
 		Logger:        logger,
 		Memcached:     memcached,
@@ -195,12 +191,12 @@ type serverConfig struct {
 	Redis         *rv8.Client
 	Memcached     *memcache.Client
 	Metrics       http.Handler
-	Middlewares   []mux.MiddlewareFunc
+	Middlewares   []gin.HandlerFunc
 	Logger        *zap.Logger
 }
 
 func newServer(conf serverConfig) (*http.Server, error) {
-	router := mux.NewRouter()
+	router := gin.New()
 
 	for _, mw := range conf.Middlewares {
 		router.Use(mw)
@@ -232,9 +228,9 @@ func newServer(conf serverConfig) (*http.Server, error) {
 	//-
 
 	fsys, _ := fs.Sub(content, "static")
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.FS(fsys))))
+	router.GET("/static/*w", gin.WrapH(http.StripPrefix("/static/", http.FileServer(http.FS(fsys)))))
 
-	router.Handle("/metrics", conf.Metrics)
+	router.GET("/metrics", gin.WrapH(conf.Metrics))
 
 	//-
 

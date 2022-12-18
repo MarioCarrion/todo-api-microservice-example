@@ -6,17 +6,24 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/gorilla/mux"
 
 	"github.com/MarioCarrion/todo-api/internal"
 	"github.com/MarioCarrion/todo-api/internal/rest"
 	"github.com/MarioCarrion/todo-api/internal/rest/resttesting"
 )
+
+func TestMain(m *testing.M) {
+	gin.SetMode(gin.TestMode)
+
+	os.Exit(m.Run())
+}
 
 func TestTasks_Delete(t *testing.T) {
 	t.Parallel()
@@ -75,7 +82,7 @@ func TestTasks_Delete(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := mux.NewRouter()
+			router := gin.New()
 			svc := &resttesting.FakeTaskService{}
 			tt.setup(svc)
 
@@ -182,7 +189,7 @@ func TestTasks_Post(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := mux.NewRouter()
+			router := gin.New()
 			svc := &resttesting.FakeTaskService{}
 			tt.setup(svc)
 
@@ -282,7 +289,7 @@ func TestTasks_Read(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := mux.NewRouter()
+			router := gin.New()
 			svc := &resttesting.FakeTaskService{}
 			tt.setup(svc)
 
@@ -393,7 +400,7 @@ func TestTasks_Update(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := mux.NewRouter()
+			router := gin.New()
 			svc := &resttesting.FakeTaskService{}
 			tt.setup(svc)
 
@@ -420,7 +427,7 @@ type test struct {
 	target   interface{}
 }
 
-func doRequest(router *mux.Router, req *http.Request) *http.Response {
+func doRequest(router *gin.Engine, req *http.Request) *http.Response {
 	rr := httptest.NewRecorder()
 
 	router.ServeHTTP(rr, req)
