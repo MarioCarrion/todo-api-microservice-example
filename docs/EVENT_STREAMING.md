@@ -22,5 +22,5 @@ docker run \
   -e "KAFKA_ADVERTISED_PORT=9092" \
   -e "KAFKA_AUTO_CREATE_TOPICS_ENABLE=true" \
   -e "KAFKA_CREATE_TOPICS=tasks:1:1" \
-  wurstmeister/kafka:2.13-2.7.0
+  wurstmeister/kafka:2.13-2.8.1
 ```

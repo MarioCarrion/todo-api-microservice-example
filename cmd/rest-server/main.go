@@ -234,7 +234,7 @@ func newServer(conf serverConfig) (*http.Server, error) {
 	fsys, _ := fs.Sub(content, "static")
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.FS(fsys))))
 
-	// r.Handle("/metrics", conf.Metrics)
+	router.Handle("/metrics", conf.Metrics)
 
 	//-
 

@@ -1,4 +1,4 @@
-FROM golang:1.16.3-alpine3.13 AS builder
+FROM golang:1.19.4-alpine3.17 AS builder
 
 RUN apk --no-cache add \
       alpine-sdk \
@@ -17,7 +17,7 @@ RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -ldflags "-extldflag
 
 #-
 
-FROM alpine:3.13 AS certificates
+FROM alpine:3.17 AS certificates
 
 RUN apk --no-cache add ca-certificates
 

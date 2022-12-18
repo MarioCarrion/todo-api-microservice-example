@@ -135,7 +135,8 @@ Notice that because of the way RabbitMQ and Kafka are being used they are sort o
     * `elasticsearch-indexer-rabbitmq` image: `docker-compose build elasticsearch-indexer-rabbitmq`.
     * `elasticsearch-indexer-kafka` image: `docker-compose build elasticsearch-indexer-kafka`.
     * `elasticsearch-indexer-redis` image: `docker-compose build elasticsearch-indexer-redis`.
-* Run `docker-compose run rest-server migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname?sslmode=disable up` to finally have everything working correctly.
+* Run `docker-compose run rest-server migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname\?sslmode=disable up` to have everything working correctly.
+* Finally interact with the API using Swagger UI: http://127.0.0.1:9234/static/swagger-ui/
 
 ## Diagrams
 

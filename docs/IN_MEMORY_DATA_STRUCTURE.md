@@ -9,5 +9,5 @@ docker run \
   --rm \
   -d \
   -p 6379:6379 \
-  redis:6.2.3-alpine3.13
+  redis:7.0.7-alpine3.17
 ```

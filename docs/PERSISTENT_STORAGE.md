@@ -10,5 +10,5 @@ docker run \
   -e POSTGRES_PASSWORD=password \
   -e POSTGRES_DB=dbname \
   -p 5432:5432 \
-  postgres:12.5-alpine
+  postgres:15.1-alpine3.17
 ```
