@@ -1,12 +1,11 @@
 package rest
 
 import (
-	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/labstack/echo/v4"
 	"go.opentelemetry.io/otel"
 
 	"github.com/MarioCarrion/todo-api/internal"
@@ -20,8 +19,8 @@ type ErrorResponse struct {
 	Validations validation.Errors `json:"validations,omitempty"`
 }
 
-func renderErrorResponse(ctx context.Context, w http.ResponseWriter, msg string, err error) {
-	resp := ErrorResponse{Error: msg}
+func HTTPErrorHandler(err error, ctx echo.Context) {
+	resp := ErrorResponse{Error: err.Error()}
 	status := http.StatusInternalServerError
 
 	var ierr *internal.Error
@@ -33,6 +32,7 @@ func renderErrorResponse(ctx context.Context, w http.ResponseWriter, msg string,
 			status = http.StatusNotFound
 		case internal.ErrorCodeInvalidArgument:
 			status = http.StatusBadRequest
+			resp.Error = "invalid request"
 
 			var verrors validation.Errors
 			if errors.As(ierr, &verrors) {
@@ -41,12 +41,13 @@ func renderErrorResponse(ctx context.Context, w http.ResponseWriter, msg string,
 		case internal.ErrorCodeUnknown:
 			fallthrough
 		default:
+			resp.Error = "internal error"
 			status = http.StatusInternalServerError
 		}
 	}
 
 	if err != nil {
-		_, span := otel.Tracer(otelName).Start(ctx, "renderErrorResponse")
+		_, span := otel.Tracer(otelName).Start(ctx.Request().Context(), "renderErrorResponse")
 		defer span.End()
 
 		span.RecordError(err)
@@ -54,23 +55,5 @@ func renderErrorResponse(ctx context.Context, w http.ResponseWriter, msg string,
 
 	// XXX fmt.Printf("Error: %v\n", err)
 
-	renderResponse(w, resp, status)
-}
-
-func renderResponse(w http.ResponseWriter, res interface{}, status int) {
-	w.Header().Set("Content-Type", "application/json")
-
-	content, err := json.Marshal(res)
-	if err != nil {
-		// XXX Do something with the error ;)
-		w.WriteHeader(http.StatusInternalServerError)
-
-		return
-	}
-
-	w.WriteHeader(status)
-
-	if _, err = w.Write(content); err != nil { //nolint: staticcheck
-		// XXX Do something with the error ;)
-	}
+	_ = ctx.JSON(status, resp)
 }

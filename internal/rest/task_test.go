@@ -11,7 +11,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/gorilla/mux"
+	"github.com/labstack/echo/v4"
 
 	"github.com/MarioCarrion/todo-api/internal"
 	"github.com/MarioCarrion/todo-api/internal/rest"
@@ -75,7 +75,7 @@ func TestTasks_Delete(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := mux.NewRouter()
+			router := newRouter()
 			svc := &resttesting.FakeTaskService{}
 			tt.setup(svc)
 
@@ -182,7 +182,7 @@ func TestTasks_Post(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := mux.NewRouter()
+			router := newRouter()
 			svc := &resttesting.FakeTaskService{}
 			tt.setup(svc)
 
@@ -245,17 +245,15 @@ func TestTasks_Read(t *testing.T) {
 			},
 		},
 		{
-			"OK: 200",
+			"ERR: 404",
 			func(s *resttesting.FakeTaskService) {
 				s.TaskReturns(internal.Task{},
 					internal.NewErrorf(internal.ErrorCodeNotFound, "not found"))
 			},
 			output{
 				http.StatusNotFound,
-				&rest.ErrorResponse{
-					Error: "find failed",
-				},
-				&rest.ErrorResponse{},
+				&struct{}{},
+				&struct{}{},
 			},
 		},
 		{
@@ -282,7 +280,7 @@ func TestTasks_Read(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := mux.NewRouter()
+			router := newRouter()
 			svc := &resttesting.FakeTaskService{}
 			tt.setup(svc)
 
@@ -393,7 +391,7 @@ func TestTasks_Update(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := mux.NewRouter()
+			router := newRouter()
 			svc := &resttesting.FakeTaskService{}
 			tt.setup(svc)
 
@@ -420,9 +418,10 @@ type test struct {
 	target   interface{}
 }
 
-func doRequest(router *mux.Router, req *http.Request) *http.Response {
-	rr := httptest.NewRecorder()
+func doRequest(router *echo.Echo, req *http.Request) *http.Response {
+	req.Header.Add("content-type", "application/json")
 
+	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, req)
 
 	return rr.Result()
@@ -439,4 +438,12 @@ func assertResponse(t *testing.T, res *http.Response, test test) {
 	if !cmp.Equal(test.expected, test.target, cmpopts.IgnoreUnexported(time.Time{})) {
 		t.Fatalf("expected results don't match: %s", cmp.Diff(test.expected, test.target, cmpopts.IgnoreUnexported(time.Time{})))
 	}
+}
+
+func newRouter() *echo.Echo {
+	r := echo.New()
+	r.HTTPErrorHandler = rest.HTTPErrorHandler
+	r.Debug = false
+
+	return r
 }

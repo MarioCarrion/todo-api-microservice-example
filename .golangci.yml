@@ -93,6 +93,11 @@ issues:
     - path: internal/rest/open_api.go
       linters:
         - funlen
+        - wrapcheck # because of echo
+    # Because of echo
+    - path: internal/rest/task.go
+      linters:
+        - wrapcheck
     # Final binaries
     - path: cmd/
       linters:

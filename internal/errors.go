@@ -1,6 +1,7 @@
 package internal
 
 import (
+	stderrors "errors"
 	"fmt"
 )
 
@@ -51,5 +52,10 @@ func (e *Error) Unwrap() error {
 
 // Code returns the code representing this error.
 func (e *Error) Code() ErrorCode {
+	var ierr *Error
+	if stderrors.As(e.orig, &ierr) {
+		return ierr.Code()
+	}
+
 	return e.code
 }
