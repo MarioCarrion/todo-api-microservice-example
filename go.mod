@@ -10,20 +10,21 @@ require (
 	github.com/elastic/go-elasticsearch/v7 v7.17.1
 	github.com/getkin/kin-openapi v0.94.0
 	github.com/ghodss/yaml v1.0.0
+	github.com/go-chi/chi/v5 v5.0.8
+	github.com/go-chi/render v1.0.2
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/google/go-cmp v0.5.7
 	github.com/google/uuid v1.3.0
-	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/vault/api v1.7.1
 	github.com/jackc/pgconn v1.12.1
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/joho/godotenv v1.4.0
 	github.com/mercari/go-circuitbreaker v0.0.2
 	github.com/ory/dockertest/v3 v3.9.1
+	github.com/riandyrn/otelchi v0.5.0
 	github.com/streadway/amqp v1.0.0
-	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.32.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.29.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.27.0
 	go.opentelemetry.io/otel v1.7.0
@@ -43,6 +44,7 @@ require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
+	github.com/ajg/form v1.5.1 // indirect
 	github.com/armon/go-metrics v0.3.9 // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
@@ -127,6 +129,7 @@ require (
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	github.com/zach-klippenstein/goregen v0.0.0-20160303162051-795b5e3961ea // indirect
+	go.opentelemetry.io/contrib v1.0.0 // indirect
 	go.opentelemetry.io/otel/internal/metric v0.27.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect

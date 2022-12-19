@@ -1,11 +1,10 @@
 package rest
 
 import (
-	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
 
+	"github.com/go-chi/render"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"go.opentelemetry.io/otel"
 
@@ -20,7 +19,7 @@ type ErrorResponse struct {
 	Validations validation.Errors `json:"validations,omitempty"`
 }
 
-func renderErrorResponse(ctx context.Context, w http.ResponseWriter, msg string, err error) {
+func renderErrorResponse(w http.ResponseWriter, r *http.Request, msg string, err error) {
 	resp := ErrorResponse{Error: msg}
 	status := http.StatusInternalServerError
 
@@ -46,7 +45,7 @@ func renderErrorResponse(ctx context.Context, w http.ResponseWriter, msg string,
 	}
 
 	if err != nil {
-		_, span := otel.Tracer(otelName).Start(ctx, "renderErrorResponse")
+		_, span := otel.Tracer(otelName).Start(r.Context(), "renderErrorResponse")
 		defer span.End()
 
 		span.RecordError(err)
@@ -54,23 +53,11 @@ func renderErrorResponse(ctx context.Context, w http.ResponseWriter, msg string,
 
 	// XXX fmt.Printf("Error: %v\n", err)
 
-	renderResponse(w, resp, status)
+	render.Status(r, status)
+	render.JSON(w, r, &resp)
 }
 
-func renderResponse(w http.ResponseWriter, res interface{}, status int) {
-	w.Header().Set("Content-Type", "application/json")
-
-	content, err := json.Marshal(res)
-	if err != nil {
-		// XXX Do something with the error ;)
-		w.WriteHeader(http.StatusInternalServerError)
-
-		return
-	}
-
-	w.WriteHeader(status)
-
-	if _, err = w.Write(content); err != nil { //nolint: staticcheck
-		// XXX Do something with the error ;)
-	}
+func renderResponse(w http.ResponseWriter, r *http.Request, res interface{}, status int) {
+	render.Status(r, status)
+	render.JSON(w, r, res)
 }

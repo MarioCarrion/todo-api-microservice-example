@@ -5,7 +5,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/ghodss/yaml"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 )
 
 //go:generate go run ../../cmd/openapi-gen/main.go -path .
@@ -265,14 +265,14 @@ func NewOpenAPI3() openapi3.T {
 	return swagger
 }
 
-func RegisterOpenAPI(router *mux.Router) {
+func RegisterOpenAPI(router *chi.Mux) {
 	swagger := NewOpenAPI3()
 
-	router.HandleFunc("/openapi3.json", func(w http.ResponseWriter, r *http.Request) {
-		renderResponse(w, &swagger, http.StatusOK)
-	}).Methods(http.MethodGet)
+	router.Get("/openapi3.json", func(w http.ResponseWriter, r *http.Request) {
+		renderResponse(w, r, &swagger, http.StatusOK)
+	})
 
-	router.HandleFunc("/openapi3.yaml", func(w http.ResponseWriter, r *http.Request) {
+	router.Get("/openapi3.yaml", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/x-yaml")
 
 		data, _ := yaml.Marshal(&swagger)
@@ -280,5 +280,5 @@ func RegisterOpenAPI(router *mux.Router) {
 		_, _ = w.Write(data)
 
 		w.WriteHeader(http.StatusOK)
-	}).Methods(http.MethodGet)
+	})
 }

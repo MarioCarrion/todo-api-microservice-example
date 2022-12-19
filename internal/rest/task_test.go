@@ -9,9 +9,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/render"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/gorilla/mux"
 
 	"github.com/MarioCarrion/todo-api/internal"
 	"github.com/MarioCarrion/todo-api/internal/rest"
@@ -75,7 +76,7 @@ func TestTasks_Delete(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := mux.NewRouter()
+			router := newRouter()
 			svc := &resttesting.FakeTaskService{}
 			tt.setup(svc)
 
@@ -182,7 +183,7 @@ func TestTasks_Post(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := mux.NewRouter()
+			router := newRouter()
 			svc := &resttesting.FakeTaskService{}
 			tt.setup(svc)
 
@@ -282,7 +283,7 @@ func TestTasks_Read(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := mux.NewRouter()
+			router := newRouter()
 			svc := &resttesting.FakeTaskService{}
 			tt.setup(svc)
 
@@ -393,7 +394,7 @@ func TestTasks_Update(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := mux.NewRouter()
+			router := newRouter()
 			svc := &resttesting.FakeTaskService{}
 			tt.setup(svc)
 
@@ -420,7 +421,7 @@ type test struct {
 	target   interface{}
 }
 
-func doRequest(router *mux.Router, req *http.Request) *http.Response {
+func doRequest(router *chi.Mux, req *http.Request) *http.Response {
 	rr := httptest.NewRecorder()
 
 	router.ServeHTTP(rr, req)
@@ -439,4 +440,11 @@ func assertResponse(t *testing.T, res *http.Response, test test) {
 	if !cmp.Equal(test.expected, test.target, cmpopts.IgnoreUnexported(time.Time{})) {
 		t.Fatalf("expected results don't match: %s", cmp.Diff(test.expected, test.target, cmpopts.IgnoreUnexported(time.Time{})))
 	}
+}
+
+func newRouter() *chi.Mux {
+	r := chi.NewRouter()
+	r.Use(render.SetContentType(render.ContentTypeJSON))
+
+	return r
 }
