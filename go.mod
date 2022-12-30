@@ -7,7 +7,7 @@ require (
 	github.com/confluentinc/confluent-kafka-go v1.8.2
 	github.com/deepmap/oapi-codegen v1.11.0
 	github.com/didip/tollbooth/v6 v6.1.2
-	github.com/elastic/go-elasticsearch/v7 v7.17.1
+	github.com/elastic/go-elasticsearch/v7 v7.17.7
 	github.com/getkin/kin-openapi v0.112.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-chi/chi/v5 v5.0.8
