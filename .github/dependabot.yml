@@ -4,25 +4,30 @@ updates:
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
   - package-ecosystem: "gomod"
     directory: "/internal/tools/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
   # Docker
   - package-ecosystem: "docker"
     directory: "/build/elasticsearch-indexer-kafka/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
   - package-ecosystem: "docker"
     directory: "/build/elasticsearch-indexer-rabbitmq/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
   - package-ecosystem: "docker"
     directory: "/build/elasticsearch-indexer-redis/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
   - package-ecosystem: "docker"
     directory: "/build/rest-server/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+  # Github Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
