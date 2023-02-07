@@ -36,6 +36,8 @@ func NewOpenAPI3() openapi3.T {
 		},
 	}
 
+	swagger.Components = &openapi3.Components{}
+
 	swagger.Components.Schemas = openapi3.Schemas{
 		"Priority": openapi3.NewSchemaRef("",
 			openapi3.NewStringSchema().
