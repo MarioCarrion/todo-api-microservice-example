@@ -5,7 +5,9 @@ linters:
     - goerr113
     - gofumpt        # Prefer `gofmt` rules / some rules conflict with `wsl`
     - gomnd          # XXX: For now
-    - nonamedreturns # I disagree with the rationale behind this linter
+    # I disagree with the rationale behind these linters
+    - musttag
+    - nonamedreturns
     # The following are deprecated linters, added to avoid initial warning when running
     - deadcode
     - exhaustivestruct
