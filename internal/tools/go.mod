@@ -9,7 +9,7 @@ require (
 	github.com/golangci/golangci-lint v1.51.1
 	github.com/kyleconroy/sqlc v1.16.0
 	github.com/lib/pq v1.10.7
-	github.com/maxbrunsfeld/counterfeiter/v6 v6.5.0
+	github.com/maxbrunsfeld/counterfeiter/v6 v6.6.1
 	goa.design/model v1.8.0
 )
 
