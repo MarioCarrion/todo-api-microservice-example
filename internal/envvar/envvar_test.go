@@ -11,8 +11,6 @@ import (
 )
 
 func TestConfiguration_Get(t *testing.T) {
-	t.Parallel()
-
 	type output struct {
 		val     string
 		withErr bool
