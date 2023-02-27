@@ -7,7 +7,7 @@ require (
 	github.com/fdaines/spm-go v0.11.1
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/golangci/golangci-lint v1.51.2
-	github.com/kyleconroy/sqlc v1.17.0
+	github.com/kyleconroy/sqlc v1.17.2
 	github.com/lib/pq v1.10.7
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.6.1
 	goa.design/model v1.8.0
