@@ -12,7 +12,7 @@ tools:
 		goa.design/model/cmd/stz \
 
 install:
-	go install golang.org/dl/go1.20@latest
-	go1.20 download
+	go install golang.org/dl/go1.20.1@latest
+	go1.20.1 download
 	mkdir -p bin
-	ln -s `go env GOPATH`/bin/go1.20 bin/go
+	ln -sf `go env GOPATH`/bin/go1.20.1 bin/go
