@@ -126,10 +126,11 @@ There's also a [docker-compose.yml](docker-compose.yml), covered in [Building Mi
 
 Notice that because of the way RabbitMQ and Kafka are being used they are sort of competing with each other, so at the moment we either have to enable Kafka and disable RabbitMQ or the other way around in both the code and the `docker-compose.yml` file, in either case there are Dockerfiles and services defined that cover building and running them.
 
-* Run `docker-compose up`, here both _rest-server_ and _elasticsearch-indexer_ services will fail because the `postgres`, `rabbitmq`, `elasticsearch` and `kafka` services take too long to start.
+The following instructions are confirmed to work with docker compose v2.15.1.
+
+* Run `docker-compose up`, if you're using `rabbitmq` or `kafka` you may see the _rest-server_ and _elasticsearch-indexer_ services fail because those services take too long to start, in that case use any of the following instructions to manually start those services after the dependant server is ready:
     * If you're planning to use RabbitMQ, run `docker-compose up rest-server elasticsearch-indexer-rabbitmq`.
     * If you're planning to use Kafka, run `docker-compose up rest-server elasticsearch-indexer-kafka`.
-    * If you're planning to use Redis, run `docker-compose up rest-server elasticsearch-indexer-redis`.
 * For building the service images you can use:
     * `rest-server` image: `docker-compose build rest-server`.
     * `elasticsearch-indexer-rabbitmq` image: `docker-compose build elasticsearch-indexer-rabbitmq`.
