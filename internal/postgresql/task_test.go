@@ -315,7 +315,7 @@ func newDB(tb testing.TB) *pgxpool.Pool {
 
 	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
 		Repository: "postgres",
-		Tag:        "12.5-alpine",
+		Tag:        "15.2-bullseye",
 		Env: []string{
 			fmt.Sprintf("POSTGRES_USER=%s", dsn.User.Username()),
 			fmt.Sprintf("POSTGRES_PASSWORD=%s", pw),
