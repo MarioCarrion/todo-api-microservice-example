@@ -16,7 +16,7 @@ RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -ldflags "-extldflag
       github.com/MarioCarrion/todo-api/cmd/rest-server
 
 RUN CGO_ENABLED=0 GOOS=linux go install -a -installsuffix cgo -ldflags "-s -w" -tags 'postgres' \
-      github.com/golang-migrate/migrate/v4/cmd/migrate@v4.14.1
+      github.com/golang-migrate/migrate/v4/cmd/migrate@v4.15.2
 
 #-
 
