@@ -1,3 +1,5 @@
+GO_VERSION=1.20.3
+
 tools:
 	go install -C internal/tools \
 		-tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate
@@ -12,7 +14,7 @@ tools:
 		goa.design/model/cmd/stz \
 
 install:
-	go install golang.org/dl/go1.20.1@latest
-	go1.20.1 download
+	go install golang.org/dl/go${GO_VERSION}@latest
+	go${GO_VERSION} download
 	mkdir -p bin
-	ln -sf `go env GOPATH`/bin/go1.20.1 bin/go
+	ln -sf `go env GOPATH`/bin/go${GO_VERSION} bin/go
