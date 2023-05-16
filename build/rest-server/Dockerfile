@@ -20,7 +20,7 @@ RUN CGO_ENABLED=0 GOOS=linux go install -a -installsuffix cgo -ldflags "-s -w" -
 
 #-
 
-FROM alpine:3.17 AS certificates
+FROM alpine:3.18 AS certificates
 
 RUN apk --no-cache add ca-certificates
 
