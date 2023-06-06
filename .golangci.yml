@@ -6,6 +6,7 @@ linters:
     - gofumpt        # Prefer `gofmt` rules / some rules conflict with `wsl`
     - gomnd          # XXX: For now
     # I disagree with the rationale behind these linters
+    - depguard
     - musttag
     - nonamedreturns
     # The following are deprecated linters, added to avoid initial warning when running
