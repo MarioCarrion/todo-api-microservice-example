@@ -15,9 +15,9 @@ import (
 	migratepostgres "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/google/go-cmp/cmp"
-	"github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/pgxpool"
-	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 
@@ -375,7 +375,7 @@ func newDB(tb testing.TB) *pgxpool.Pool {
 
 	//-
 
-	dbpool, err := pgxpool.Connect(context.Background(), dsn.String())
+	dbpool, err := pgxpool.New(context.Background(), dsn.String())
 	if err != nil {
 		tb.Fatalf("Couldn't open DB Pool: %s", err)
 	}

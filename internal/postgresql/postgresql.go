@@ -2,10 +2,10 @@ package postgresql
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"go.opentelemetry.io/otel"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.opentelemetry.io/otel/trace"
@@ -33,8 +33,8 @@ func convertPriority(priority db.Priority) (internal.Priority, error) {
 	return internal.Priority(-1), fmt.Errorf("unknown value: %s", priority)
 }
 
-func newNullTime(t time.Time) sql.NullTime {
-	return sql.NullTime{
+func newTimestamp(t time.Time) pgtype.Timestamp {
+	return pgtype.Timestamp{
 		Time:  t,
 		Valid: !t.IsZero(),
 	}

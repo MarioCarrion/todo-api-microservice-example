@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/jackc/pgx/v4/pgxpool"
-	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/MarioCarrion/todo-api/internal"
 	"github.com/MarioCarrion/todo-api/internal/envvar"
@@ -45,7 +45,7 @@ func NewPostgreSQL(conf *envvar.Configuration) (*pgxpool.Pool, error) {
 
 	dsn.RawQuery = q.Encode()
 
-	pool, err := pgxpool.Connect(context.Background(), dsn.String())
+	pool, err := pgxpool.New(context.Background(), dsn.String())
 	if err != nil {
 		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "pgxpool.Connect")
 	}
