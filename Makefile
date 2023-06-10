@@ -2,12 +2,10 @@ GO_VERSION=1.20.4
 
 tools:
 	go install -C internal/tools \
-		-tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate
-
-	go install -C internal/tools \
 		github.com/deepmap/oapi-codegen/cmd/oapi-codegen \
 		github.com/fdaines/spm-go \
 		github.com/golangci/golangci-lint/cmd/golangci-lint \
+		github.com/jackc/tern/v2 \
 		github.com/kyleconroy/sqlc/cmd/sqlc \
 		github.com/maxbrunsfeld/counterfeiter/v6 \
 		goa.design/model/cmd/mdl \

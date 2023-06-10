@@ -2,22 +2,20 @@ package postgresql_test
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"net"
 	"net/url"
+	"os"
 	"runtime"
 	"testing"
 	"time"
 
-	migrate "github.com/golang-migrate/migrate/v4"
-	migratepostgres "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/google/go-cmp/cmp"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/jackc/tern/v2/migrate"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 
@@ -309,7 +307,7 @@ func newDB(tb testing.TB) *pgxpool.Pool {
 		tb.Fatalf("Couldn't connect to docker: %s", err)
 	}
 
-	pool.MaxWait = 10 * time.Second
+	pool.MaxWait = 5 * time.Second
 
 	pw, _ := dsn.User.Password()
 
@@ -334,8 +332,8 @@ func newDB(tb testing.TB) *pgxpool.Pool {
 	_ = resource.Expire(60)
 
 	tb.Cleanup(func() {
-		if err := pool.Purge(resource); err != nil {
-			tb.Fatalf("Couldn't purge container: %v", err)
+		if errC := pool.Purge(resource); errC != nil {
+			tb.Fatalf("Couldn't purge container: %v", errC)
 		}
 	})
 
@@ -344,32 +342,45 @@ func newDB(tb testing.TB) *pgxpool.Pool {
 		dsn.Host = net.JoinHostPort(resource.GetBoundIP("5432/tcp"), resource.GetPort("5432/tcp"))
 	}
 
-	db, err := sql.Open("pgx", dsn.String())
-	if err != nil {
-		tb.Fatalf("Couldn't open DB: %s", err)
+	ctx, cFunc := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
+	tb.Cleanup(cFunc)
+
+	var db *pgx.Conn
+
+	for i := 0; i < 20; i++ {
+		db, err = pgx.Connect(ctx, dsn.String())
+		if err == nil {
+			break
+		}
+
+		time.Sleep(500 * time.Millisecond)
 	}
 
-	defer db.Close()
+	if db == nil {
+		tb.Fatalf("Couldn't connect to database: %s", err)
+	}
 
-	if err := pool.Retry(func() (err error) {
-		return db.Ping()
+	defer db.Close(ctx)
+
+	if err = pool.Retry(func() (err error) {
+		return db.Ping(ctx)
 	}); err != nil {
 		tb.Fatalf("Couldn't ping DB: %s", err)
 	}
 
 	//-
 
-	instance, err := migratepostgres.WithInstance(db, &migratepostgres.Config{})
+	migrator, err := migrate.NewMigrator(ctx, db, "public.schema_version")
 	if err != nil {
 		tb.Fatalf("Couldn't migrate (1): %s", err)
 	}
 
-	m, err := migrate.NewWithDatabaseInstance("file://../../db/migrations/", "postgres", instance)
+	err = migrator.LoadMigrations(os.DirFS("../../db/migrations/"))
 	if err != nil {
 		tb.Fatalf("Couldn't migrate (2): %s", err)
 	}
 
-	if err = m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+	if err = migrator.Migrate(context.Background()); err != nil {
 		tb.Fatalf("Couldnt' migrate (3): %s", err)
 	}
 

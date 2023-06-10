@@ -14,7 +14,7 @@ docker run \
   -e POSTGRES_PASSWORD=password \
   -e POSTGRES_DB=dbname \
   -p 5432:5432 \
-  postgres:12.5-alpine
+  postgres:15.2-bullseye
 ```
 
 ## Migrations
@@ -22,7 +22,9 @@ docker run \
 Run:
 
 ```
-migrate -path db/migrations/ -database postgres://user:password@localhost:5432/dbname?sslmode=disable up
+tern migrate \
+    --migrations 'db/migrations/' \
+    --conn-string 'postgres://user:password@localhost:5432/dbname?sslmode=disable'
 ```
 
 Create:

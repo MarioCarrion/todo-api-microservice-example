@@ -10,3 +10,11 @@ CREATE TABLE tasks (
   due_date    TIMESTAMP WITHOUT TIME ZONE,
   done        BOOLEAN NOT NULL DEFAULT FALSE
 );
+
+---- create above / drop below ----
+
+DROP TABLE tasks;
+
+DROP TYPE priority;
+
+DROP EXTENSION IF EXISTS "uuid-ossp";
