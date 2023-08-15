@@ -1,4 +1,4 @@
-FROM golang:1.20.7-alpine3.17 AS builder
+FROM golang:1.21.0-alpine3.17 AS builder
 
 RUN apk --no-cache add \
       alpine-sdk \
