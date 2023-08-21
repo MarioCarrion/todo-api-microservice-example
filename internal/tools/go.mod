@@ -9,7 +9,7 @@ require (
 	github.com/jackc/tern/v2 v2.1.1
 	github.com/kyleconroy/sqlc v1.19.1
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.6.2
-	goa.design/model v1.8.0
+	goa.design/model v1.8.1
 )
 
 require (
@@ -53,7 +53,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/denis-tingaikin/go-header v0.4.3 // indirect
 	github.com/dimfeld/httppath v0.0.0-20170720192232-ee938bf73598 // indirect
-	github.com/dimfeld/httptreemux/v5 v5.4.0 // indirect
+	github.com/dimfeld/httptreemux/v5 v5.5.0 // indirect
 	github.com/esimonov/ifshort v1.0.4 // indirect
 	github.com/ettle/strcase v0.1.1 // indirect
 	github.com/fatih/color v1.15.0 // indirect
@@ -178,7 +178,7 @@ require (
 	github.com/sashamelentyev/interfacebloat v1.1.0 // indirect
 	github.com/sashamelentyev/usestdlibvars v1.23.0 // indirect
 	github.com/securego/gosec/v2 v2.16.0 // indirect
-	github.com/sergi/go-diff v1.2.0 // indirect
+	github.com/sergi/go-diff v1.3.1 // indirect
 	github.com/shazow/go-diff v0.0.0-20160112020656-b6b7b6733b8c // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
@@ -222,7 +222,7 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	goa.design/goa/v3 v3.10.2 // indirect
+	goa.design/goa/v3 v3.12.3 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea // indirect
 	golang.org/x/exp/typeparams v0.0.0-20230307190834-24139beb5833 // indirect
