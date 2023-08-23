@@ -1,4 +1,4 @@
-GO_VERSION=1.20.4
+GO_VERSION=1.21.0
 
 tools:
 	go install -C internal/tools \
