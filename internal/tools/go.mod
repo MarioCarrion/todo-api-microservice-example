@@ -1,6 +1,6 @@
 module github.com/MarioCarrion/todo-api/internal/tools
 
-go 1.20
+go 1.21
 
 require (
 	github.com/deepmap/oapi-codegen v1.14.0
