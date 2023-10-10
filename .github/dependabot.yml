@@ -31,3 +31,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+
+groups:
+  docker:
+    patterns:
+    - "FROM golang:1*"
