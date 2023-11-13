@@ -9,7 +9,7 @@ require (
 	github.com/jackc/tern/v2 v2.1.1
 	github.com/kyleconroy/sqlc v1.19.1
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.7.0
-	goa.design/model v1.9.0
+	goa.design/model v1.9.1
 )
 
 require (
@@ -58,16 +58,16 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/denis-tingaikin/go-header v0.4.3 // indirect
 	github.com/dimfeld/httppath v0.0.0-20170720192232-ee938bf73598 // indirect
-	github.com/dimfeld/httptreemux/v5 v5.5.0 // indirect
 	github.com/esimonov/ifshort v1.0.4 // indirect
 	github.com/ettle/strcase v0.1.1 // indirect
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
 	github.com/firefart/nonamedreturns v1.0.4 // indirect
-	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/fzipp/gocyclo v0.6.0 // indirect
-	github.com/getkin/kin-openapi v0.118.0 // indirect
+	github.com/getkin/kin-openapi v0.120.0 // indirect
 	github.com/ghostiam/protogetter v0.2.3 // indirect
+	github.com/go-chi/chi/v5 v5.0.10 // indirect
 	github.com/go-critic/go-critic v0.9.0 // indirect
 	github.com/go-openapi/jsonpointer v0.20.0 // indirect
 	github.com/go-openapi/swag v0.22.4 // indirect
@@ -225,7 +225,7 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	goa.design/goa/v3 v3.12.4 // indirect
+	goa.design/goa/v3 v3.13.2 // indirect
 	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea // indirect
 	golang.org/x/exp/typeparams v0.0.0-20230307190834-24139beb5833 // indirect
@@ -235,9 +235,9 @@ require (
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/tools v0.14.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20230525234035-dd9d682886f9 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20230629202037-9506855d4529 // indirect
-	google.golang.org/grpc v1.57.1 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20230711160842-782d3b101e98 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20230920204549-e6e6cdab5c13 // indirect
+	google.golang.org/grpc v1.58.2 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
