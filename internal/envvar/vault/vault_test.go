@@ -56,7 +56,7 @@ func TestProvider_Get(t *testing.T) {
 		},
 		{
 			"OK: cached",
-			func(v *vaultClient) error { return nil },
+			func(_ *vaultClient) error { return nil },
 			"/ok:two",
 			output{
 				res: "2",
@@ -64,7 +64,7 @@ func TestProvider_Get(t *testing.T) {
 		},
 		{
 			"ERR: missing key value",
-			func(v *vaultClient) error { return nil },
+			func(_ *vaultClient) error { return nil },
 			"/ok",
 			output{
 				withErr: true,
@@ -72,7 +72,7 @@ func TestProvider_Get(t *testing.T) {
 		},
 		{
 			"ERR: key not found in cached data",
-			func(v *vaultClient) error { return nil },
+			func(_ *vaultClient) error { return nil },
 			"/ok:three",
 			output{
 				withErr: true,
@@ -80,7 +80,7 @@ func TestProvider_Get(t *testing.T) {
 		},
 		{
 			"ERR: secret not found",
-			func(v *vaultClient) error { return nil },
+			func(_ *vaultClient) error { return nil },
 			"/not:found",
 			output{
 				withErr: true,
@@ -119,7 +119,7 @@ func TestProvider_Get(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) { //nolint: wsl
 			// Not calling t.Parallel() because vault.Provider is not goroutine safe.
 
 			if err := tt.setup(client); err != nil {
@@ -157,8 +157,8 @@ func newVault(tb testing.TB) *vaultClient {
 		Repository: "vault",
 		Tag:        "1.6.2",
 		Env: []string{
-			fmt.Sprintf("VAULT_DEV_ROOT_TOKEN_ID=%s", token),
-			fmt.Sprintf("VAULT_DEV_LISTEN_ADDRESS=%s", address),
+			"VAULT_DEV_ROOT_TOKEN_ID=" + token,
+			"VAULT_DEV_LISTEN_ADDRESS=" + address,
 		},
 		ExposedPorts: []string{"8300/tcp"},
 		PortBindings: map[docker.Port][]docker.PortBinding{ // Because of the way Vault works internally we bind to a port on the host
@@ -188,7 +188,7 @@ func newVault(tb testing.TB) *vaultClient {
 		}
 	})
 
-	address = fmt.Sprintf("http://%s", address)
+	address = "http://" + address
 
 	config := &api.Config{
 		Address: address,

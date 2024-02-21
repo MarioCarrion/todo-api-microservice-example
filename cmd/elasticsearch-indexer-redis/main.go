@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -146,7 +145,7 @@ func (s *Server) ListenAndServe() error {
 
 	go func() {
 		for msg := range ch {
-			s.logger.Info(fmt.Sprintf("Received message: %s", msg.Channel))
+			s.logger.Info("Received message: %s" + msg.Channel)
 
 			// XXX: Instrumentation to be added in a future episode
 

@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/gob"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -172,7 +171,7 @@ func (s *Server) ListenAndServe() error {
 
 	go func() {
 		for msg := range msgs {
-			s.logger.Info(fmt.Sprintf("Received message: %s", msg.RoutingKey))
+			s.logger.Info("Received message: %s" + msg.RoutingKey)
 
 			var nack bool
 

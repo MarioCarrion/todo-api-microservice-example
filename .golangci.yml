@@ -5,6 +5,7 @@ linters:
     - goerr113
     - gofumpt        # Prefer `gofmt` rules / some rules conflict with `wsl`
     - gomnd          # XXX: For now
+    - spancheck      # Calling End() is implemented as expected
     # I disagree with the rationale behind these linters
     - depguard
     - musttag

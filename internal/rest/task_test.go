@@ -37,7 +37,7 @@ func TestTasks_Delete(t *testing.T) {
 	}{
 		{
 			"OK: 200",
-			func(s *resttesting.FakeTaskService) {},
+			func(_ *resttesting.FakeTaskService) {},
 			output{
 				http.StatusOK,
 				&struct{}{},
@@ -324,7 +324,7 @@ func TestTasks_Update(t *testing.T) {
 	}{
 		{
 			"OK: 200",
-			func(s *resttesting.FakeTaskService) {},
+			func(_ *resttesting.FakeTaskService) {},
 			func() []byte {
 				b, _ := json.Marshal(&rest.UpdateTasksRequest{
 					Description: "update task",

@@ -6,10 +6,10 @@ tools:
 		github.com/fdaines/spm-go \
 		github.com/golangci/golangci-lint/cmd/golangci-lint \
 		github.com/jackc/tern/v2 \
-		github.com/kyleconroy/sqlc/cmd/sqlc \
 		github.com/maxbrunsfeld/counterfeiter/v6 \
+		github.com/sqlc-dev/sqlc/cmd/sqlc \
 		goa.design/model/cmd/mdl \
-		goa.design/model/cmd/stz \
+		goa.design/model/cmd/stz
 
 install:
 	go install golang.org/dl/go${GO_VERSION}@latest

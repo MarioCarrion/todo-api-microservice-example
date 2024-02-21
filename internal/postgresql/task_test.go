@@ -3,7 +3,6 @@ package postgresql_test
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net"
 	"net/url"
 	"os"
@@ -315,9 +314,9 @@ func newDB(tb testing.TB) *pgxpool.Pool {
 		Repository: "postgres",
 		Tag:        "15.2-bullseye",
 		Env: []string{
-			fmt.Sprintf("POSTGRES_USER=%s", dsn.User.Username()),
-			fmt.Sprintf("POSTGRES_PASSWORD=%s", pw),
-			fmt.Sprintf("POSTGRES_DB=%s", dsn.Path),
+			"POSTGRES_USER=" + dsn.User.Username(),
+			"POSTGRES_PASSWORD=" + pw,
+			"POSTGRES_DB=" + dsn.Path,
 		},
 	}, func(config *docker.HostConfig) {
 		config.AutoRemove = true
@@ -337,7 +336,7 @@ func newDB(tb testing.TB) *pgxpool.Pool {
 		}
 	})
 
-	dsn.Host = fmt.Sprintf("%s:5432", resource.Container.NetworkSettings.IPAddress)
+	dsn.Host = resource.Container.NetworkSettings.IPAddress + ":5432"
 	if runtime.GOOS == "darwin" { // MacOS-specific
 		dsn.Host = net.JoinHostPort(resource.GetBoundIP("5432/tcp"), resource.GetPort("5432/tcp"))
 	}
