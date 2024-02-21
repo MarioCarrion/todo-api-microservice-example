@@ -126,9 +126,9 @@ There's also a [docker-compose.yml](docker-compose.yml), covered in [Building Mi
 
 Notice that because of the way RabbitMQ and Kafka are being used they are sort of competing with each other, so at the moment we either have to enable Kafka and disable RabbitMQ or the other way around in both the code and the `docker-compose.yml` file, in either case there are Dockerfiles and services defined that cover building and running them.
 
-The following instructions are confirmed to work with docker compose v2.15.1.
+The following instructions are confirmed to work with docker compose **v2.24.5-desktop.1**.
 
-* Run `docker-compose up`, if you're using `rabbitmq` or `kafka` you may see the _rest-server_ and _elasticsearch-indexer_ services fail because those services take too long to start, in that case use any of the following instructions to manually start those services after the dependant server is ready:
+* Run `docker-compose up`, if you're using `rabbitmq` or `kafka` you may see the _rest-server_ and _elasticsearch-indexer_ services fail because those services take too long to start, in that case use any of the following instructions to manually start those services after the dependent server is ready:
     * If you're planning to use RabbitMQ, run `docker-compose up rest-server elasticsearch-indexer-rabbitmq`.
     * If you're planning to use Kafka, run `docker-compose up rest-server elasticsearch-indexer-kafka`.
 * For building the service images you can use:
@@ -136,7 +136,7 @@ The following instructions are confirmed to work with docker compose v2.15.1.
     * `elasticsearch-indexer-rabbitmq` image: `docker-compose build elasticsearch-indexer-rabbitmq`.
     * `elasticsearch-indexer-kafka` image: `docker-compose build elasticsearch-indexer-kafka`.
     * `elasticsearch-indexer-redis` image: `docker-compose build elasticsearch-indexer-redis`.
-* Run `docker-compose run rest-server migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname\?sslmode=disable up` to have everything working correctly.
+* Run `docker-compose run rest-server tern migrate --migrations "/api/migrations/" --conn-string "postgres://user:password@postgres:5432/dbname?sslmode=disable"` to have everything working correctly.
 * Finally interact with the API using Swagger UI: http://127.0.0.1:9234/static/swagger-ui/
 
 ## Diagrams

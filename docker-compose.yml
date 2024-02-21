@@ -16,7 +16,7 @@ services:
       # RABBITMQ_URL:      "amqp://guest:guest@rabbitmq:5672/"
       REDIS_HOST:        "redis:6379"
       VAULT_ADDRESS:     "http://vault:8300"
-      # docker-compose run rest-server migrate -path /api/migrations/ -database postgres://user:password@postgres:5432/dbname?sslmode=disable up
+      # docker-compose run rest-server tern migrate --migrations "/api/migrations/" --conn-string "postgres://user:password@postgres:5432/dbname?sslmode=disable"
     depends_on:
       postgres:
         condition: service_healthy
@@ -53,7 +53,7 @@ services:
       - "14268:14268"
 
   postgres:
-    image: postgres:15.2-bullseye
+    image: postgres:16.2-bullseye
     ports:
       - "5432:5432"
     environment:
