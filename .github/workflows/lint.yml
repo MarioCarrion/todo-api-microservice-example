@@ -20,8 +20,5 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install tools
-      run: make tools
-
     - name: Lint
-      run: golangci-lint run ./...
+      run: make lint

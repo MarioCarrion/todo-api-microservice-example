@@ -1,4 +1,4 @@
-GO_VERSION=1.21.0
+GO_VERSION=1.22.0
 
 tools:
 	go install -C internal/tools \
@@ -16,3 +16,20 @@ install:
 	go${GO_VERSION} download
 	mkdir -p bin
 	ln -sf `go env GOPATH`/bin/go${GO_VERSION} bin/go
+
+lint: tools generate golangci dirty
+
+dirty:
+	@status=$$(git status --untracked-files=no --porcelain); \
+	if [ ! -z "$${status}" ]; \
+	then \
+		echo "ERROR: Working directory contains modified files"; \
+		git status --untracked-files=no --porcelain; \
+		exit 1; \
+	fi
+
+generate:
+	go generate ./...
+
+golangci:
+	golangci-lint run ./...
