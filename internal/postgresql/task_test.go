@@ -346,7 +346,7 @@ func newDB(tb testing.TB) *pgxpool.Pool {
 
 	var db *pgx.Conn
 
-	for _ = range 20 {
+	for range 20 {
 		db, err = pgx.Connect(ctx, dsn.String())
 		if err == nil {
 			break
