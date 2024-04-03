@@ -72,6 +72,9 @@ linters-settings:
       - internal.WrapErrorf(
     ignorePackageGlobs:
       - github.com/MarioCarrion/todo-api/*
+  gosec:
+    excludes:
+      - G601 # "Implicit memory aliasing in for loop." Fixed in Go 1.22
 issues:
   exclude-rules:
     # All tests
