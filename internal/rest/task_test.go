@@ -92,6 +92,7 @@ func TestTasks_Delete(t *testing.T) {
 			if tt.output.expectedStatus != res.StatusCode {
 				t.Fatalf("expected code %d, actual %d", tt.output.expectedStatus, res.StatusCode)
 			}
+			defer res.Body.Close()
 		})
 	}
 }
@@ -197,6 +198,7 @@ func TestTasks_Post(t *testing.T) {
 			if tt.output.expectedStatus != res.StatusCode {
 				t.Fatalf("expected code %d, actual %d", tt.output.expectedStatus, res.StatusCode)
 			}
+			defer res.Body.Close()
 		})
 	}
 }
@@ -295,6 +297,7 @@ func TestTasks_Read(t *testing.T) {
 			if tt.output.expectedStatus != res.StatusCode {
 				t.Fatalf("expected code %d, actual %d", tt.output.expectedStatus, res.StatusCode)
 			}
+			defer res.Body.Close()
 		})
 	}
 }
@@ -404,6 +407,7 @@ func TestTasks_Update(t *testing.T) {
 			if tt.output.expectedStatus != res.StatusCode {
 				t.Fatalf("expected code %d, actual %d", tt.output.expectedStatus, res.StatusCode)
 			}
+			defer res.Body.Close()
 		})
 	}
 }
@@ -427,7 +431,6 @@ func assertResponse(t *testing.T, res *http.Response, test test) {
 	if err := json.NewDecoder(res.Body).Decode(test.target); err != nil {
 		t.Fatalf("couldn't decode %s", err)
 	}
-	defer res.Body.Close()
 
 	if !cmp.Equal(test.expected, test.target, cmpopts.IgnoreUnexported(time.Time{})) {
 		t.Fatalf("expected results don't match: %s", cmp.Diff(test.expected, test.target, cmpopts.IgnoreUnexported(time.Time{})))
