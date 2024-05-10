@@ -2,36 +2,18 @@ linters:
   enable-all: true
 
   disable:
-    - goerr113
     - gofumpt        # Prefer `gofmt` rules / some rules conflict with `wsl`
     - gomnd          # XXX: For now
     - spancheck      # Calling End() is implemented as expected
     # I disagree with the rationale behind these linters
+    - err113
     - depguard
     - musttag
     - nonamedreturns
     # The following are deprecated linters, added to avoid initial warning when running
-    - deadcode
-    - exhaustivestruct
-    - golint
-    - ifshort
-    - interfacer
-    - maligned
-    - nosnakecase
-    - scopelint
-    - varcheck
-    # The following are disabled because of go1.18, added to avoid the initial warning when running
-    # https://github.com/golangci/golangci-lint/issues/2649
-    - bodyclose
-    - contextcheck
-    - nilerr
-    - noctx
-    - rowserrcheck
-    - sqlclosecheck
-    - structcheck
-    - tparallel
-    - unparam
-    - wastedassign
+    - execinquery
+    # -
+    - mnd # Magic number
 
 linters-settings:
   lll:
