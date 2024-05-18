@@ -1,9 +1,6 @@
 bin/*
 !bin/install_tools
 
-elasticsearch-indexer
-rest-server
-
 mdl--*
 
 cover.cov
