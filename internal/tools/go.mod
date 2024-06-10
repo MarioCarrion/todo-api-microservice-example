@@ -3,7 +3,7 @@ module github.com/MarioCarrion/todo-api/internal/tools
 go 1.22
 
 require (
-	github.com/deepmap/oapi-codegen v1.16.2
+	github.com/deepmap/oapi-codegen v1.16.3
 	github.com/fdaines/spm-go v0.11.1
 	github.com/golangci/golangci-lint v1.59.0
 	github.com/jackc/tern/v2 v2.2.0
