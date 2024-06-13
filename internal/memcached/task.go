@@ -116,7 +116,7 @@ func (t *Task) Update(ctx context.Context, id string, description string, priori
 
 	task, err := t.orig.Find(ctx, id)
 	if err != nil { // XXX
-		return nil //nolint: nilerr
+		return nil
 	}
 
 	setTask(ctx, t.client, task.ID, &task, t.expiration) // XXX
