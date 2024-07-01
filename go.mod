@@ -18,7 +18,7 @@ require (
 	github.com/hashicorp/vault/api v1.8.3
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/jackc/tern/v2 v2.2.0
-	github.com/joho/godotenv v1.4.0
+	github.com/joho/godotenv v1.5.1
 	github.com/mercari/go-circuitbreaker v0.0.2
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/ory/dockertest/v3 v3.9.1
