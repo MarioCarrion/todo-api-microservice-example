@@ -3,11 +3,11 @@ module github.com/MarioCarrion/todo-api/internal/tools
 go 1.22
 
 require (
-	github.com/deepmap/oapi-codegen v1.16.3
 	github.com/fdaines/spm-go v0.11.1
 	github.com/golangci/golangci-lint v1.59.1
 	github.com/jackc/tern/v2 v2.2.1
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.8.1
+	github.com/oapi-codegen/oapi-codegen/v2 v2.3.0
 	github.com/sqlc-dev/sqlc v1.26.0
 	goa.design/model v1.9.1
 )
@@ -65,12 +65,12 @@ require (
 	github.com/firefart/nonamedreturns v1.0.5 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/fzipp/gocyclo v0.6.0 // indirect
-	github.com/getkin/kin-openapi v0.120.0 // indirect
+	github.com/getkin/kin-openapi v0.124.0 // indirect
 	github.com/ghostiam/protogetter v0.3.6 // indirect
 	github.com/go-chi/chi/v5 v5.0.10 // indirect
 	github.com/go-critic/go-critic v0.11.4 // indirect
-	github.com/go-openapi/jsonpointer v0.20.0 // indirect
-	github.com/go-openapi/swag v0.22.4 // indirect
+	github.com/go-openapi/jsonpointer v0.20.2 // indirect
+	github.com/go-openapi/swag v0.22.8 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/go-toolsmith/astcast v1.1.0 // indirect
 	github.com/go-toolsmith/astcopy v1.1.0 // indirect
