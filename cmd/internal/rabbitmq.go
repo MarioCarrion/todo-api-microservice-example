@@ -63,6 +63,6 @@ func NewRabbitMQ(conf *envvar.Configuration) (*RabbitMQ, error) {
 }
 
 // Close ...
-func (r *RabbitMQ) Close() {
-	r.Connection.Close()
+func (r *RabbitMQ) Close() error {
+	return r.Connection.Close()
 }

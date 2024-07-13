@@ -1,4 +1,12 @@
-GO_VERSION=1.22.0
+GO_VERSION=1.22.5
+
+install:
+	go install golang.org/dl/go${GO_VERSION}@latest
+	go${GO_VERSION} download
+	mkdir -p bin
+	ln -sf `go env GOPATH`/bin/go${GO_VERSION} bin/go
+
+lint: tools generate golangci vet dirty
 
 tools:
 	go install -C internal/tools \
@@ -11,13 +19,11 @@ tools:
 		goa.design/model/cmd/mdl \
 		goa.design/model/cmd/stz
 
-install:
-	go install golang.org/dl/go${GO_VERSION}@latest
-	go${GO_VERSION} download
-	mkdir -p bin
-	ln -sf `go env GOPATH`/bin/go${GO_VERSION} bin/go
+generate:
+	go generate ./...
 
-lint: tools generate golangci dirty
+golangci:
+	golangci-lint run ./...
 
 dirty:
 	@status=$$(git status --untracked-files=no --porcelain); \
@@ -28,8 +34,14 @@ dirty:
 		exit 1; \
 	fi
 
-generate:
-	go generate ./...
+vet:
+	go vet -tags=redis ./...
 
-golangci:
-	golangci-lint run ./...
+test:
+	go test -shuffle=on -race -coverprofile=coverage.txt -covermode=atomic $$(go list ./... | grep -v /cmd/)
+
+docker:
+	docker compose -f compose.yml -f compose.noop.yml build
+	docker compose -f compose.yml -f compose.redis.yml build
+	docker compose -f compose.yml -f compose.rabbitmq.yml build
+	docker compose -f compose.yml -f compose.kafka.yml build

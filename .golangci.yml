@@ -1,10 +1,16 @@
+run:
+  build-tags:
+    - redis
+    - rabbitmq
+    - kafka
+
 linters:
   enable-all: true
 
   disable:
-    - gofumpt        # Prefer `gofmt` rules / some rules conflict with `wsl`
-    - gomnd          # XXX: For now
-    - spancheck      # Calling End() is implemented as expected
+    - gofumpt   # Prefer `gofmt` rules / some rules conflict with `wsl`
+    - gomnd     # XXX: For now
+    - spancheck # Calling End() is implemented as expected
     # I disagree with the rationale behind these linters
     - err113
     - depguard
@@ -54,10 +60,9 @@ linters-settings:
       - internal.WrapErrorf(
     ignorePackageGlobs:
       - github.com/MarioCarrion/todo-api/*
-  gosec:
-    excludes:
-      - G601 # "Implicit memory aliasing in for loop." Fixed in Go 1.22
 issues:
+  exclude:
+    - "NewMessageHub redeclared in this block" # build tags: redis, rabbitmq or kafka
   exclude-rules:
     # All tests
     - path: _test\.go
