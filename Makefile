@@ -9,7 +9,8 @@ tools:
 		github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen \
 		github.com/sqlc-dev/sqlc/cmd/sqlc \
 		goa.design/model/cmd/mdl \
-		goa.design/model/cmd/stz
+		goa.design/model/cmd/stz \
+		golang.org/x/vuln/cmd/govulncheck
 
 install:
 	go install golang.org/dl/go${GO_VERSION}@latest
@@ -17,7 +18,7 @@ install:
 	mkdir -p bin
 	ln -sf `go env GOPATH`/bin/go${GO_VERSION} bin/go
 
-lint: tools generate golangci dirty
+lint: tools generate golangci govulncheck vet dirty
 
 dirty:
 	@status=$$(git status --untracked-files=no --porcelain); \
@@ -33,3 +34,12 @@ generate:
 
 golangci:
 	golangci-lint run ./...
+
+govulncheck:
+	govulncheck ./...
+
+vet:
+	go vet ./...
+
+test:
+	go test -shuffle=on -race -coverprofile=coverage.txt -covermode=atomic $$(go list ./... | grep -v /cmd/)

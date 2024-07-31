@@ -9,4 +9,5 @@ import (
 	_ "github.com/sqlc-dev/sqlc/cmd/sqlc"                        // Type-Safe SQL generator
 	_ "goa.design/model/cmd/mdl"                                 // Structurizer
 	_ "goa.design/model/cmd/stz"                                 // Structurizer
+	_ "golang.org/x/vuln/cmd/govulncheck"                        // Official Go vulnerability checks
 )
