@@ -1,10 +1,9 @@
 linters:
   enable-all: true
-
   disable:
-    - gofumpt        # Prefer `gofmt` rules / some rules conflict with `wsl`
-    - gomnd          # XXX: For now
-    - spancheck      # Calling End() is implemented as expected
+    - gofumpt # Prefer `gofmt` rules / some rules conflict with `wsl`
+    - gomnd # XXX: For now
+    - spancheck # Calling End() is implemented as expected
     # I disagree with the rationale behind these linters
     - err113
     - depguard
@@ -14,7 +13,6 @@ linters:
     - execinquery
     # -
     - mnd # Magic number
-
 linters-settings:
   lll:
     line-length: 130

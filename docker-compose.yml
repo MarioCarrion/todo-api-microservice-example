@@ -8,14 +8,14 @@ services:
       - "9234:9234"
     command: rest-server -env /api/env.example
     environment:
-      DATABASE_HOST:     "postgres"
+      DATABASE_HOST: "postgres"
       ELASTICSEARCH_URL: "http://elasticsearch:9200"
-      JAEGER_ENDPOINT:   "http://jaeger:14268/api/traces"
+      JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
       # KAFKA_HOST:        "kafka"
-      MEMCACHED_HOST:    "memcached:11211"
+      MEMCACHED_HOST: "memcached:11211"
       # RABBITMQ_URL:      "amqp://guest:guest@rabbitmq:5672/"
-      REDIS_HOST:        "redis:6379"
-      VAULT_ADDRESS:     "http://vault:8300"
+      REDIS_HOST: "redis:6379"
+      VAULT_ADDRESS: "http://vault:8300"
       # docker-compose run rest-server tern migrate --migrations "/api/migrations/" --conn-string "postgres://user:password@postgres:5432/dbname?sslmode=disable"
     depends_on:
       postgres:
@@ -32,42 +32,38 @@ services:
         condition: service_healthy
       memcached:
         condition: service_healthy
-      # zookeeper:
-      #   condition: service_started
-      # kafka:
-      #   condition: service_started
-      # rabbitmq:
-      #   condition: service_started
-
+        # zookeeper:
+        #   condition: service_started
+        # kafka:
+        #   condition: service_started
+        # rabbitmq:
+        #   condition: service_started
   prometheus:
     image: prom/prometheus:v2.40.7
     ports:
       - "9090:9090"
     volumes:
       - ./docs/prometheus.yml:/etc/prometheus/prometheus.yml
-
   jaeger:
     image: jaegertracing/all-in-one:1.40.0
     ports:
       - "16686:16686"
       - "14268:14268"
-
   postgres:
     image: postgres:16.2-bullseye
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB:               "dbname"
+      POSTGRES_DB: "dbname"
       POSTGRES_HOST_AUTH_METHOD: "trust"
-      POSTGRES_PASSWORD:         "password"
-      POSTGRES_USER:             "user"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_USER: "user"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 40s
-
   vault:
     image: vault:1.12.4
     ports:
@@ -76,8 +72,7 @@ services:
       - IPC_LOCK
     environment:
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8300"
-      VAULT_DEV_ROOT_TOKEN_ID:  "myroot"
-
+      VAULT_DEV_ROOT_TOKEN_ID: "myroot"
   elasticsearch:
     image: elasticsearch:7.17.9
     ports:
@@ -90,7 +85,6 @@ services:
       interval: 20s
       timeout: 1s
       retries: 5
-
   # elasticsearch-indexer-rabbitmq:
   #   build:
   #     context: .
@@ -149,7 +143,6 @@ services:
   #     KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
   #     KAFKA_CREATE_TOPICS:             "tasks:1:1"
   #     KAFKA_ZOOKEEPER_CONNECT:         "zookeeper:2181"
-
   elasticsearch-indexer-redis:
     build:
       context: .
@@ -157,9 +150,9 @@ services:
     command: elasticsearch-indexer -env /api/env.example
     environment:
       ELASTICSEARCH_URL: "http://elasticsearch:9200"
-      JAEGER_ENDPOINT:   "http://jaeger:14268/api/traces"
-      REDIS_HOST:        "redis:6379"
-      VAULT_ADDRESS:     "http://vault:8300"
+      JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
+      REDIS_HOST: "redis:6379"
+      VAULT_ADDRESS: "http://vault:8300"
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -171,7 +164,6 @@ services:
         condition: service_healthy
       vault:
         condition: service_started
-
   redis:
     image: redis:7.0.9-alpine3.17
     ports:
@@ -181,7 +173,6 @@ services:
       interval: 20s
       timeout: 1s
       retries: 5
-
   memcached:
     image: memcached:1.6.19-alpine3.17
     ports:
