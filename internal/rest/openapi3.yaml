@@ -110,10 +110,10 @@ components:
     Priority:
       default: none
       enum:
-      - none
-      - low
-      - medium
-      - high
+        - none
+        - low
+        - medium
+        - high
       type: string
     Task:
       properties:
@@ -168,12 +168,12 @@ paths:
     delete:
       operationId: DeleteTask
       parameters:
-      - in: path
-        name: taskId
-        required: true
-        schema:
-          format: uuid
-          type: string
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            format: uuid
+            type: string
       responses:
         "200":
           description: Task updated
@@ -184,12 +184,12 @@ paths:
     get:
       operationId: ReadTask
       parameters:
-      - in: path
-        name: taskId
-        required: true
-        schema:
-          format: uuid
-          type: string
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            format: uuid
+            type: string
       responses:
         "200":
           $ref: '#/components/responses/ReadTasksResponse'
@@ -200,12 +200,12 @@ paths:
     put:
       operationId: UpdateTask
       parameters:
-      - in: path
-        name: taskId
-        required: true
-        schema:
-          format: uuid
-          type: string
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            format: uuid
+            type: string
       requestBody:
         $ref: '#/components/requestBodies/UpdateTasksRequest'
       responses:
@@ -218,5 +218,5 @@ paths:
         "500":
           $ref: '#/components/responses/ErrorResponse'
 servers:
-- description: Local development
-  url: http://127.0.0.1:9234
+  - description: Local development
+    url: http://127.0.0.1:9234

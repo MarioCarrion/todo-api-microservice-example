@@ -4,3 +4,4 @@ bin/*
 mdl--*
 
 cover.cov
+coverage.txt
