@@ -2,8 +2,6 @@ module github.com/MarioCarrion/todo-api/internal/tools
 
 go 1.23.0
 
-toolchain go1.22.5
-
 require (
 	github.com/fdaines/spm-go v0.11.1
 	github.com/golangci/golangci-lint v1.60.3

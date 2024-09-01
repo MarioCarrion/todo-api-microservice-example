@@ -20,7 +20,6 @@ jobs:
             internal/tool/go.sum
       - name: Lint
         run: make lint
-
   test:
     strategy:
       matrix:
