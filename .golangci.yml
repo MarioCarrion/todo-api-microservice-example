@@ -11,6 +11,7 @@ linters:
     - nonamedreturns
     # The following are deprecated linters, added to avoid initial warning when running
     - execinquery
+    - exportloopref
     # -
     - mnd # Magic number
 linters-settings:

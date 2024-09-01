@@ -61,7 +61,7 @@ func setTask(ctx context.Context, client *memcache.Client, key string, value int
 	_ = client.Set(&memcache.Item{
 		Key:        key,
 		Value:      b.Bytes(),
-		Expiration: int32(time.Now().Add(expiration).Unix()),
+		Expiration: int32(time.Now().Add(expiration).Unix()), //nolint:gosec
 	})
 }
 
