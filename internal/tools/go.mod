@@ -6,7 +6,7 @@ require (
 	github.com/fdaines/spm-go v0.11.1
 	github.com/golangci/golangci-lint v1.61.0
 	github.com/google/yamlfmt v0.13.0
-	github.com/jackc/tern/v2 v2.2.1
+	github.com/jackc/tern/v2 v2.2.2
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.9.0
 	github.com/oapi-codegen/oapi-codegen/v2 v2.4.0
 	github.com/sqlc-dev/sqlc v1.27.0
@@ -17,6 +17,7 @@ require (
 require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect
 	4d63.com/gochecknoglobals v0.2.1 // indirect
+	dario.cat/mergo v1.0.1 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/4meepo/tagalign v1.3.4 // indirect
 	github.com/Abirdcfly/dupword v0.1.1 // indirect
@@ -30,7 +31,7 @@ require (
 	github.com/GaijinEntertainment/go-exhaustruct/v3 v3.3.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.3.0 // indirect
-	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
+	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
 	github.com/OpenPeeDeeP/depguard/v2 v2.2.0 // indirect
 	github.com/alecthomas/go-check-sumtype v0.1.4 // indirect
 	github.com/alexkohler/nakedret/v2 v2.0.4 // indirect
@@ -109,8 +110,7 @@ require (
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
-	github.com/huandu/xstrings v1.4.0 // indirect
-	github.com/imdario/mergo v0.3.16 // indirect
+	github.com/huandu/xstrings v1.5.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/invopop/yaml v0.3.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -202,7 +202,7 @@ require (
 	github.com/sourcegraph/go-diff v0.7.0 // indirect
 	github.com/speakeasy-api/openapi-overlay v0.9.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
-	github.com/spf13/cast v1.6.0 // indirect
+	github.com/spf13/cast v1.7.0 // indirect
 	github.com/spf13/cobra v1.8.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
