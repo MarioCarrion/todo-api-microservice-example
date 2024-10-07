@@ -15,7 +15,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
-	github.com/hashicorp/vault/api v1.14.0
+	github.com/hashicorp/vault/api v1.15.0
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/jackc/tern/v2 v2.2.1
 	github.com/joho/godotenv v1.5.1
