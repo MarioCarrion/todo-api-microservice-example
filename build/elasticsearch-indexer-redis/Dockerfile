@@ -11,7 +11,7 @@ RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -ldflags "-extldflag
 
 #-
 
-FROM debian:bookworm-20240926-slim
+FROM debian:bookworm-20241016-slim
 
 RUN set -x && \
     apt-get update && \
