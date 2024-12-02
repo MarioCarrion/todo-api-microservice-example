@@ -23,7 +23,7 @@ require (
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/ory/dockertest/v3 v3.11.0
 	github.com/riandyrn/otelchi v0.5.1
-	github.com/streadway/amqp v1.0.0
+	github.com/streadway/amqp v1.1.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.29.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.27.0
 	go.opentelemetry.io/otel v1.14.0
