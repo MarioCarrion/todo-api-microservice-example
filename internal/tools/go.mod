@@ -6,7 +6,7 @@ require (
 	github.com/fdaines/spm-go v0.11.1
 	github.com/golangci/golangci-lint v1.61.0
 	github.com/google/yamlfmt v0.14.0
-	github.com/jackc/tern/v2 v2.2.3
+	github.com/jackc/tern/v2 v2.3.0
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.10.0
 	github.com/oapi-codegen/oapi-codegen/v2 v2.4.1
 	github.com/sqlc-dev/sqlc v1.27.0
@@ -32,6 +32,7 @@ require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.3.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
+	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/OpenPeeDeeP/depguard/v2 v2.2.0 // indirect
 	github.com/alecthomas/go-check-sumtype v0.1.4 // indirect
 	github.com/alexkohler/nakedret/v2 v2.0.4 // indirect
