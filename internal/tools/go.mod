@@ -6,7 +6,7 @@ require (
 	github.com/fdaines/spm-go v0.11.1
 	github.com/golangci/golangci-lint v1.61.0
 	github.com/google/yamlfmt v0.14.0
-	github.com/jackc/tern/v2 v2.3.0
+	github.com/jackc/tern/v2 v2.3.1
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.10.0
 	github.com/oapi-codegen/oapi-codegen/v2 v2.4.1
 	github.com/sqlc-dev/sqlc v1.27.0
