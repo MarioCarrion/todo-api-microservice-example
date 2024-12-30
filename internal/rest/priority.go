@@ -34,8 +34,8 @@ func NewPriority(p internal.Priority) Priority {
 
 // Convert returns the domain type defining the internal representation, when priority is unknown "none" is
 // used.
-func (p Priority) Convert() internal.Priority {
-	switch p {
+func (p *Priority) Convert() internal.Priority {
+	switch *p {
 	case priorityNone:
 		return internal.PriorityNone
 	case priorityLow:
@@ -50,8 +50,8 @@ func (p Priority) Convert() internal.Priority {
 }
 
 // Validate ...
-func (p Priority) Validate() error {
-	switch p {
+func (p *Priority) Validate() error {
+	switch *p {
 	case priorityNone, priorityLow, priorityMedium, priorityHigh:
 		return nil
 	}
@@ -60,12 +60,12 @@ func (p Priority) Validate() error {
 }
 
 // MarshalJSON ...
-func (p Priority) MarshalJSON() ([]byte, error) {
+func (p *Priority) MarshalJSON() ([]byte, error) {
 	if err := p.Validate(); err != nil {
 		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "Validate")
 	}
 
-	b, err := json.Marshal(string(p))
+	b, err := json.Marshal(string(*p))
 	if err != nil {
 		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.Marshal")
 	}
@@ -80,7 +80,9 @@ func (p *Priority) UnmarshalJSON(b []byte) error {
 		return internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json.Unmarshal")
 	}
 
-	if err := Priority(str).Validate(); err != nil {
+	conv := Priority(str)
+
+	if err := conv.Validate(); err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "Validate")
 	}
 
