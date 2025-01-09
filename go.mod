@@ -17,7 +17,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/vault/api v1.15.0
 	github.com/jackc/pgx/v5 v5.7.2
-	github.com/jackc/tern/v2 v2.2.1
+	github.com/jackc/tern/v2 v2.3.2
 	github.com/joho/godotenv v1.5.1
 	github.com/mercari/go-circuitbreaker v0.0.2
 	github.com/oapi-codegen/runtime v1.1.1
@@ -40,11 +40,11 @@ require (
 )
 
 require (
-	dario.cat/mergo v1.0.0 // indirect
+	dario.cat/mergo v1.0.1 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
-	github.com/Masterminds/semver/v3 v3.2.1 // indirect
-	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
+	github.com/Masterminds/semver/v3 v3.3.0 // indirect
+	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/ajg/form v1.5.1 // indirect
@@ -82,8 +82,7 @@ require (
 	github.com/hashicorp/go-secure-stdlib/strutil v0.1.2 // indirect
 	github.com/hashicorp/go-sockaddr v1.0.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/huandu/xstrings v1.4.0 // indirect
-	github.com/imdario/mergo v0.3.16 // indirect
+	github.com/huandu/xstrings v1.5.0 // indirect
 	github.com/invopop/yaml v0.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
@@ -112,7 +111,7 @@ require (
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	github.com/spf13/cast v1.6.0 // indirect
+	github.com/spf13/cast v1.7.0 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
