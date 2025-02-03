@@ -68,3 +68,4 @@ test:
 docker:
 	docker compose -f compose.yml -f compose.kafka.yml build
 	docker compose -f compose.yml -f compose.rabbitmq.yml build
+	docker compose -f compose.yml -f compose.redis.yml build

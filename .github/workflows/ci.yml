@@ -10,10 +10,11 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 1.23.x
+          check-latest: true
           cache: true
           cache-dependency-path: |
             **/go.sum
-            internal/tool/go.sum
+            internal/tools/go.sum
       - name: Lint
         run: make lint
       - name: Make Docker images

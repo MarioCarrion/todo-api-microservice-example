@@ -1,4 +1,4 @@
-//go:build !rabbitmq
+//go:build kafka
 
 package main
 

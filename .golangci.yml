@@ -52,8 +52,6 @@ linters-settings:
     ignorePackageGlobs:
       - github.com/MarioCarrion/todo-api/*
 issues:
-  exclude:
-    - "NewMessageBrokerPublisher redeclared in this block" # build tags: `redis`, `rabbitmq` or `kafka`
   exclude-rules:
     # All tests
     - path: _test\.go

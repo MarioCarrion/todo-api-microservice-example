@@ -120,13 +120,14 @@ In no particular order:
 
 ## Running project locally using Docker Compose
 
-Originally added as part of [Building Microservices In Go: Containerization with Docker](https://youtu.be/u_ayzie9pAQ), `docker compose` has evolved and with it the way to run everything locally. Make sure you are running a recent version of Docker Compose. The configuration in this repository and the instructions below are known to work:
+Originally added as part of [Building Microservices In Go: Containerization with Docker](https://youtu.be/u_ayzie9pAQ), `docker compose` has evolved and with it the way to run everything locally. Make sure you are running a recent version of Docker Compose. The configuration in this repository and the instructions below are known to work for at least the following versions:
 
 * Engine: **27.4.0**, and
 * Compose: **v2.31.0-desktop.2**
 
-This project takes advantage of [Go's build constrains](https://pkg.go.dev/go/build) and [Docker's arguments](https://docs.docker.com/reference/dockerfile/#arg) to build and run the [rest-server](cmd/rest-server) using any of the following types of message broker:
+This project takes advantage of [Go's build constrains](https://pkg.go.dev/go/build) and [Docker's arguments](https://docs.docker.com/reference/dockerfile/#arg) to build the ElasticSearch indexers and to run the [rest-server](cmd/rest-server) using any of the following types of message broker:
 
+* Redis (**default one**)
 * RabbitMQ
 * Kafka
 
@@ -138,22 +139,25 @@ docker compose -f compose.yml -f compose.<type>.yml <command>
 
 Where:
 
-* `<type>`: Indicates what message broker to use. Currently there are two supported values: `rabbitmq` and `kafka`; those effectively match the compose filename itself.
+* `<type>`: Indicates what message broker to use, and effectively match the compose filename itself. The three supported values are:
+    1. `rabbitmq`,
+    1. `kafka`, and
+    1. `redis` (default value when building the `rest-server` binary).
 * `<command>`: Indicates the docker compose command to use.
 
-For example to build images using RabbitMQ as the message broker you would do:
+For example to build images using RabbitMQ as the message broker you execute:
 
 ```
 docker compose -f compose.yml -f compose.rabbitmq.yml build
 ```
 
-Then to start the containers you would do:
+Then to start the containers you execute:
 
 ```
 docker compose -f compose.yml -f compose.rabbitmq.yml up
 ```
 
-Once you `up` all the containers you can access the Swagger UI at http://127.0.0.1:9234/static/swagger-ui/ .
+Once you all the containers are `up` you can access the Swagger UI at http://127.0.0.1:9234/static/swagger-ui/ .
 
 ## Diagrams
 
