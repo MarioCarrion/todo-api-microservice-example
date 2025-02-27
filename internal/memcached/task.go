@@ -34,10 +34,6 @@ func NewTask(client *memcache.Client, orig TaskStore, logger *zap.Logger) *Task 
 }
 
 func (t *Task) Create(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
-	defer newOTELSpan(ctx, "Task.Create").End()
-
-	//-
-
 	task, err := t.orig.Create(ctx, params)
 	if err != nil {
 		return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "orig.Create")
@@ -53,10 +49,6 @@ func (t *Task) Create(ctx context.Context, params internal.CreateParams) (intern
 }
 
 func (t *Task) Delete(ctx context.Context, id string) error {
-	defer newOTELSpan(ctx, "Task.Delete").End()
-
-	//-
-
 	if err := t.orig.Delete(ctx, id); err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "orig.Delete")
 	}
@@ -67,10 +59,6 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 }
 
 func (t *Task) Find(ctx context.Context, id string) (internal.Task, error) {
-	defer newOTELSpan(ctx, "Task.Find").End()
-
-	//-
-
 	var res internal.Task
 
 	t.logger.Info("Find: get value")
@@ -94,10 +82,6 @@ func (t *Task) Find(ctx context.Context, id string) (internal.Task, error) {
 }
 
 func (t *Task) Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error {
-	defer newOTELSpan(ctx, "Task.Update").End()
-
-	//-
-
 	if err := t.orig.Update(ctx, id, description, priority, dates, isDone); err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "orig.Update")
 	}
@@ -115,8 +99,8 @@ func (t *Task) Update(ctx context.Context, id string, description string, priori
 	deleteTask(ctx, t.client, id) // XXX
 
 	task, err := t.orig.Find(ctx, id)
-	if err != nil { // XXX
-		return nil
+	if err != nil {
+		return nil //nolint: nilerr
 	}
 
 	setTask(ctx, t.client, task.ID, &task, t.expiration) // XXX

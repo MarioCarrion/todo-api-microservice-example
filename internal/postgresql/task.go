@@ -25,13 +25,8 @@ func NewTask(d db.DBTX) *Task {
 
 // Create inserts a new task record.
 func (t *Task) Create(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
-	defer newOTELSpan(ctx, "Task.Create").End()
-
-	//-
-
 	// XXX: `ID` and `IsDone` make no sense when creating new records, that's why those are ignored.
 	// XXX: We are intentionally NOT SUPPORTING `SubTasks` and `Categories` JUST YET.
-
 	newID, err := t.q.InsertTask(ctx, db.InsertTaskParams{
 		Description: params.Description,
 		Priority:    newPriority(params.Priority),
@@ -52,10 +47,6 @@ func (t *Task) Create(ctx context.Context, params internal.CreateParams) (intern
 
 // Delete deletes the existing record matching the id.
 func (t *Task) Delete(ctx context.Context, id string) error {
-	defer newOTELSpan(ctx, "Task.Delete").End()
-
-	//-
-
 	val, err := uuid.Parse(id)
 	if err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "invalid uuid")
@@ -75,10 +66,6 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 
 // Find returns the requested task by searching its id.
 func (t *Task) Find(ctx context.Context, id string) (internal.Task, error) {
-	defer newOTELSpan(ctx, "Task.Find").End()
-
-	//-
-
 	val, err := uuid.Parse(id)
 	if err != nil {
 		return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "invalid uuid")
@@ -112,10 +99,6 @@ func (t *Task) Find(ctx context.Context, id string) (internal.Task, error) {
 
 // Update updates the existing record with new values.
 func (t *Task) Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error {
-	defer newOTELSpan(ctx, "Task.Update").End()
-
-	//-
-
 	// XXX: We will revisit the number of received arguments in future episodes.
 	val, err := uuid.Parse(id)
 	if err != nil {

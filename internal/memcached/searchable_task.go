@@ -33,10 +33,6 @@ func NewSearchableTask(client *memcache.Client, orig SearchableTaskStore) *Searc
 
 // Index ...
 func (t *SearchableTask) Index(ctx context.Context, task internal.Task) error {
-	defer newOTELSpan(ctx, "SearchableTask.Index").End()
-
-	//-
-
 	if err := t.orig.Index(ctx, task); err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "orig.Index")
 	}
@@ -46,10 +42,6 @@ func (t *SearchableTask) Index(ctx context.Context, task internal.Task) error {
 
 // Delete ...
 func (t *SearchableTask) Delete(ctx context.Context, id string) error {
-	defer newOTELSpan(ctx, "SearchableTask.Delete").End()
-
-	//-
-
 	if err := t.orig.Delete(ctx, id); err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "orig.Delete")
 	}
@@ -59,10 +51,6 @@ func (t *SearchableTask) Delete(ctx context.Context, id string) error {
 
 // Search ...
 func (t *SearchableTask) Search(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
-	defer newOTELSpan(ctx, "SearchableTask.Search").End()
-
-	//-
-
 	key := newSearchableKey(args)
 
 	var res internal.SearchResults

@@ -20,7 +20,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/riandyrn/otelchi"
 	"go.uber.org/zap"
 
 	"github.com/MarioCarrion/todo-api-microservice-example/cmd/internal"
@@ -100,11 +99,6 @@ func run(env, address string) (<-chan error, error) {
 
 	//-
 
-	promExporter, err := internal.NewOTExporter(conf)
-	if err != nil {
-		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "internal.NewOTExporter")
-	}
-
 	logging := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			logger.Info(r.Method,
@@ -122,8 +116,7 @@ func run(env, address string) (<-chan error, error) {
 		Address:       address,
 		DB:            pool,
 		ElasticSearch: esClient,
-		Metrics:       promExporter,
-		Middlewares:   []func(next http.Handler) http.Handler{otelchi.Middleware("todo-api-server"), logging},
+		Middlewares:   []func(next http.Handler) http.Handler{logging},
 		Logger:        logger,
 		Memcached:     memcached,
 		MessageBroker: msgBroker,
@@ -185,7 +178,6 @@ type serverConfig struct {
 	DB            *pgxpool.Pool
 	ElasticSearch *esv7.Client
 	Memcached     *memcache.Client
-	Metrics       http.Handler
 	Middlewares   []func(next http.Handler) http.Handler
 	Logger        *zap.Logger
 	MessageBroker MessageBrokerPublisher
@@ -216,8 +208,6 @@ func newServer(conf serverConfig) (*http.Server, error) {
 
 	fsys, _ := fs.Sub(content, "static")
 	router.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(fsys))))
-
-	router.Handle("/metrics", conf.Metrics)
 
 	//-
 

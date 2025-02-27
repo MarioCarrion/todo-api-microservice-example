@@ -7,14 +7,9 @@ import (
 	"time"
 
 	"github.com/streadway/amqp"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 )
-
-const otelName = "github.com/MarioCarrion/todo-api-microservice-example/internal/rabbitmq"
 
 // Task represents the repository used for publishing Task records.
 type Task struct {
@@ -30,36 +25,20 @@ func NewTask(channel *amqp.Channel) *Task {
 
 // Created publishes a message indicating a task was created.
 func (t *Task) Created(ctx context.Context, task internal.Task) error {
-	return t.publish(ctx, "Task.Created", "tasks.event.created", task)
+	return t.publish(ctx, "Task.Created", task)
 }
 
 // Deleted publishes a message indicating a task was deleted.
 func (t *Task) Deleted(ctx context.Context, id string) error {
-	return t.publish(ctx, "Task.Deleted", "tasks.event.deleted", id)
+	return t.publish(ctx, "Task.Deleted", id)
 }
 
 // Updated publishes a message indicating a task was updated.
 func (t *Task) Updated(ctx context.Context, task internal.Task) error {
-	return t.publish(ctx, "Task.Updated", "tasks.event.updated", task)
+	return t.publish(ctx, "Task.Updated", task)
 }
 
-func (t *Task) publish(ctx context.Context, spanName, routingKey string, event interface{}) error {
-	_, span := otel.Tracer(otelName).Start(ctx, spanName)
-	defer span.End()
-
-	span.SetAttributes(
-		attribute.KeyValue{
-			Key:   semconv.MessagingSystemKey,
-			Value: attribute.StringValue("rabbitmq"),
-		},
-		attribute.KeyValue{
-			Key:   semconv.MessagingRabbitmqRoutingKeyKey,
-			Value: attribute.StringValue(routingKey),
-		},
-	)
-
-	//-
-
+func (t *Task) publish(_ context.Context, routingKey string, event interface{}) error {
 	var b bytes.Buffer
 
 	if err := gob.NewEncoder(&b).Encode(event); err != nil {

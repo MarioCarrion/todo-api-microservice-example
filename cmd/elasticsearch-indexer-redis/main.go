@@ -67,13 +67,6 @@ func run(env string) (<-chan error, error) {
 
 	//-
 
-	_, err = internal.NewOTExporter(conf)
-	if err != nil {
-		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "newOTExporter")
-	}
-
-	//-
-
 	srv := &Server{
 		logger: logger,
 		rdb:    rdb,

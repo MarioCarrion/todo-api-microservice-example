@@ -6,12 +6,9 @@ import (
 
 	"github.com/go-chi/render"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"go.opentelemetry.io/otel"
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 )
-
-const otelName = "github.com/MarioCarrion/todo-api-microservice-example/internal/rest"
 
 // ErrorResponse represents a response containing an error message.
 type ErrorResponse struct {
@@ -43,15 +40,6 @@ func renderErrorResponse(w http.ResponseWriter, r *http.Request, msg string, err
 			status = http.StatusInternalServerError
 		}
 	}
-
-	if err != nil {
-		_, span := otel.Tracer(otelName).Start(r.Context(), "renderErrorResponse")
-		defer span.End()
-
-		span.RecordError(err)
-	}
-
-	// XXX fmt.Printf("Error: %v\n", err)
 
 	render.Status(r, status)
 	render.JSON(w, r, &resp)

@@ -9,14 +9,9 @@ import (
 
 	esv7 "github.com/elastic/go-elasticsearch/v7"
 	esv7api "github.com/elastic/go-elasticsearch/v7/esapi"
-	"go.opentelemetry.io/otel"
-	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
-	"go.opentelemetry.io/otel/trace"
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 )
-
-const otelName = "github.com/MarioCarrion/todo-api-microservice-example/internal/elasticsearch"
 
 // Task represents the repository used for interacting with Task records.
 type Task struct {
@@ -45,10 +40,6 @@ func NewTask(client *esv7.Client) *Task {
 
 // Index creates or updates a task in an index.
 func (t *Task) Index(ctx context.Context, task internal.Task) error {
-	defer newOTELSpan(ctx, "Task.Index").End()
-
-	//-
-
 	body := indexedTask{
 		ID:          task.ID,
 		Description: task.Description,
@@ -88,10 +79,6 @@ func (t *Task) Index(ctx context.Context, task internal.Task) error {
 
 // Delete removes a task from the index.
 func (t *Task) Delete(ctx context.Context, id string) error {
-	defer newOTELSpan(ctx, "Task.Delete").End()
-
-	//-
-
 	req := esv7api.DeleteRequest{
 		Index:      t.index,
 		DocumentID: id,
@@ -116,10 +103,6 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 //
 //nolint:funlen,cyclop
 func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
-	defer newOTELSpan(ctx, "Task.Search").End()
-
-	//-
-
 	if args.IsZero() {
 		return internal.SearchResults{}, nil
 	}
@@ -225,14 +208,4 @@ func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal
 		Tasks: res,
 		Total: hits.Hits.Total.Value,
 	}, nil
-}
-
-//-
-
-func newOTELSpan(ctx context.Context, name string) trace.Span {
-	_, span := otel.Tracer(otelName).Start(ctx, name)
-
-	span.SetAttributes(semconv.DBSystemElasticsearch)
-
-	return span
 }
