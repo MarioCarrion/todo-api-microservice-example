@@ -11,7 +11,7 @@ require (
 	github.com/oapi-codegen/oapi-codegen/v2 v2.4.1
 	github.com/sqlc-dev/sqlc v1.28.0
 	goa.design/model v1.9.8
-	golang.org/x/vuln v1.1.3
+	golang.org/x/vuln v1.1.4
 )
 
 require (
