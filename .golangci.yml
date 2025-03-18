@@ -8,10 +8,10 @@ linters:
     - depguard
     - musttag
     - nonamedreturns
-    # The following are deprecated linters, added to avoid initial warning when running
-    - exportloopref
     # -
     - mnd # Magic number
+    # The following are deprecated linters, added to avoid initial warning when running
+    - tenv
 linters-settings:
   lll:
     line-length: 130
@@ -19,18 +19,16 @@ linters-settings:
     sections:
       - standard
       - default
-      - prefix(github.com/MarioCarrion/todo-api)
+      - prefix(github.com/MarioCarrion/todo-api-microservice-example)
     section-separators:
       - newLine
   exhaustruct:
     include:
-      - 'github.com/MarioCarrion/todo-api/internal.*Params'
+      - 'github.com/MarioCarrion/todo-api-microservice-example/internal.*Params'
   ireturn:
     allow:
       - error
       - stdlib
-      #
-      - 'go.opentelemetry.io/otel/trace.Span'
   varnamelen:
     max-distance: 10
     ignore-type-assert-ok: true
@@ -50,7 +48,7 @@ linters-settings:
       - internal.NewErrorf(
       - internal.WrapErrorf(
     ignorePackageGlobs:
-      - github.com/MarioCarrion/todo-api/*
+      - github.com/MarioCarrion/todo-api-microservice-example/*
 issues:
   exclude-rules:
     # All tests

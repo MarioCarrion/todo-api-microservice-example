@@ -28,7 +28,7 @@ func TestTask_Create(t *testing.T) {
 	t.Run("Create: OK", func(t *testing.T) {
 		t.Parallel()
 
-		task, err := postgresql.NewTask(newDB(t)).Create(context.Background(),
+		task, err := postgresql.NewTask(newDB(t)).Create(t.Context(),
 			internal.CreateParams{
 				Description: "test",
 				Priority:    internal.PriorityNone,
@@ -46,7 +46,7 @@ func TestTask_Create(t *testing.T) {
 	t.Run("Create: ERR", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := postgresql.NewTask(newDB(t)).Create(context.Background(),
+		_, err := postgresql.NewTask(newDB(t)).Create(t.Context(),
 			internal.CreateParams{
 				Description: "",
 				Priority:    internal.Priority(-1),
@@ -71,7 +71,7 @@ func TestTask_Delete(t *testing.T) {
 
 		store := postgresql.NewTask(newDB(t))
 
-		createdTask, err := store.Create(context.Background(), internal.CreateParams{
+		createdTask, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
 			Priority:    internal.PriorityNone,
 			Dates:       internal.Dates{},
@@ -80,11 +80,11 @@ func TestTask_Delete(t *testing.T) {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		if err := store.Delete(context.Background(), createdTask.ID); err != nil {
+		if err := store.Delete(t.Context(), createdTask.ID); err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		if _, err = store.Find(context.Background(), createdTask.ID); !errors.Is(err, pgx.ErrNoRows) {
+		if _, err = store.Find(t.Context(), createdTask.ID); !errors.Is(err, pgx.ErrNoRows) {
 			t.Fatalf("expected no error, got %s", err)
 		}
 	})
@@ -92,7 +92,7 @@ func TestTask_Delete(t *testing.T) {
 	t.Run("Update: ERR uuid", func(t *testing.T) {
 		t.Parallel()
 
-		err := postgresql.NewTask(newDB(t)).Delete(context.Background(), "x")
+		err := postgresql.NewTask(newDB(t)).Delete(t.Context(), "x")
 
 		if err == nil {
 			t.Fatalf("expected error, got not value")
@@ -107,7 +107,7 @@ func TestTask_Delete(t *testing.T) {
 	t.Run("Delete: ERR not found", func(t *testing.T) {
 		t.Parallel()
 
-		err := postgresql.NewTask(newDB(t)).Delete(context.Background(), "44633fe3-b039-4fb3-a35f-a57fe3c906c7")
+		err := postgresql.NewTask(newDB(t)).Delete(t.Context(), "44633fe3-b039-4fb3-a35f-a57fe3c906c7")
 
 		var ierr *internal.Error
 		if !errors.As(err, &ierr) || ierr.Code() != internal.ErrorCodeNotFound {
@@ -124,7 +124,7 @@ func TestTask_Find(t *testing.T) {
 
 		store := postgresql.NewTask(newDB(t))
 
-		originalTask, err := store.Create(context.Background(), internal.CreateParams{
+		originalTask, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
 			Priority:    internal.PriorityNone,
 			Dates:       internal.Dates{},
@@ -133,7 +133,7 @@ func TestTask_Find(t *testing.T) {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		actualTask, err := store.Find(context.Background(), originalTask.ID)
+		actualTask, err := store.Find(t.Context(), originalTask.ID)
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
@@ -146,7 +146,7 @@ func TestTask_Find(t *testing.T) {
 	t.Run("Find: ERR uuid", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := postgresql.NewTask(newDB(t)).Find(context.Background(), "x")
+		_, err := postgresql.NewTask(newDB(t)).Find(t.Context(), "x")
 		if err == nil {
 			t.Fatalf("expected error, got not value")
 		}
@@ -160,7 +160,7 @@ func TestTask_Find(t *testing.T) {
 	t.Run("Find: ERR not found", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := postgresql.NewTask(newDB(t)).Find(context.Background(), "44633fe3-b039-4fb3-a35f-a57fe3c906c7")
+		_, err := postgresql.NewTask(newDB(t)).Find(t.Context(), "44633fe3-b039-4fb3-a35f-a57fe3c906c7")
 		if err == nil {
 			t.Fatalf("expected error, got not value")
 		}
@@ -180,7 +180,7 @@ func TestTask_Update(t *testing.T) {
 
 		store := postgresql.NewTask(newDB(t))
 
-		originalTask, err := store.Create(context.Background(), internal.CreateParams{
+		originalTask, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
 			Priority:    internal.PriorityNone,
 			Dates:       internal.Dates{},
@@ -193,7 +193,7 @@ func TestTask_Update(t *testing.T) {
 		originalTask.Dates.Due = time.Now().UTC()
 		originalTask.Priority = internal.PriorityHigh
 
-		if err := store.Update(context.Background(),
+		if err := store.Update(t.Context(),
 			originalTask.ID,
 			originalTask.Description,
 			originalTask.Priority,
@@ -202,7 +202,7 @@ func TestTask_Update(t *testing.T) {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		actualTask, err := store.Find(context.Background(), originalTask.ID)
+		actualTask, err := store.Find(t.Context(), originalTask.ID)
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
@@ -219,7 +219,7 @@ func TestTask_Update(t *testing.T) {
 	t.Run("Update: ERR uuid", func(t *testing.T) {
 		t.Parallel()
 
-		err := postgresql.NewTask(newDB(t)).Update(context.Background(),
+		err := postgresql.NewTask(newDB(t)).Update(t.Context(),
 			"x",
 			"",
 			internal.PriorityNone,
@@ -240,7 +240,7 @@ func TestTask_Update(t *testing.T) {
 
 		store := postgresql.NewTask(newDB(t))
 
-		task, err := store.Create(context.Background(), internal.CreateParams{
+		task, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
 			Priority:    internal.PriorityNone,
 			Dates:       internal.Dates{},
@@ -249,7 +249,7 @@ func TestTask_Update(t *testing.T) {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		err = postgresql.NewTask(newDB(t)).Update(context.Background(),
+		err = postgresql.NewTask(newDB(t)).Update(t.Context(),
 			task.ID,
 			"",
 			internal.Priority(-1),
@@ -268,7 +268,7 @@ func TestTask_Update(t *testing.T) {
 	t.Run("Update: ERR not found", func(t *testing.T) {
 		t.Parallel()
 
-		err := postgresql.NewTask(newDB(t)).Update(context.Background(),
+		err := postgresql.NewTask(newDB(t)).Update(t.Context(),
 			"44633fe3-b039-4fb3-a35f-a57fe3c906c7",
 			"",
 			internal.PriorityNone,
@@ -341,7 +341,7 @@ func newDB(tb testing.TB) *pgxpool.Pool {
 		dsn.Host = net.JoinHostPort(resource.GetBoundIP("5432/tcp"), resource.GetPort("5432/tcp"))
 	}
 
-	ctx, cFunc := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
+	ctx, cFunc := context.WithDeadline(tb.Context(), time.Now().Add(5*time.Second))
 	tb.Cleanup(cFunc)
 
 	var db *pgx.Conn
@@ -379,13 +379,13 @@ func newDB(tb testing.TB) *pgxpool.Pool {
 		tb.Fatalf("Couldn't migrate (2): %s", err)
 	}
 
-	if err = migrator.Migrate(context.Background()); err != nil {
+	if err = migrator.Migrate(tb.Context()); err != nil {
 		tb.Fatalf("Couldnt' migrate (3): %s", err)
 	}
 
 	//-
 
-	dbpool, err := pgxpool.New(context.Background(), dsn.String())
+	dbpool, err := pgxpool.New(tb.Context(), dsn.String())
 	if err != nil {
 		tb.Fatalf("Couldn't open DB Pool: %s", err)
 	}
