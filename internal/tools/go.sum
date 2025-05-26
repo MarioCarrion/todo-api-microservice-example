@@ -116,8 +116,6 @@ github.com/bmatcuk/doublestar/v4 v4.7.1 h1:fdDeAqgT47acgwd9bd9HxJRDmc9UAmPpc+2m0
 github.com/bmatcuk/doublestar/v4 v4.7.1/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
 github.com/bombsimon/wsl/v4 v4.5.0 h1:iZRsEvDdyhd2La0FVi5k6tYehpOR/R7qIUjmKk7N74A=
 github.com/bombsimon/wsl/v4 v4.5.0/go.mod h1:NOQ3aLF4nD7N5YPXMruR6ZXDOAqLoM0GEpLwTdvmOSc=
-github.com/braydonk/yaml v0.9.0 h1:ewGMrVmEVpsm3VwXQDR388sLg5+aQ8Yihp6/hc4m+h4=
-github.com/braydonk/yaml v0.9.0/go.mod h1:hcm3h581tudlirk8XEUPDBAimBPbmnL0Y45hCRl47N4=
 github.com/breml/bidichk v0.3.2 h1:xV4flJ9V5xWTqxL+/PMFF6dtJPvZLPsyixAoPe8BGJs=
 github.com/breml/bidichk v0.3.2/go.mod h1:VzFLBxuYtT23z5+iVkamXO386OB+/sVwZOpIj6zXGos=
 github.com/breml/errchkjson v0.4.0 h1:gftf6uWZMtIa/Is3XJgibewBm2ksAQSY/kABDNFTAdk=
@@ -349,8 +347,8 @@ github.com/google/renameio v0.1.0 h1:GOZbcHa3HfsPKPlmyPyN2KEohoMXOhdMbHrvbpl2QaA
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
-github.com/google/yamlfmt v0.16.0 h1:5auoxqdx2CxOb022XGBElFFVH8uE/lAJDCWKRMq4mT8=
-github.com/google/yamlfmt v0.16.0/go.mod h1:/fF8jQmFopG3InQoWYG3gTORPXqLwNkcBqAT4UA4ab0=
+github.com/google/yamlfmt v0.17.0 h1:/tdp01rIlvLz3LgJ2NtMLnqgAadZm33P7GcPU680b+w=
+github.com/google/yamlfmt v0.17.0/go.mod h1:gs0UEklJOYkUJ+OOCG0hg9n+DzucKDPlJElTUasVNK8=
 github.com/googleapis/gax-go/v2 v2.0.4/go.mod h1:0Wqv26UfaUD9n4G6kQubkQ+KchISgw+vpHVxEJEs9eg=
 github.com/googleapis/gax-go/v2 v2.0.5/go.mod h1:DWXyrwAJ9X0FpwwEdw+IPEYBICEFu5mhpdKc/us6bOk=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
