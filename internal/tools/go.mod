@@ -10,7 +10,7 @@ require (
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.11.2
 	github.com/oapi-codegen/oapi-codegen/v2 v2.4.1
 	github.com/sqlc-dev/sqlc v1.29.0
-	goa.design/model v1.11.1
+	goa.design/model v1.11.2
 	golang.org/x/vuln v1.1.4
 )
 
