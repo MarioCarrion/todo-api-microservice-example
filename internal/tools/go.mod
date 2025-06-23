@@ -5,7 +5,7 @@ go 1.24.1
 require (
 	github.com/fdaines/spm-go v0.11.1
 	github.com/golangci/golangci-lint v1.64.8
-	github.com/google/yamlfmt v0.17.0
+	github.com/google/yamlfmt v0.17.1
 	github.com/jackc/tern/v2 v2.3.3
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.11.2
 	github.com/oapi-codegen/oapi-codegen/v2 v2.4.1
