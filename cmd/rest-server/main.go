@@ -201,7 +201,6 @@ func newServer(conf serverConfig) (*http.Server, error) {
 
 	svc := service.NewTask(conf.Logger, mrepo, msearch, conf.MessageBroker.Publisher())
 
-	rest.RegisterOpenAPI(router)
 	rest.NewTaskHandler(svc).Register(router)
 
 	//-
