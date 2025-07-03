@@ -28,9 +28,7 @@ On YouTube I created [a playlist](https://www.youtube.com/playlist?list=PL7yAAGM
 
 Talking specifically about microservices **only**, the structure I like to recommend is the following, everything using `<` and `>` depends on the domain being implemented and the bounded context being defined.
 
-- [ ] `build/`: defines the code used for creating infrastructure as well as docker containers.
-  - [ ] `<cloud-providers>/`: define concrete cloud provider.
-  - [ ] `<executableN>/`: contains a Dockerfile used for building the binary.
+- [X] `dockerfiles/`: defines all the Dockerfiles used by the different applications used in the project.
 - [ ] `cmd/`
   - [ ] `<primary-server>/`: uses primary database.
   - [ ] `<replica-server>/`: uses readonly databases.
@@ -40,9 +38,8 @@ Talking specifically about microservices **only**, the structure I like to recom
   - [ ] `seeds/`: contains file meant to populate basic database values.
 - [ ] `internal/`: defines the _core domain_.
   - [ ] `<datastoreN>/`: a concrete _repository_ used by the domain, for example `postgresql`
-  - [ ] `http/`: defines HTTP Handlers.
+  - [ ] `rest/`: defines HTTP Handlers.
   - [ ] `service/`: orchestrates use cases and manages transactions.
-- [X] `pkg/` public API meant to be imported by other Go package.
 
 There are cases where requiring a new bounded context is needed, in those cases the recommendation would be to
 define a package like `internal/<bounded-context>` that then should follow the same structure, for example:
@@ -99,7 +96,7 @@ In no particular order:
   - [X] Equality with [`google/go-cmp`](https://github.com/google/go-cmp) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/ae15DzSwNnU) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2021/01/22/go-package-equality-google-go-cmp.html)
   - [X] Integration tests for Datastores with [`ory/dockertest`](https://github.com/ory/dockertest) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/a-CCceqerhg) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2021/03/14/golang-package-testing-datastores-ory-dockertest.html)
   - [X] REST APIs [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/lMrWO7OUMdY) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post">](https://mariocarrion.com/2021/04/25/golang-microservices-rest-api-testing.html)
-- [ ] Containerization using Docker [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/u_ayzie9pAQ)
+- [X] Containerization using Docker [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/u_ayzie9pAQ)
 - [ ] Graceful Shutdown [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/VXxe7-b5euo)
 - [ ] Search Engine using [ElasticSearch](https://www.elastic.co/elasticsearch/) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/ZrdbQRYst5E)
 - [ ] Documentation
