@@ -71,30 +71,30 @@ func TestDates_Validate(t *testing.T) {
 		{
 			"OK: Start.IsZero",
 			internal.Dates{
-				Due: time.Now(),
+				Due: internal.ValueToPointer(time.Now()),
 			},
 			false,
 		},
 		{
 			"OK: Due.IsZero",
 			internal.Dates{
-				Start: time.Now(),
+				Start: internal.ValueToPointer(time.Now()),
 			},
 			false,
 		},
 		{
 			"OK: Start < Due",
 			internal.Dates{
-				Start: time.Now(),
-				Due:   time.Now().Add(2 * time.Hour),
+				Start: internal.ValueToPointer(time.Now()),
+				Due:   internal.ValueToPointer(time.Now().Add(2 * time.Hour)),
 			},
 			false,
 		},
 		{
 			"ERR: Start > Due",
 			internal.Dates{
-				Start: time.Now().Add(2 * time.Hour),
-				Due:   time.Now(),
+				Start: internal.ValueToPointer(time.Now().Add(2 * time.Hour)),
+				Due:   internal.ValueToPointer(time.Now()),
 			},
 			true,
 		},
@@ -129,22 +129,22 @@ func TestTask_Validate(t *testing.T) {
 			"OK",
 			internal.Task{
 				Description: "complete this microservice",
-				Priority:    internal.PriorityHigh,
+				Priority:    internal.PriorityHigh.Pointer(),
 				Dates: internal.Dates{
-					Start: time.Now(),
-					Due:   time.Now().Add(time.Hour),
-				},
+					Start: internal.ValueToPointer(time.Now()),
+					Due:   internal.ValueToPointer(time.Now().Add(time.Hour)),
+				}.Pointer(),
 			},
 			false,
 		},
 		{
 			"ERR: Description",
 			internal.Task{
-				Priority: internal.PriorityHigh,
+				Priority: internal.PriorityHigh.Pointer(),
 				Dates: internal.Dates{
-					Start: time.Now(),
-					Due:   time.Now().Add(time.Hour),
-				},
+					Start: internal.ValueToPointer(time.Now()),
+					Due:   internal.ValueToPointer(time.Now().Add(time.Hour)),
+				}.Pointer(),
 			},
 			true,
 		},
@@ -152,11 +152,11 @@ func TestTask_Validate(t *testing.T) {
 			"ERR: Priority",
 			internal.Task{
 				Description: "complete this microservice",
-				Priority:    internal.Priority(-1),
+				Priority:    internal.Priority(-1).Pointer(),
 				Dates: internal.Dates{
-					Start: time.Now(),
-					Due:   time.Now().Add(time.Hour),
-				},
+					Start: internal.ValueToPointer(time.Now()),
+					Due:   internal.ValueToPointer(time.Now().Add(time.Hour)),
+				}.Pointer(),
 			},
 			true,
 		},
@@ -164,11 +164,11 @@ func TestTask_Validate(t *testing.T) {
 			"ERR: Dates",
 			internal.Task{
 				Description: "complete this microservice",
-				Priority:    internal.PriorityHigh,
+				Priority:    internal.PriorityHigh.Pointer(),
 				Dates: internal.Dates{
-					Start: time.Now().Add(time.Hour),
-					Due:   time.Now(),
-				},
+					Start: internal.ValueToPointer(time.Now().Add(time.Hour)),
+					Due:   internal.ValueToPointer(time.Now()),
+				}.Pointer(),
 			},
 			true,
 		},

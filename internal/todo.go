@@ -4,6 +4,8 @@ package internal
 import (
 	"time"
 
+	"github.com/google/uuid"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -34,31 +36,45 @@ func (p Priority) Validate() error {
 	return NewErrorf(ErrorCodeInvalidArgument, "unknown value")
 }
 
+// Pointer returns the pointer of p
+func (p Priority) Pointer() *Priority {
+	return &p
+}
+
 // Category is human readable value meant to be used to organize your tasks. Category values are unique.
 type Category string
 
 // Dates indicates a point in time where a task starts or completes, dates are not enforced on Tasks.
 type Dates struct {
-	Start time.Time
-	Due   time.Time
+	Start *time.Time
+	Due   *time.Time
 }
 
 // Validate ...
 func (d Dates) Validate() error {
-	if !d.Start.IsZero() && !d.Due.IsZero() && d.Start.After(d.Due) {
+	if d.Start == nil || d.Due == nil {
+		return nil
+	}
+
+	if !d.Start.IsZero() && !d.Due.IsZero() && d.Start.After(*d.Due) {
 		return NewErrorf(ErrorCodeInvalidArgument, "start dates should be before end date")
 	}
 
 	return nil
 }
 
+// Pointer returns the pointer of d
+func (d Dates) Pointer() *Dates {
+	return &d
+}
+
 // Task is an activity that needs to be completed within a period of time.
 type Task struct {
+	ID          uuid.UUID
 	IsDone      bool
-	Priority    Priority
-	ID          string
+	Priority    *Priority
 	Description string
-	Dates       Dates
+	Dates       *Dates
 	SubTasks    []Task
 	Categories  []Category
 }

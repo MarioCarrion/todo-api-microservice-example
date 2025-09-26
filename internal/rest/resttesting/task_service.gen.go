@@ -7,6 +7,7 @@ import (
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/rest"
+	"github.com/google/uuid"
 )
 
 type FakeTaskService struct {
@@ -38,11 +39,11 @@ type FakeTaskService struct {
 		result1 internal.Task
 		result2 error
 	}
-	DeleteStub        func(context.Context, string) error
+	DeleteStub        func(context.Context, uuid.UUID) error
 	deleteMutex       sync.RWMutex
 	deleteArgsForCall []struct {
 		arg1 context.Context
-		arg2 string
+		arg2 uuid.UUID
 	}
 	deleteReturns struct {
 		result1 error
@@ -50,11 +51,11 @@ type FakeTaskService struct {
 	deleteReturnsOnCall map[int]struct {
 		result1 error
 	}
-	TaskStub        func(context.Context, string) (internal.Task, error)
+	TaskStub        func(context.Context, uuid.UUID) (internal.Task, error)
 	taskMutex       sync.RWMutex
 	taskArgsForCall []struct {
 		arg1 context.Context
-		arg2 string
+		arg2 uuid.UUID
 	}
 	taskReturns struct {
 		result1 internal.Task
@@ -64,15 +65,12 @@ type FakeTaskService struct {
 		result1 internal.Task
 		result2 error
 	}
-	UpdateStub        func(context.Context, string, string, internal.Priority, internal.Dates, bool) error
+	UpdateStub        func(context.Context, uuid.UUID, internal.UpdateParams) error
 	updateMutex       sync.RWMutex
 	updateArgsForCall []struct {
 		arg1 context.Context
-		arg2 string
-		arg3 string
-		arg4 internal.Priority
-		arg5 internal.Dates
-		arg6 bool
+		arg2 uuid.UUID
+		arg3 internal.UpdateParams
 	}
 	updateReturns struct {
 		result1 error
@@ -214,12 +212,12 @@ func (fake *FakeTaskService) CreateReturnsOnCall(i int, result1 internal.Task, r
 	}{result1, result2}
 }
 
-func (fake *FakeTaskService) Delete(arg1 context.Context, arg2 string) error {
+func (fake *FakeTaskService) Delete(arg1 context.Context, arg2 uuid.UUID) error {
 	fake.deleteMutex.Lock()
 	ret, specificReturn := fake.deleteReturnsOnCall[len(fake.deleteArgsForCall)]
 	fake.deleteArgsForCall = append(fake.deleteArgsForCall, struct {
 		arg1 context.Context
-		arg2 string
+		arg2 uuid.UUID
 	}{arg1, arg2})
 	stub := fake.DeleteStub
 	fakeReturns := fake.deleteReturns
@@ -240,13 +238,13 @@ func (fake *FakeTaskService) DeleteCallCount() int {
 	return len(fake.deleteArgsForCall)
 }
 
-func (fake *FakeTaskService) DeleteCalls(stub func(context.Context, string) error) {
+func (fake *FakeTaskService) DeleteCalls(stub func(context.Context, uuid.UUID) error) {
 	fake.deleteMutex.Lock()
 	defer fake.deleteMutex.Unlock()
 	fake.DeleteStub = stub
 }
 
-func (fake *FakeTaskService) DeleteArgsForCall(i int) (context.Context, string) {
+func (fake *FakeTaskService) DeleteArgsForCall(i int) (context.Context, uuid.UUID) {
 	fake.deleteMutex.RLock()
 	defer fake.deleteMutex.RUnlock()
 	argsForCall := fake.deleteArgsForCall[i]
@@ -276,12 +274,12 @@ func (fake *FakeTaskService) DeleteReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeTaskService) Task(arg1 context.Context, arg2 string) (internal.Task, error) {
+func (fake *FakeTaskService) Task(arg1 context.Context, arg2 uuid.UUID) (internal.Task, error) {
 	fake.taskMutex.Lock()
 	ret, specificReturn := fake.taskReturnsOnCall[len(fake.taskArgsForCall)]
 	fake.taskArgsForCall = append(fake.taskArgsForCall, struct {
 		arg1 context.Context
-		arg2 string
+		arg2 uuid.UUID
 	}{arg1, arg2})
 	stub := fake.TaskStub
 	fakeReturns := fake.taskReturns
@@ -302,13 +300,13 @@ func (fake *FakeTaskService) TaskCallCount() int {
 	return len(fake.taskArgsForCall)
 }
 
-func (fake *FakeTaskService) TaskCalls(stub func(context.Context, string) (internal.Task, error)) {
+func (fake *FakeTaskService) TaskCalls(stub func(context.Context, uuid.UUID) (internal.Task, error)) {
 	fake.taskMutex.Lock()
 	defer fake.taskMutex.Unlock()
 	fake.TaskStub = stub
 }
 
-func (fake *FakeTaskService) TaskArgsForCall(i int) (context.Context, string) {
+func (fake *FakeTaskService) TaskArgsForCall(i int) (context.Context, uuid.UUID) {
 	fake.taskMutex.RLock()
 	defer fake.taskMutex.RUnlock()
 	argsForCall := fake.taskArgsForCall[i]
@@ -341,23 +339,20 @@ func (fake *FakeTaskService) TaskReturnsOnCall(i int, result1 internal.Task, res
 	}{result1, result2}
 }
 
-func (fake *FakeTaskService) Update(arg1 context.Context, arg2 string, arg3 string, arg4 internal.Priority, arg5 internal.Dates, arg6 bool) error {
+func (fake *FakeTaskService) Update(arg1 context.Context, arg2 uuid.UUID, arg3 internal.UpdateParams) error {
 	fake.updateMutex.Lock()
 	ret, specificReturn := fake.updateReturnsOnCall[len(fake.updateArgsForCall)]
 	fake.updateArgsForCall = append(fake.updateArgsForCall, struct {
 		arg1 context.Context
-		arg2 string
-		arg3 string
-		arg4 internal.Priority
-		arg5 internal.Dates
-		arg6 bool
-	}{arg1, arg2, arg3, arg4, arg5, arg6})
+		arg2 uuid.UUID
+		arg3 internal.UpdateParams
+	}{arg1, arg2, arg3})
 	stub := fake.UpdateStub
 	fakeReturns := fake.updateReturns
-	fake.recordInvocation("Update", []interface{}{arg1, arg2, arg3, arg4, arg5, arg6})
+	fake.recordInvocation("Update", []interface{}{arg1, arg2, arg3})
 	fake.updateMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4, arg5, arg6)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -371,17 +366,17 @@ func (fake *FakeTaskService) UpdateCallCount() int {
 	return len(fake.updateArgsForCall)
 }
 
-func (fake *FakeTaskService) UpdateCalls(stub func(context.Context, string, string, internal.Priority, internal.Dates, bool) error) {
+func (fake *FakeTaskService) UpdateCalls(stub func(context.Context, uuid.UUID, internal.UpdateParams) error) {
 	fake.updateMutex.Lock()
 	defer fake.updateMutex.Unlock()
 	fake.UpdateStub = stub
 }
 
-func (fake *FakeTaskService) UpdateArgsForCall(i int) (context.Context, string, string, internal.Priority, internal.Dates, bool) {
+func (fake *FakeTaskService) UpdateArgsForCall(i int) (context.Context, uuid.UUID, internal.UpdateParams) {
 	fake.updateMutex.RLock()
 	defer fake.updateMutex.RUnlock()
 	argsForCall := fake.updateArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5, argsForCall.arg6
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeTaskService) UpdateReturns(result1 error) {
@@ -410,16 +405,6 @@ func (fake *FakeTaskService) UpdateReturnsOnCall(i int, result1 error) {
 func (fake *FakeTaskService) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.byMutex.RLock()
-	defer fake.byMutex.RUnlock()
-	fake.createMutex.RLock()
-	defer fake.createMutex.RUnlock()
-	fake.deleteMutex.RLock()
-	defer fake.deleteMutex.RUnlock()
-	fake.taskMutex.RLock()
-	defer fake.taskMutex.RUnlock()
-	fake.updateMutex.RLock()
-	defer fake.updateMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

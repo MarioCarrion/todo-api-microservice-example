@@ -9,6 +9,7 @@ import (
 
 	esv7 "github.com/elastic/go-elasticsearch/v7"
 	esv7api "github.com/elastic/go-elasticsearch/v7/esapi"
+	"github.com/google/uuid"
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 )
@@ -22,12 +23,12 @@ type Task struct {
 //nolint:tagliatelle
 type indexedTask struct {
 	// XXX: `SubTasks` and `Categories` will be added in future episodes
-	ID          string            `json:"id"`
-	Description string            `json:"description"`
-	Priority    internal.Priority `json:"priority"`
-	IsDone      bool              `json:"is_done"`
-	DateStart   int64             `json:"date_start"`
-	DateDue     int64             `json:"date_due"`
+	ID          string             `json:"id"`
+	Description string             `json:"description"`
+	Priority    *internal.Priority `json:"priority"`
+	IsDone      bool               `json:"is_done"`
+	DateStart   int64              `json:"date_start"`
+	DateDue     int64              `json:"date_due"`
 }
 
 // NewTask instantiates the Task repository.
@@ -41,12 +42,20 @@ func NewTask(client *esv7.Client) *Task {
 // Index creates or updates a task in an index.
 func (t *Task) Index(ctx context.Context, task internal.Task) error {
 	body := indexedTask{
-		ID:          task.ID,
+		ID:          task.ID.String(),
 		Description: task.Description,
 		Priority:    task.Priority,
 		IsDone:      task.IsDone,
-		DateStart:   task.Dates.Start.UnixNano(),
-		DateDue:     task.Dates.Due.UnixNano(),
+	}
+
+	if task.Dates != nil {
+		if task.Dates.Start != nil {
+			body.DateStart = task.Dates.Start.UnixNano()
+		}
+
+		if task.Dates.Due != nil {
+			body.DateDue = task.Dates.Due.UnixNano()
+		}
 	}
 
 	var buf bytes.Buffer
@@ -58,7 +67,7 @@ func (t *Task) Index(ctx context.Context, task internal.Task) error {
 	req := esv7api.IndexRequest{
 		Index:      t.index,
 		Body:       &buf,
-		DocumentID: task.ID,
+		DocumentID: task.ID.String(),
 		Refresh:    "true",
 	}
 
@@ -197,11 +206,23 @@ func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal
 	res := make([]internal.Task, len(hits.Hits.Hits))
 
 	for i, hit := range hits.Hits.Hits {
-		res[i].ID = hit.Source.ID
+		res[i].ID = uuid.MustParse(hit.Source.ID) // FIXME
 		res[i].Description = hit.Source.Description
 		res[i].Priority = hit.Source.Priority
-		res[i].Dates.Due = time.Unix(0, hit.Source.DateDue).UTC()
-		res[i].Dates.Start = time.Unix(0, hit.Source.DateStart).UTC()
+
+		if hit.Source.DateStart != 0 || hit.Source.DateDue != 0 {
+			dates := internal.Dates{}
+
+			if hit.Source.DateStart != 0 {
+				res[i].Dates.Start = internal.ValueToPointer(time.Unix(0, hit.Source.DateStart).UTC())
+			}
+
+			if hit.Source.DateDue != 0 {
+				res[i].Dates.Due = internal.ValueToPointer(time.Unix(0, hit.Source.DateDue).UTC())
+			}
+
+			res[i].Dates = &dates
+		}
 	}
 
 	return internal.SearchResults{

@@ -31,14 +31,13 @@ func TestTask_Create(t *testing.T) {
 		task, err := postgresql.NewTask(newDB(t)).Create(t.Context(),
 			internal.CreateParams{
 				Description: "test",
-				Priority:    internal.PriorityNone,
-				Dates:       internal.Dates{},
+				Priority:    internal.PriorityNone.Pointer(),
 			})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		if task.ID == "" {
+		if task.ID.String() == "" {
 			t.Fatalf("expected valid record, got empty value")
 		}
 	})
@@ -49,8 +48,7 @@ func TestTask_Create(t *testing.T) {
 		_, err := postgresql.NewTask(newDB(t)).Create(t.Context(),
 			internal.CreateParams{
 				Description: "",
-				Priority:    internal.Priority(-1),
-				Dates:       internal.Dates{},
+				Priority:    internal.Priority(-1).Pointer(),
 			})
 		if err == nil { // because of invalid priority
 			t.Fatalf("expected error, got no value")
@@ -73,18 +71,17 @@ func TestTask_Delete(t *testing.T) {
 
 		createdTask, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
-			Priority:    internal.PriorityNone,
-			Dates:       internal.Dates{},
+			Priority:    internal.PriorityNone.Pointer(),
 		})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		if err := store.Delete(t.Context(), createdTask.ID); err != nil {
+		if err := store.Delete(t.Context(), createdTask.ID.String()); err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		if _, err = store.Find(t.Context(), createdTask.ID); !errors.Is(err, pgx.ErrNoRows) {
+		if _, err = store.Find(t.Context(), createdTask.ID.String()); !errors.Is(err, pgx.ErrNoRows) {
 			t.Fatalf("expected no error, got %s", err)
 		}
 	})
@@ -126,14 +123,13 @@ func TestTask_Find(t *testing.T) {
 
 		originalTask, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
-			Priority:    internal.PriorityNone,
-			Dates:       internal.Dates{},
+			Priority:    internal.PriorityNone.Pointer(),
 		})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		actualTask, err := store.Find(t.Context(), originalTask.ID)
+		actualTask, err := store.Find(t.Context(), originalTask.ID.String())
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
@@ -182,27 +178,28 @@ func TestTask_Update(t *testing.T) {
 
 		originalTask, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
-			Priority:    internal.PriorityNone,
-			Dates:       internal.Dates{},
+			Priority:    internal.PriorityNone.Pointer(),
 		})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
 		originalTask.Description = "changed"
-		originalTask.Dates.Due = time.Now().UTC()
-		originalTask.Priority = internal.PriorityHigh
+		originalTask.Dates = &internal.Dates{
+			Due: internal.ValueToPointer(time.Now().UTC()),
+		}
+		originalTask.Priority = internal.PriorityHigh.Pointer()
 
 		if err := store.Update(t.Context(),
-			originalTask.ID,
+			originalTask.ID.String(),
 			originalTask.Description,
-			originalTask.Priority,
-			originalTask.Dates,
+			*originalTask.Priority,
+			*originalTask.Dates,
 			originalTask.IsDone); err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		actualTask, err := store.Find(t.Context(), originalTask.ID)
+		actualTask, err := store.Find(t.Context(), originalTask.ID.String())
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
@@ -242,15 +239,15 @@ func TestTask_Update(t *testing.T) {
 
 		task, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
-			Priority:    internal.PriorityNone,
-			Dates:       internal.Dates{},
+			Priority:    internal.PriorityNone.Pointer(),
+			Dates:       internal.Dates{}.Pointer(),
 		})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
 		err = postgresql.NewTask(newDB(t)).Update(t.Context(),
-			task.ID,
+			task.ID.String(),
 			"",
 			internal.Priority(-1),
 			internal.Dates{},
@@ -308,16 +305,26 @@ func newDB(tb testing.TB) *pgxpool.Pool {
 
 	pool.MaxWait = 5 * time.Second
 
+	if err = pool.Client.Ping(); err != nil {
+		tb.Fatalf("Could not connect to Docker: %s", err)
+	}
+
+	// network, err := pool.CreateNetwork("test-network")
+	// if err != nil {
+	// 	tb.Fatalf("Couldn't create network: %s", err)
+	// }
+
 	pw, _ := dsn.User.Password()
 
 	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
 		Repository: "postgres",
-		Tag:        "16.2-bullseye",
+		Tag:        "17.4-bookworm",
 		Env: []string{
 			"POSTGRES_USER=" + dsn.User.Username(),
 			"POSTGRES_PASSWORD=" + pw,
 			"POSTGRES_DB=" + dsn.Path,
 		},
+		// NetworkID: network.Network.ID,
 	}, func(config *docker.HostConfig) {
 		config.AutoRemove = true
 		config.RestartPolicy = docker.RestartPolicy{
