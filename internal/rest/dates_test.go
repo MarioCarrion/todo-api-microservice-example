@@ -1,7 +1,6 @@
 package rest_test
 
 import (
-	"encoding/json"
 	"testing"
 	"time"
 
@@ -11,39 +10,6 @@ import (
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/rest"
 )
-
-func TestDates_Marshal(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name   string
-		input  rest.Dates
-		output []byte
-	}{
-		{
-			"OK",
-			rest.Dates{
-				Start: time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC),
-			},
-			[]byte(`{"start":"2009-11-10T23:00:00Z","due":"0001-01-01T00:00:00Z"}`),
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			actualRes, actualErr := json.Marshal(&tt.input)
-			if actualErr != nil {
-				t.Fatalf("expected no error, got %s", actualErr)
-			}
-
-			if !cmp.Equal(tt.output, actualRes) {
-				t.Fatalf("expected output do not match\n%s", cmp.Diff(tt.output, actualRes))
-			}
-		})
-	}
-}
 
 func TestNewDates(t *testing.T) {
 	t.Parallel()
@@ -56,12 +22,12 @@ func TestNewDates(t *testing.T) {
 		{
 			"OK",
 			internal.Dates{
-				Start: time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC),
-				Due:   time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour),
+				Start: internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)),
+				Due:   internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour)),
 			},
 			rest.Dates{
-				Start: time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC),
-				Due:   time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour),
+				Start: internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)),
+				Due:   internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour)),
 			},
 		},
 	}
@@ -89,12 +55,12 @@ func TestDates_Convert(t *testing.T) {
 		{
 			"OK",
 			rest.Dates{
-				Start: time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC),
-				Due:   time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour),
+				Start: internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)),
+				Due:   internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour)),
 			},
 			internal.Dates{
-				Start: time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC),
-				Due:   time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour),
+				Start: internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)),
+				Due:   internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour)),
 			},
 		},
 	}

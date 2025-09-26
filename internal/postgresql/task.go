@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/postgresql/db"
@@ -25,20 +26,30 @@ func NewTask(d db.DBTX) *Task {
 
 // Create inserts a new task record.
 func (t *Task) Create(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
+	var (
+		start pgtype.Timestamp
+		end   pgtype.Timestamp
+	)
+
+	if params.Dates != nil {
+		start = newTimestamp(params.Dates.Start)
+		end = newTimestamp(params.Dates.Due)
+	}
+
 	// XXX: `ID` and `IsDone` make no sense when creating new records, that's why those are ignored.
 	// XXX: We are intentionally NOT SUPPORTING `SubTasks` and `Categories` JUST YET.
 	newID, err := t.q.InsertTask(ctx, db.InsertTaskParams{
 		Description: params.Description,
 		Priority:    newPriority(params.Priority),
-		StartDate:   newTimestamp(params.Dates.Start),
-		DueDate:     newTimestamp(params.Dates.Due),
+		StartDate:   start,
+		DueDate:     end,
 	})
 	if err != nil {
 		return internal.Task{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "insert task")
 	}
 
 	return internal.Task{
-		ID:          newID.String(),
+		ID:          newID,
 		Description: params.Description,
 		Priority:    params.Priority,
 		Dates:       params.Dates,
@@ -86,12 +97,12 @@ func (t *Task) Find(ctx context.Context, id string) (internal.Task, error) {
 	}
 
 	return internal.Task{
-		ID:          res.ID.String(),
+		ID:          res.ID,
 		Description: res.Description,
-		Priority:    priority,
-		Dates: internal.Dates{
-			Start: res.StartDate.Time,
-			Due:   res.DueDate.Time,
+		Priority:    &priority,
+		Dates: &internal.Dates{
+			Start: &res.StartDate.Time,
+			Due:   &res.DueDate.Time,
 		},
 		IsDone: res.Done,
 	}, nil
@@ -108,7 +119,7 @@ func (t *Task) Update(ctx context.Context, id string, description string, priori
 	if _, err := t.q.UpdateTask(ctx, db.UpdateTaskParams{
 		ID:          val,
 		Description: description,
-		Priority:    newPriority(priority),
+		Priority:    newPriority(&priority),
 		StartDate:   newTimestamp(dates.Start),
 		DueDate:     newTimestamp(dates.Due),
 		Done:        isDone,

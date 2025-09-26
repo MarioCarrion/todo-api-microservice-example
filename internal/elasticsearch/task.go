@@ -7,6 +7,7 @@ import (
 	"io"
 	"time"
 
+	"github.com/docker/distribution/uuid"
 	esv7 "github.com/elastic/go-elasticsearch/v7"
 	esv7api "github.com/elastic/go-elasticsearch/v7/esapi"
 
@@ -22,7 +23,7 @@ type Task struct {
 //nolint:tagliatelle
 type indexedTask struct {
 	// XXX: `SubTasks` and `Categories` will be added in future episodes
-	ID          string            `json:"id"`
+	ID          uuid.UUID         `json:"id"`
 	Description string            `json:"description"`
 	Priority    internal.Priority `json:"priority"`
 	IsDone      bool              `json:"is_done"`
