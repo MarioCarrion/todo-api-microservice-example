@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/google/uuid"
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 )
@@ -35,7 +36,7 @@ func (t *Task) Created(ctx context.Context, task internal.Task) error {
 }
 
 // Deleted publishes a message indicating a task was deleted.
-func (t *Task) Deleted(ctx context.Context, id string) error {
+func (t *Task) Deleted(ctx context.Context, id uuid.UUID) error {
 	return t.publish(ctx, "Task.Deleted", internal.Task{ID: id})
 }
 

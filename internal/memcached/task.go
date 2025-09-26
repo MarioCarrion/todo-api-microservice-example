@@ -43,7 +43,7 @@ func (t *Task) Create(ctx context.Context, params internal.CreateParams) (intern
 
 	t.logger.Info("Create: setting value")
 
-	setTask(ctx, t.client, task.ID, &task, t.expiration)
+	setTask(ctx, t.client, task.ID.String(), &task, t.expiration)
 
 	return task, nil
 }
@@ -76,7 +76,7 @@ func (t *Task) Find(ctx context.Context, id string) (internal.Task, error) {
 		return res, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "orig.Find")
 	}
 
-	setTask(ctx, t.client, res.ID, &res, t.expiration)
+	setTask(ctx, t.client, res.ID.String(), &res, t.expiration)
 
 	return res, nil
 }
@@ -103,7 +103,7 @@ func (t *Task) Update(ctx context.Context, id string, description string, priori
 		return nil //nolint: nilerr
 	}
 
-	setTask(ctx, t.client, task.ID, &task, t.expiration) // XXX
+	setTask(ctx, t.client, task.ID.String(), &task, t.expiration) // XXX
 
 	return nil
 }

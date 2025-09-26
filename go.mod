@@ -6,6 +6,7 @@ require (
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
 	github.com/confluentinc/confluent-kafka-go/v2 v2.11.1
 	github.com/didip/tollbooth/v6 v6.1.2
+	github.com/docker/distribution v2.8.3+incompatible
 	github.com/elastic/go-elasticsearch/v7 v7.17.10
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-chi/render v1.0.3
@@ -18,6 +19,7 @@ require (
 	github.com/jackc/tern/v2 v2.3.3
 	github.com/joho/godotenv v1.5.1
 	github.com/mercari/go-circuitbreaker v0.0.2
+	github.com/oapi-codegen/runtime v1.1.2
 	github.com/ory/dockertest/v3 v3.12.0
 	github.com/streadway/amqp v1.1.0
 	go.uber.org/zap v1.27.0
@@ -32,6 +34,7 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/ajg/form v1.5.1 // indirect
+	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/cenkalti/backoff/v3 v3.1.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
