@@ -5,7 +5,7 @@ go 1.25
 require (
 	github.com/fdaines/spm-go v0.11.1
 	github.com/golangci/golangci-lint v1.64.8
-	github.com/google/yamlfmt v0.19.0
+	github.com/google/yamlfmt v0.20.0
 	github.com/jackc/tern/v2 v2.3.3
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.12.0
 	github.com/sqlc-dev/sqlc v1.30.0
