@@ -1,4 +1,4 @@
-FROM golang:1.25.2-bookworm AS builder
+FROM golang:1.25.3-bookworm AS builder
 
 # Explicitly NOT setting a default value
 ARG TAG
@@ -16,7 +16,7 @@ RUN go mod download && \
 
 #-
 
-FROM debian:bookworm-20250929-slim
+FROM debian:bookworm-20251020-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
