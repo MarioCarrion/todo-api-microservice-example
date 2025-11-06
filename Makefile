@@ -14,6 +14,7 @@ tools:
 		github.com/google/yamlfmt/cmd/yamlfmt \
 		github.com/jackc/tern/v2 \
 		github.com/maxbrunsfeld/counterfeiter/v6 \
+		github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen \
 		github.com/sqlc-dev/sqlc/cmd/sqlc \
 		golang.org/x/vuln/cmd/govulncheck
 

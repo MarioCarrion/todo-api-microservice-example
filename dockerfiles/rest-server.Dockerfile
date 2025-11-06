@@ -10,6 +10,8 @@ COPY . .
 ENV CGO_ENABLED=1 \
     GOOS=linux
 
+COPY ./openapi/openapi3.yaml ./cmd/rest-server/static/openapi3.yaml
+
 RUN go mod download && \
     go build -a -installsuffix cgo -ldflags "-extldflags -static" -tags=$TAG \
 		github.com/MarioCarrion/todo-api-microservice-example/cmd/rest-server

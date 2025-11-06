@@ -12,10 +12,10 @@ import (
 
 // TaskRepository defines the datastore handling persisting Task records.
 type TaskRepository interface {
-	Create(ctx context.Context, dates internal.CreateParams) (internal.Task, error)
+	Create(ctx context.Context, params internal.CreateParams) (internal.Task, error)
 	Delete(ctx context.Context, id string) error
 	Find(ctx context.Context, id string) (internal.Task, error)
-	Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error
+	Update(ctx context.Context, id string, params internal.UpdateParams) error
 }
 
 // TaskSearchRepository defines the datastore handling searching Task records.
@@ -105,8 +105,8 @@ func (t *Task) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-// Task gets an existing Task from the datastore.
-func (t *Task) Task(ctx context.Context, id string) (internal.Task, error) {
+// ByID gets an existing Task from the datastore using the ID.
+func (t *Task) ByID(ctx context.Context, id string) (internal.Task, error) {
 	// XXX: We will revisit the number of received arguments in future episodes.
 	task, err := t.repo.Find(ctx, id)
 	if err != nil {
@@ -117,9 +117,9 @@ func (t *Task) Task(ctx context.Context, id string) (internal.Task, error) {
 }
 
 // Update updates an existing Task in the datastore.
-func (t *Task) Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error { //nolint: lll
+func (t *Task) Update(ctx context.Context, id string, params internal.UpdateParams) error {
 	// XXX: We will revisit the number of received arguments in future episodes.
-	if err := t.repo.Update(ctx, id, description, priority, dates, isDone); err != nil {
+	if err := t.repo.Update(ctx, id, params); err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "repo.Update")
 	}
 

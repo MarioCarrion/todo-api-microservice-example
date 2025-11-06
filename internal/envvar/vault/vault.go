@@ -68,7 +68,7 @@ func (p *Provider) Get(v string) (string, error) {
 		return "", internal.NewErrorf(internal.ErrorCodeUnknown, "secret not found")
 	}
 
-	data, ok := secret.Data["data"].(map[string]interface{})
+	data, ok := secret.Data["data"].(map[string]any)
 	if !ok {
 		return "", internal.NewErrorf(internal.ErrorCodeUnknown, "invalid data in secret")
 	}

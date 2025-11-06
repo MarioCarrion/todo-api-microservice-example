@@ -3,10 +3,8 @@ package postgresql_test
 import (
 	"context"
 	"errors"
-	"net"
-	"net/url"
 	"os"
-	"runtime"
+	"path"
 	"testing"
 	"time"
 
@@ -15,8 +13,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jackc/tern/v2/migrate"
-	"github.com/ory/dockertest/v3"
-	"github.com/ory/dockertest/v3/docker"
+	"github.com/testcontainers/testcontainers-go"
+	tpostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/postgresql"
@@ -31,8 +29,7 @@ func TestTask_Create(t *testing.T) {
 		task, err := postgresql.NewTask(newDB(t)).Create(t.Context(),
 			internal.CreateParams{
 				Description: "test",
-				Priority:    internal.PriorityNone,
-				Dates:       internal.Dates{},
+				Priority:    internal.PriorityNone.Pointer(),
 			})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
@@ -49,8 +46,7 @@ func TestTask_Create(t *testing.T) {
 		_, err := postgresql.NewTask(newDB(t)).Create(t.Context(),
 			internal.CreateParams{
 				Description: "",
-				Priority:    internal.Priority(-1),
-				Dates:       internal.Dates{},
+				Priority:    internal.Priority(-1).Pointer(),
 			})
 		if err == nil { // because of invalid priority
 			t.Fatalf("expected error, got no value")
@@ -73,8 +69,7 @@ func TestTask_Delete(t *testing.T) {
 
 		createdTask, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
-			Priority:    internal.PriorityNone,
-			Dates:       internal.Dates{},
+			Priority:    internal.PriorityNone.Pointer(),
 		})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
@@ -122,12 +117,17 @@ func TestTask_Find(t *testing.T) {
 	t.Run("Find: OK", func(t *testing.T) {
 		t.Parallel()
 
+		now := time.Now().UTC().Truncate(time.Second)
+
 		store := postgresql.NewTask(newDB(t))
 
 		originalTask, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
-			Priority:    internal.PriorityNone,
-			Dates:       internal.Dates{},
+			Priority:    internal.PriorityNone.Pointer(),
+			Dates: &internal.Dates{
+				Start: internal.ValueToPointer(now),
+				Due:   internal.ValueToPointer(now),
+			},
 		})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
@@ -182,23 +182,29 @@ func TestTask_Update(t *testing.T) {
 
 		originalTask, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
-			Priority:    internal.PriorityNone,
-			Dates:       internal.Dates{},
+			Priority:    internal.PriorityNone.Pointer(),
 		})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		originalTask.Description = "changed"
-		originalTask.Dates.Due = time.Now().UTC()
-		originalTask.Priority = internal.PriorityHigh
+		now := time.Now().UTC().Truncate(time.Second)
 
-		if err := store.Update(t.Context(),
-			originalTask.ID,
-			originalTask.Description,
-			originalTask.Priority,
-			originalTask.Dates,
-			originalTask.IsDone); err != nil {
+		originalTask.Description = "changed"
+		originalTask.Dates = &internal.Dates{
+			Start: internal.ValueToPointer(now),
+			Due:   internal.ValueToPointer(now),
+		}
+		originalTask.Priority = internal.PriorityHigh.Pointer()
+
+		params := internal.UpdateParams{
+			Description: &originalTask.Description,
+			Priority:    originalTask.Priority,
+			Dates:       originalTask.Dates,
+			IsDone:      &originalTask.IsDone,
+		}
+
+		if err := store.Update(t.Context(), originalTask.ID, params); err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
@@ -219,12 +225,14 @@ func TestTask_Update(t *testing.T) {
 	t.Run("Update: ERR uuid", func(t *testing.T) {
 		t.Parallel()
 
-		err := postgresql.NewTask(newDB(t)).Update(t.Context(),
-			"x",
-			"",
-			internal.PriorityNone,
-			internal.Dates{},
-			false)
+		params := internal.UpdateParams{
+			Description: internal.ValueToPointer("x"),
+			Priority:    internal.PriorityNone.Pointer(),
+			Dates:       &internal.Dates{},
+			IsDone:      new(bool),
+		}
+
+		err := postgresql.NewTask(newDB(t)).Update(t.Context(), "x", params)
 		if err == nil {
 			t.Fatalf("expected error, got not value")
 		}
@@ -242,19 +250,23 @@ func TestTask_Update(t *testing.T) {
 
 		task, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
-			Priority:    internal.PriorityNone,
-			Dates:       internal.Dates{},
+			Priority:    internal.PriorityNone.Pointer(),
+			Dates:       internal.Dates{}.Pointer(),
 		})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
+		params := internal.UpdateParams{
+			Priority: internal.Priority(-1).Pointer(),
+			Dates:    &internal.Dates{},
+			IsDone:   new(bool),
+		}
+
 		err = postgresql.NewTask(newDB(t)).Update(t.Context(),
 			task.ID,
-			"",
-			internal.Priority(-1),
-			internal.Dates{},
-			false)
+			params,
+		)
 		if err == nil {
 			t.Fatalf("expected error, got not value")
 		}
@@ -268,12 +280,15 @@ func TestTask_Update(t *testing.T) {
 	t.Run("Update: ERR not found", func(t *testing.T) {
 		t.Parallel()
 
+		params := internal.UpdateParams{
+			Priority: internal.PriorityNone.Pointer(),
+			Dates:    &internal.Dates{},
+			IsDone:   new(bool),
+		}
+
 		err := postgresql.NewTask(newDB(t)).Update(t.Context(),
 			"44633fe3-b039-4fb3-a35f-a57fe3c906c7",
-			"",
-			internal.PriorityNone,
-			internal.Dates{},
-			false)
+			params)
 		if err == nil {
 			t.Fatalf("expected error, got not value")
 		}
@@ -288,111 +303,74 @@ func TestTask_Update(t *testing.T) {
 func newDB(tb testing.TB) *pgxpool.Pool {
 	tb.Helper()
 
-	dsn := &url.URL{
-		Scheme: "postgres",
-		User:   url.UserPassword("username", "password"),
-		Path:   "todo",
-	}
+	const (
+		username = "username"
+		password = "passord"
+		dbName   = "todo"
+	)
 
-	q := dsn.Query()
-	q.Add("sslmode", "disable")
+	//- Run container and verify it works as expected
 
-	dsn.RawQuery = q.Encode()
-
-	//-
-
-	pool, err := dockertest.NewPool("")
+	container, err := tpostgres.Run(tb.Context(),
+		"postgres:17.4-bookworm",
+		tpostgres.WithDatabase(dbName),
+		tpostgres.WithUsername(username),
+		tpostgres.WithPassword(password),
+		tpostgres.BasicWaitStrategies(),
+	)
 	if err != nil {
-		tb.Fatalf("Couldn't connect to docker: %s", err)
+		tb.Fatalf("Failed to run container: %s", err)
 	}
-
-	pool.MaxWait = 5 * time.Second
-
-	pw, _ := dsn.User.Password()
-
-	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
-		Repository: "postgres",
-		Tag:        "16.2-bullseye",
-		Env: []string{
-			"POSTGRES_USER=" + dsn.User.Username(),
-			"POSTGRES_PASSWORD=" + pw,
-			"POSTGRES_DB=" + dsn.Path,
-		},
-	}, func(config *docker.HostConfig) {
-		config.AutoRemove = true
-		config.RestartPolicy = docker.RestartPolicy{
-			Name: "no",
-		}
-	})
-	if err != nil {
-		tb.Fatalf("Couldn't start resource: %s", err)
-	}
-
-	_ = resource.Expire(60)
 
 	tb.Cleanup(func() {
-		if errC := pool.Purge(resource); errC != nil {
-			tb.Fatalf("Couldn't purge container: %v", errC)
+		if err := testcontainers.TerminateContainer(container); err != nil {
+			tb.Logf("Failed to terminate container: %s", err)
 		}
 	})
 
-	dsn.Host = resource.Container.NetworkSettings.IPAddress + ":5432"
-	if runtime.GOOS == "darwin" { // MacOS-specific
-		dsn.Host = net.JoinHostPort(resource.GetBoundIP("5432/tcp"), resource.GetPort("5432/tcp"))
+	host, err := container.ConnectionString(tb.Context())
+	if err != nil {
+		tb.Fatalf("Failed to get host address: %s", err)
 	}
 
-	ctx, cFunc := context.WithDeadline(tb.Context(), time.Now().Add(5*time.Second))
+	ctx, cFunc := context.WithDeadline(tb.Context(), time.Now().Add(500*time.Millisecond))
 	tb.Cleanup(cFunc)
 
-	var db *pgx.Conn
+	tb.Logf("Waiting for database to be ready at: %s", host)
 
-	for range 20 {
-		db, err = pgx.Connect(ctx, dsn.String())
-		if err == nil {
-			break
-		}
-
-		time.Sleep(500 * time.Millisecond)
+	db, err := pgx.Connect(ctx, host)
+	if err != nil {
+		tb.Fatalf("Failed to connect to database: %s", err)
 	}
 
-	if db == nil {
-		tb.Fatalf("Couldn't connect to database: %s", err)
-	}
+	tb.Cleanup(func() {
+		_ = db.Close(ctx)
+	})
 
-	defer db.Close(ctx)
-
-	if err = pool.Retry(func() (err error) {
-		return db.Ping(ctx)
-	}); err != nil {
-		tb.Fatalf("Couldn't ping DB: %s", err)
-	}
-
-	//-
+	//- DB Migrations
 
 	migrator, err := migrate.NewMigrator(ctx, db, "public.schema_version")
 	if err != nil {
-		tb.Fatalf("Couldn't migrate (1): %s", err)
+		tb.Fatalf("Failed to migrate (1): %s", err)
 	}
 
-	err = migrator.LoadMigrations(os.DirFS("../../db/migrations/"))
+	err = migrator.LoadMigrations(os.DirFS(path.Join("..", "..", "db", "migrations")))
 	if err != nil {
-		tb.Fatalf("Couldn't migrate (2): %s", err)
+		tb.Fatalf("Failed to migrate (2): %s", err)
 	}
 
 	if err = migrator.Migrate(tb.Context()); err != nil {
-		tb.Fatalf("Couldnt' migrate (3): %s", err)
+		tb.Fatalf("Failed to migrate (3): %s", err)
 	}
 
-	//-
+	//- Initialize DB Pool
 
-	dbpool, err := pgxpool.New(tb.Context(), dsn.String())
+	dbpool, err := pgxpool.New(tb.Context(), host)
 	if err != nil {
-		tb.Fatalf("Couldn't open DB Pool: %s", err)
+		tb.Fatalf("Failed to open DB Pool: %s", err)
 	}
 
-	tb.Cleanup(func() {
-		dbpool.Close()
-	})
+	tb.Cleanup(dbpool.Close)
 
 	return dbpool
 }

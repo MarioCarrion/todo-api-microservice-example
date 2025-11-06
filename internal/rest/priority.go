@@ -6,43 +6,33 @@ import (
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 )
 
-// Priority indicates how important a Task is.
-type Priority string
-
-const (
-	priorityNone   Priority = "none"
-	priorityLow    Priority = "low"
-	priorityMedium Priority = "medium"
-	priorityHigh   Priority = "high"
-)
-
 // NewPriority converts the received domain type to a rest type, when the argument is unknown "none" is used.
 func NewPriority(p internal.Priority) Priority {
 	switch p {
 	case internal.PriorityNone:
-		return priorityNone
+		return PriorityNone
 	case internal.PriorityLow:
-		return priorityLow
+		return PriorityLow
 	case internal.PriorityMedium:
-		return priorityMedium
+		return PriorityMedium
 	case internal.PriorityHigh:
-		return priorityHigh
+		return PriorityHigh
 	}
 
-	return priorityNone
+	return PriorityNone
 }
 
-// Convert returns the domain type defining the internal representation, when priority is unknown "none" is
+// Convert returns the domain type defining the internal representation, when Priority is unknown "none" is
 // used.
 func (p *Priority) Convert() internal.Priority {
 	switch *p {
-	case priorityNone:
+	case PriorityNone:
 		return internal.PriorityNone
-	case priorityLow:
+	case PriorityLow:
 		return internal.PriorityLow
-	case priorityMedium:
+	case PriorityMedium:
 		return internal.PriorityMedium
-	case priorityHigh:
+	case PriorityHigh:
 		return internal.PriorityHigh
 	}
 
@@ -52,7 +42,7 @@ func (p *Priority) Convert() internal.Priority {
 // Validate ...
 func (p *Priority) Validate() error {
 	switch *p {
-	case priorityNone, priorityLow, priorityMedium, priorityHigh:
+	case PriorityNone, PriorityLow, PriorityMedium, PriorityHigh:
 		return nil
 	}
 

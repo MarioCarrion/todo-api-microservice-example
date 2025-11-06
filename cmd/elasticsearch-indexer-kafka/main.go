@@ -108,9 +108,7 @@ func run(env string) (<-chan error, error) {
 	go func() {
 		logger.Info("Listening and serving")
 
-		if err := srv.ListenAndServe(); err != nil {
-			errC <- err
-		}
+		srv.ListenAndServe()
 	}()
 
 	return errC, nil
@@ -125,7 +123,7 @@ type Server struct {
 }
 
 // ListenAndServe ...
-func (s *Server) ListenAndServe() error {
+func (s *Server) ListenAndServe() {
 	commit := func(msg *kafka.Message) {
 		if _, err := s.kafka.Consumer.CommitMessage(msg); err != nil {
 			s.logger.Error("commit failed", zap.Error(err))
@@ -183,8 +181,6 @@ func (s *Server) ListenAndServe() error {
 
 		s.doneC <- struct{}{}
 	}()
-
-	return nil
 }
 
 // Shutdown ...

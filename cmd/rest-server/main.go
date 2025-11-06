@@ -17,8 +17,6 @@ import (
 	"github.com/didip/tollbooth/v6"
 	"github.com/didip/tollbooth/v6/limiter"
 	esv7 "github.com/elastic/go-elasticsearch/v7"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 
@@ -112,18 +110,15 @@ func run(env, address string) (<-chan error, error) {
 
 	//-
 
-	srv, err := newServer(serverConfig{
+	srv := newServer(serverConfig{
 		Address:       address,
 		DB:            pool,
 		ElasticSearch: esClient,
-		Middlewares:   []func(next http.Handler) http.Handler{logging},
+		Middlewares:   []rest.MiddlewareFunc{logging},
 		Logger:        logger,
 		Memcached:     memcached,
 		MessageBroker: msgBroker,
 	})
-	if err != nil {
-		return nil, internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "newServer")
-	}
 
 	errC := make(chan error, 1)
 
@@ -178,21 +173,12 @@ type serverConfig struct {
 	DB            *pgxpool.Pool
 	ElasticSearch *esv7.Client
 	Memcached     *memcache.Client
-	Middlewares   []func(next http.Handler) http.Handler
+	Middlewares   []rest.MiddlewareFunc
 	Logger        *zap.Logger
 	MessageBroker MessageBrokerPublisher
 }
 
-func newServer(conf serverConfig) (*http.Server, error) {
-	router := chi.NewRouter()
-	router.Use(render.SetContentType(render.ContentTypeJSON))
-
-	for _, mw := range conf.Middlewares {
-		router.Use(mw)
-	}
-
-	//-
-
+func newServer(conf serverConfig) *http.Server {
 	repo := postgresql.NewTask(conf.DB)
 	mrepo := memcached.NewTask(conf.Memcached, repo, conf.Logger)
 
@@ -201,18 +187,32 @@ func newServer(conf serverConfig) (*http.Server, error) {
 
 	svc := service.NewTask(conf.Logger, mrepo, msearch, conf.MessageBroker.Publisher())
 
-	rest.NewTaskHandler(svc).Register(router)
+	taskHandler := rest.NewTaskHandler(svc)
 
-	//-
+	router := http.NewServeMux()
 
 	fsys, _ := fs.Sub(content, "static")
-	router.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(fsys))))
+	router.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.FS(fsys))))
+
+	strictHandler := rest.NewStrictHandler(taskHandler, nil)
+
+	options := rest.StdHTTPServerOptions{
+		BaseRouter:  router,
+		Middlewares: conf.Middlewares,
+		ErrorHandlerFunc: func(w http.ResponseWriter, _ *http.Request, err error) {
+			// FIXME: use the right status code and error message
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error())) //nolint:errcheck
+		},
+	}
+
+	handler := rest.HandlerWithOptions(strictHandler, options)
 
 	//-
 
 	lmt := tollbooth.NewLimiter(3, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Second})
 
-	lmtmw := tollbooth.LimitHandler(lmt, router)
+	lmtmw := tollbooth.LimitHandler(lmt, handler)
 
 	//-
 
@@ -223,5 +223,5 @@ func newServer(conf serverConfig) (*http.Server, error) {
 		ReadHeaderTimeout: 1 * time.Second,
 		WriteTimeout:      1 * time.Second,
 		IdleTimeout:       1 * time.Second,
-	}, nil
+	}
 }

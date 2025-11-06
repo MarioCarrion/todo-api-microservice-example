@@ -21,7 +21,7 @@ type TaskStore interface {
 	Create(ctx context.Context, params internal.CreateParams) (internal.Task, error)
 	Delete(ctx context.Context, id string) error
 	Find(ctx context.Context, id string) (internal.Task, error)
-	Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error
+	Update(ctx context.Context, id string, params internal.UpdateParams) error
 }
 
 func NewTask(client *memcache.Client, orig TaskStore, logger *zap.Logger) *Task {
@@ -81,8 +81,8 @@ func (t *Task) Find(ctx context.Context, id string) (internal.Task, error) {
 	return res, nil
 }
 
-func (t *Task) Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error {
-	if err := t.orig.Update(ctx, id, description, priority, dates, isDone); err != nil {
+func (t *Task) Update(ctx context.Context, id string, params internal.UpdateParams) error {
+	if err := t.orig.Update(ctx, id, params); err != nil {
 		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "orig.Update")
 	}
 

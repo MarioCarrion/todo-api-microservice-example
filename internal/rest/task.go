@@ -2,16 +2,11 @@ package rest
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"net/http"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 )
-
-const uuidRegEx string = `[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}`
 
 //go:generate counterfeiter -generate
 
@@ -22,8 +17,8 @@ type TaskService interface {
 	By(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error)
 	Create(ctx context.Context, params internal.CreateParams) (internal.Task, error)
 	Delete(ctx context.Context, id string) error
-	Task(ctx context.Context, id string) (internal.Task, error)
-	Update(ctx context.Context, id string, description string, priority internal.Priority, dates internal.Dates, isDone bool) error
+	ByID(ctx context.Context, id string) (internal.Task, error)
+	Update(ctx context.Context, id string, args internal.UpdateParams) error
 }
 
 // TaskHandler ...
@@ -38,208 +33,173 @@ func NewTaskHandler(svc TaskService) *TaskHandler {
 	}
 }
 
-// Register connects the handlers to the router.
-func (t *TaskHandler) Register(r *chi.Mux) {
-	r.Post("/tasks", t.create)
-	r.Get(fmt.Sprintf("/tasks/{id:%s}", uuidRegEx), t.task)
-	r.Put(fmt.Sprintf("/tasks/{id:%s}", uuidRegEx), t.update)
-	r.Delete(fmt.Sprintf("/tasks/{id:%s}", uuidRegEx), t.delete)
-	r.Post("/search/tasks", t.search)
-}
-
-// Task is an activity that needs to be completed within a period of time.
-//
-//nolint:tagliatelle
-type Task struct {
-	ID          string   `json:"id"`
-	Description string   `json:"description"`
-	Priority    Priority `json:"priority"`
-	Dates       Dates    `json:"dates"`
-	IsDone      bool     `json:"is_done"`
-}
-
-// CreateTasksRequest defines the request used for creating tasks.
-type CreateTasksRequest struct {
-	Description string   `json:"description"`
-	Priority    Priority `json:"priority"`
-	Dates       Dates    `json:"dates"`
-}
-
-// CreateTasksResponse defines the response returned back after creating tasks.
-type CreateTasksResponse struct {
-	Task Task `json:"task"`
-}
-
-func (t *TaskHandler) create(w http.ResponseWriter, r *http.Request) {
-	var req CreateTasksRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		renderErrorResponse(w, r, "invalid request",
-			internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
-
-		return
+func (t *TaskHandler) CreateTask(ctx context.Context, req CreateTaskRequestObject) (CreateTaskResponseObject, error) {
+	var priority *internal.Priority
+	if req.Body.Priority != nil {
+		priority = internal.ValueToPointer(req.Body.Priority.Convert())
 	}
 
-	defer r.Body.Close()
+	var dates *internal.Dates
+	if req.Body.Dates != nil {
+		dates = internal.ValueToPointer(req.Body.Dates.Convert())
+	}
 
-	task, err := t.svc.Create(r.Context(), internal.CreateParams{
-		Description: req.Description,
-		Priority:    req.Priority.Convert(),
-		Dates:       req.Dates.Convert(),
+	task, err := t.svc.Create(ctx, internal.CreateParams{
+		Description: req.Body.Description,
+		Priority:    priority,
+		Dates:       dates,
 	})
+
+	// TODO: determine if this a validation error or a different kind of error, and use "CreateTask400JSONResponse"
 	if err != nil {
-		renderErrorResponse(w, r, "create failed", err)
-
-		return
+		return CreateTask500JSONResponse{ //nolint: nilerr
+			Error: err.Error(),
+		}, nil
 	}
 
-	renderResponse(w, r,
-		&CreateTasksResponse{
-			Task: Task{
-				ID:          task.ID,
-				Description: task.Description,
-				Priority:    NewPriority(task.Priority),
-				Dates:       NewDates(task.Dates),
-			},
-		},
-		http.StatusCreated)
-}
-
-func (t *TaskHandler) delete(w http.ResponseWriter, r *http.Request) {
-	// NOTE: Safe to ignore error, because it's always defined.
-	id := chi.URLParam(r, "id")
-
-	if err := t.svc.Delete(r.Context(), id); err != nil {
-		renderErrorResponse(w, r, "delete failed", err)
-
-		return
-	}
-
-	renderResponse(w, r, struct{}{}, http.StatusOK)
-}
-
-// ReadTasksResponse defines the response returned back after searching one task.
-type ReadTasksResponse struct {
-	Task Task `json:"task"`
-}
-
-func (t *TaskHandler) task(w http.ResponseWriter, r *http.Request) {
-	// NOTE: Safe to ignore error, because it's always defined.
-	id := chi.URLParam(r, "id")
-
-	task, err := t.svc.Task(r.Context(), id)
+	id, err := uuid.Parse(task.ID)
 	if err != nil {
-		renderErrorResponse(w, r, "find failed", err)
-
-		return
+		return CreateTask500JSONResponse{ //nolint: nilerr
+			Error: err.Error(),
+		}, nil
 	}
 
-	renderResponse(w, r,
-		&ReadTasksResponse{
-			Task: Task{
-				ID:          task.ID,
-				Description: task.Description,
-				Priority:    NewPriority(task.Priority),
-				Dates:       NewDates(task.Dates),
-				IsDone:      task.IsDone,
-			},
-		},
-		http.StatusOK)
-}
-
-// UpdateTasksRequest defines the request used for updating a task.
-//
-//nolint:tagliatelle
-type UpdateTasksRequest struct {
-	Description string   `json:"description"`
-	IsDone      bool     `json:"is_done"`
-	Priority    Priority `json:"priority"`
-	Dates       Dates    `json:"dates"`
-}
-
-func (t *TaskHandler) update(w http.ResponseWriter, r *http.Request) {
-	var req UpdateTasksRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		renderErrorResponse(w, r, "invalid request",
-			internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
-
-		return
+	resp := CreateTask201JSONResponse{}
+	resp.Task = Task{
+		ID:          id,
+		Description: task.Description,
 	}
 
-	defer r.Body.Close()
+	if task.Dates != nil {
+		resp.Task.Dates = internal.ValueToPointer(NewDates(*task.Dates))
+	}
 
-	// NOTE: Safe to ignore error, because it's always defined.
-	id := chi.URLParam(r, "id")
+	if task.Priority != nil {
+		resp.Task.Priority = internal.ValueToPointer(NewPriority(*task.Priority))
+	}
 
-	err := t.svc.Update(r.Context(), id, req.Description, req.Priority.Convert(), req.Dates.Convert(), req.IsDone)
+	return resp, nil
+}
+
+func (t *TaskHandler) DeleteTask(ctx context.Context, request DeleteTaskRequestObject) (DeleteTaskResponseObject, error) {
+	if err := t.svc.Delete(ctx, request.Id.String()); err != nil {
+		resp := DeleteTask500JSONResponse{}
+		resp.Error = err.Error()
+
+		return resp, nil //nolint: nilerr
+	}
+
+	// TODO: Consider "DeleteTask404Response"
+
+	return DeleteTask200Response{}, nil
+}
+
+func (t *TaskHandler) ReadTask(ctx context.Context, request ReadTaskRequestObject) (ReadTaskResponseObject, error) {
+	task, err := t.svc.ByID(ctx, request.Id.String())
+	// TODO: determine if this a validation error or a different kind of error, and use "CreateTask400JSONResponse"
 	if err != nil {
-		renderErrorResponse(w, r, "update failed", err)
+		resp := ReadTask500JSONResponse{}
+		resp.Error = err.Error()
 
-		return
+		return resp, nil //nolint: nilerr
 	}
 
-	renderResponse(w, r, &struct{}{}, http.StatusOK)
-}
+	id, err := uuid.Parse(task.ID)
+	if err != nil {
+		resp := ReadTask500JSONResponse{}
+		resp.Error = err.Error()
 
-// SearchTasksRequest defines the request used for searching tasks.
-//
-//nolint:tagliatelle
-type SearchTasksRequest struct {
-	Description *string   `json:"description"`
-	Priority    *Priority `json:"priority"`
-	IsDone      *bool     `json:"is_done"`
-	From        int64     `json:"from"`
-	Size        int64     `json:"size"`
-}
-
-// SearchTasksResponse defines the response returned back after searching for any task.
-type SearchTasksResponse struct {
-	Tasks []Task `json:"tasks"`
-	Total int64  `json:"total"`
-}
-
-func (t *TaskHandler) search(w http.ResponseWriter, r *http.Request) {
-	var req SearchTasksRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		renderErrorResponse(w, r, "invalid request",
-			internal.WrapErrorf(err, internal.ErrorCodeInvalidArgument, "json decoder"))
-
-		return
+		return resp, nil //nolint: nilerr
 	}
 
-	defer r.Body.Close()
+	resp := ReadTask200JSONResponse{}
+	resp.Task = &Task{
+		ID:          id,
+		Description: task.Description,
+	}
 
+	if task.Dates != nil {
+		resp.Task.Dates = internal.ValueToPointer(NewDates(*task.Dates))
+	}
+
+	if task.Priority != nil {
+		resp.Task.Priority = internal.ValueToPointer(NewPriority(*task.Priority))
+	}
+
+	return resp, nil
+}
+
+func (t *TaskHandler) UpdateTask(ctx context.Context, req UpdateTaskRequestObject) (UpdateTaskResponseObject, error) {
+	var priority *internal.Priority
+	if req.Body.Priority != nil {
+		priority = internal.ValueToPointer(req.Body.Priority.Convert())
+	}
+
+	var dates *internal.Dates
+	if req.Body.Dates != nil {
+		dates = internal.ValueToPointer(req.Body.Dates.Convert())
+	}
+
+	if err := t.svc.Update(ctx, req.Id.String(), internal.UpdateParams{
+		Description: req.Body.Description,
+		Priority:    priority,
+		Dates:       dates,
+		IsDone:      req.Body.IsDone,
+	}); err != nil {
+		// TODO: determine if this a validation error or a different kind of error, and use "CreateTask400JSONResponse"
+		return UpdateTask500JSONResponse{Error: err.Error()}, nil //nolint: nilerr
+	}
+
+	return UpdateTask200Response{}, nil
+}
+
+func (t *TaskHandler) SearchTask(ctx context.Context, req SearchTaskRequestObject) (SearchTaskResponseObject, error) {
 	var priority *internal.Priority
 
-	if req.Priority != nil {
-		res := req.Priority.Convert()
-		priority = &res
+	if req.Body.Priority != nil {
+		priority = internal.ValueToPointer(req.Body.Priority.Convert())
 	}
 
-	res, err := t.svc.By(r.Context(), internal.SearchParams{
-		Description: req.Description,
+	res, err := t.svc.By(ctx, internal.SearchParams{
+		Description: req.Body.Description,
 		Priority:    priority,
-		IsDone:      req.IsDone,
-		From:        req.From,
-		Size:        req.Size,
+		IsDone:      req.Body.IsDone,
+		From:        req.Body.From,
+		Size:        req.Body.Size,
 	})
+	// TODO: determine if this a validation error or a different kind of error, and use "CreateTask400JSONResponse"
 	if err != nil {
-		renderErrorResponse(w, r, "search failed", err)
-
-		return
+		return SearchTask500JSONResponse{ //nolint: nilerr
+			Error: err.Error(),
+		}, nil
 	}
 
 	tasks := make([]Task, len(res.Tasks))
 
-	for i, task := range res.Tasks {
-		tasks[i].ID = task.ID
+	for i, task := range res.Tasks { //nolint: varnamelen
+		id, err := uuid.Parse(task.ID)
+		if err != nil {
+			return SearchTask500JSONResponse{ //nolint: nilerr
+				Error: err.Error(),
+			}, nil
+		}
+
+		tasks[i].ID = id
 		tasks[i].Description = task.Description
-		tasks[i].Priority = NewPriority(task.Priority)
-		tasks[i].Dates = NewDates(task.Dates)
+
+		if task.Priority != nil {
+			tasks[i].Priority = internal.ValueToPointer(NewPriority(*task.Priority))
+		}
+
+		if task.Dates != nil {
+			tasks[i].Dates = internal.ValueToPointer(NewDates(*task.Dates))
+		}
+
+		tasks[i].IsDone = &task.IsDone
 	}
 
-	renderResponse(w, r,
-		&SearchTasksResponse{
-			Tasks: tasks,
-			Total: res.Total,
-		}, http.StatusOK)
+	resp := SearchTask200JSONResponse{}
+	resp.Tasks = &tasks
+
+	return resp, nil
 }

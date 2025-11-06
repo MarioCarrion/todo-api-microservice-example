@@ -8,7 +8,7 @@
 * [Swagger Editor](https://editor.swagger.io/)
 * [Swagger Codegen 3.X](https://github.com/swagger-api/swagger-codegen/tree/3.0.0)
 * [Swagger UI](https://github.com/swagger-api/swagger-ui), local copy is in [`cmd/rest-server/static/swagger-ui`](../cmd/rest-server/static/swagger-ui).
-    * Local demo: http//0.0.0.0:9234/static/swagger-ui/
+    * Local demo: [http://0.0.0.0:9234/static/swagger-ui/](http://0.0.0.0:9234/static/swagger-ui/)
 
 ### Swagger Codegen 3.X
 
