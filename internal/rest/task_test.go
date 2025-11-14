@@ -86,11 +86,11 @@ func TestTaskHandler_CreateTask(t *testing.T) {
 	taskID := uuid.New()
 
 	tests := []struct {
-		name            string
-		request         rest.CreateTaskRequestObject
-		mockService     *mockTaskService
-		expectError     bool
-		validateResp    func(t *testing.T, resp rest.CreateTaskResponseObject)
+		name         string
+		request      rest.CreateTaskRequestObject
+		mockService  *mockTaskService
+		expectError  bool
+		validateResp func(t *testing.T, resp rest.CreateTaskResponseObject)
 	}{
 		{
 			name: "successful creation",
@@ -171,11 +171,11 @@ func TestTaskHandler_ReadTask(t *testing.T) {
 	taskID := uuid.New()
 
 	tests := []struct {
-		name            string
-		request         rest.ReadTaskRequestObject
-		mockService     *mockTaskService
-		expectError     bool
-		validateResp    func(t *testing.T, resp rest.ReadTaskResponseObject)
+		name         string
+		request      rest.ReadTaskRequestObject
+		mockService  *mockTaskService
+		expectError  bool
+		validateResp func(t *testing.T, resp rest.ReadTaskResponseObject)
 	}{
 		{
 			name: "successful read",
@@ -250,11 +250,11 @@ func TestTaskHandler_DeleteTask(t *testing.T) {
 	taskID := uuid.New()
 
 	tests := []struct {
-		name            string
-		request         rest.DeleteTaskRequestObject
-		mockService     *mockTaskService
-		expectError     bool
-		validateResp    func(t *testing.T, resp rest.DeleteTaskResponseObject)
+		name         string
+		request      rest.DeleteTaskRequestObject
+		mockService  *mockTaskService
+		expectError  bool
+		validateResp func(t *testing.T, resp rest.DeleteTaskResponseObject)
 	}{
 		{
 			name: "successful delete",
@@ -323,11 +323,11 @@ func TestTaskHandler_UpdateTask(t *testing.T) {
 	taskID := uuid.New()
 
 	tests := []struct {
-		name            string
-		request         rest.UpdateTaskRequestObject
-		mockService     *mockTaskService
-		expectError     bool
-		validateResp    func(t *testing.T, resp rest.UpdateTaskResponseObject)
+		name         string
+		request      rest.UpdateTaskRequestObject
+		mockService  *mockTaskService
+		expectError  bool
+		validateResp func(t *testing.T, resp rest.UpdateTaskResponseObject)
 	}{
 		{
 			name: "successful update",
@@ -403,11 +403,11 @@ func TestTaskHandler_SearchTask(t *testing.T) {
 	taskID2 := uuid.New()
 
 	tests := []struct {
-		name            string
-		request         rest.SearchTaskRequestObject
-		mockService     *mockTaskService
-		expectError     bool
-		validateResp    func(t *testing.T, resp rest.SearchTaskResponseObject)
+		name         string
+		request      rest.SearchTaskRequestObject
+		mockService  *mockTaskService
+		expectError  bool
+		validateResp func(t *testing.T, resp rest.SearchTaskResponseObject)
 	}{
 		{
 			name: "successful search",

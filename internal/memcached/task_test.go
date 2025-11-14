@@ -286,5 +286,3 @@ func TestTask_Update(t *testing.T) {
 // 3. Cache the result
 //
 // Integration tests with testcontainers would be more appropriate.
-
-
