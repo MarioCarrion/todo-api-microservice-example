@@ -149,7 +149,7 @@ func TestTaskHandler_CreateTask(t *testing.T) {
 			t.Parallel()
 
 			handler := rest.NewTaskHandler(tt.mockService)
-			resp, err := handler.CreateTask(context.Background(), tt.request)
+			resp, err := handler.CreateTask(t.Context(), tt.request)
 
 			if tt.expectError && err == nil {
 				t.Fatal("expected error, got nil")
@@ -228,7 +228,7 @@ func TestTaskHandler_ReadTask(t *testing.T) {
 			t.Parallel()
 
 			handler := rest.NewTaskHandler(tt.mockService)
-			resp, err := handler.ReadTask(context.Background(), tt.request)
+			resp, err := handler.ReadTask(t.Context(), tt.request)
 
 			if tt.expectError && err == nil {
 				t.Fatal("expected error, got nil")
@@ -301,7 +301,7 @@ func TestTaskHandler_DeleteTask(t *testing.T) {
 			t.Parallel()
 
 			handler := rest.NewTaskHandler(tt.mockService)
-			resp, err := handler.DeleteTask(context.Background(), tt.request)
+			resp, err := handler.DeleteTask(t.Context(), tt.request)
 
 			if tt.expectError && err == nil {
 				t.Fatal("expected error, got nil")
@@ -380,7 +380,7 @@ func TestTaskHandler_UpdateTask(t *testing.T) {
 			t.Parallel()
 
 			handler := rest.NewTaskHandler(tt.mockService)
-			resp, err := handler.UpdateTask(context.Background(), tt.request)
+			resp, err := handler.UpdateTask(t.Context(), tt.request)
 
 			if tt.expectError && err == nil {
 				t.Fatal("expected error, got nil")
@@ -469,7 +469,7 @@ func TestTaskHandler_SearchTask(t *testing.T) {
 			t.Parallel()
 
 			handler := rest.NewTaskHandler(tt.mockService)
-			resp, err := handler.SearchTask(context.Background(), tt.request)
+			resp, err := handler.SearchTask(t.Context(), tt.request)
 
 			if tt.expectError && err == nil {
 				t.Fatal("expected error, got nil")
