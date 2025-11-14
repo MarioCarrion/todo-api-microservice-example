@@ -9,35 +9,8 @@ import (
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 	taskMemcached "github.com/MarioCarrion/todo-api-microservice-example/internal/memcached"
+	"github.com/MarioCarrion/todo-api-microservice-example/internal/memcached/memcachedtesting"
 )
-
-// mockSearchableTaskStore is a mock implementation of SearchableTaskStore for testing
-type mockSearchableTaskStore struct {
-	deleteFn func(ctx context.Context, id string) error
-	indexFn  func(ctx context.Context, task internal.Task) error
-	searchFn func(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error)
-}
-
-func (m *mockSearchableTaskStore) Delete(ctx context.Context, id string) error {
-	if m.deleteFn != nil {
-		return m.deleteFn(ctx, id)
-	}
-	return nil
-}
-
-func (m *mockSearchableTaskStore) Index(ctx context.Context, task internal.Task) error {
-	if m.indexFn != nil {
-		return m.indexFn(ctx, task)
-	}
-	return nil
-}
-
-func (m *mockSearchableTaskStore) Search(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
-	if m.searchFn != nil {
-		return m.searchFn(ctx, args)
-	}
-	return internal.SearchResults{}, nil
-}
 
 func TestNewSearchableTask(t *testing.T) {
 	t.Parallel()
@@ -56,7 +29,7 @@ func TestNewSearchableTask(t *testing.T) {
 
 			// Use a dummy memcache client address - we won't actually connect
 			client := memcache.New("localhost:11211")
-			store := &mockSearchableTaskStore{}
+			store := &memcachedtesting.FakeSearchableTaskStore{}
 
 			result := taskMemcached.NewSearchableTask(client, store)
 
@@ -73,7 +46,7 @@ func TestSearchableTask_Index(t *testing.T) {
 	tests := []struct {
 		name           string
 		task           internal.Task
-		mockStore      *mockSearchableTaskStore
+		setupMock      func(*memcachedtesting.FakeSearchableTaskStore)
 		expectedErrMsg string
 	}{
 		{
@@ -82,10 +55,8 @@ func TestSearchableTask_Index(t *testing.T) {
 				ID:          "123",
 				Description: "test task",
 			},
-			mockStore: &mockSearchableTaskStore{
-				indexFn: func(ctx context.Context, task internal.Task) error {
-					return nil
-				},
+			setupMock: func(m *memcachedtesting.FakeSearchableTaskStore) {
+				m.IndexReturns(nil)
 			},
 			expectedErrMsg: "",
 		},
@@ -95,10 +66,8 @@ func TestSearchableTask_Index(t *testing.T) {
 				ID:          "123",
 				Description: "test task",
 			},
-			mockStore: &mockSearchableTaskStore{
-				indexFn: func(ctx context.Context, task internal.Task) error {
-					return errors.New("index error")
-				},
+			setupMock: func(m *memcachedtesting.FakeSearchableTaskStore) {
+				m.IndexReturns(errors.New("index error"))
 			},
 			expectedErrMsg: "orig.Index",
 		},
@@ -109,7 +78,9 @@ func TestSearchableTask_Index(t *testing.T) {
 			t.Parallel()
 
 			client := memcache.New("localhost:11211")
-			searchable := taskMemcached.NewSearchableTask(client, tt.mockStore)
+			mockStore := &memcachedtesting.FakeSearchableTaskStore{}
+			tt.setupMock(mockStore)
+			searchable := taskMemcached.NewSearchableTask(client, mockStore)
 
 			err := searchable.Index(context.Background(), tt.task)
 
@@ -135,26 +106,22 @@ func TestSearchableTask_Delete(t *testing.T) {
 	tests := []struct {
 		name           string
 		id             string
-		mockStore      *mockSearchableTaskStore
+		setupMock      func(*memcachedtesting.FakeSearchableTaskStore)
 		expectedErrMsg string
 	}{
 		{
 			name: "successful delete",
 			id:   "123",
-			mockStore: &mockSearchableTaskStore{
-				deleteFn: func(ctx context.Context, id string) error {
-					return nil
-				},
+			setupMock: func(m *memcachedtesting.FakeSearchableTaskStore) {
+				m.DeleteReturns(nil)
 			},
 			expectedErrMsg: "",
 		},
 		{
 			name: "store error",
 			id:   "123",
-			mockStore: &mockSearchableTaskStore{
-				deleteFn: func(ctx context.Context, id string) error {
-					return errors.New("delete error")
-				},
+			setupMock: func(m *memcachedtesting.FakeSearchableTaskStore) {
+				m.DeleteReturns(errors.New("delete error"))
 			},
 			expectedErrMsg: "orig.Delete",
 		},
@@ -165,7 +132,9 @@ func TestSearchableTask_Delete(t *testing.T) {
 			t.Parallel()
 
 			client := memcache.New("localhost:11211")
-			searchable := taskMemcached.NewSearchableTask(client, tt.mockStore)
+			mockStore := &memcachedtesting.FakeSearchableTaskStore{}
+			tt.setupMock(mockStore)
+			searchable := taskMemcached.NewSearchableTask(client, mockStore)
 
 			err := searchable.Delete(context.Background(), tt.id)
 
