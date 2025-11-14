@@ -60,6 +60,98 @@ func TestPriority_Validate(t *testing.T) {
 	}
 }
 
+func TestPriority_Pointer(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		priority internal.Priority
+	}{
+		{
+			name:     "PriorityNone",
+			priority: internal.PriorityNone,
+		},
+		{
+			name:     "PriorityLow",
+			priority: internal.PriorityLow,
+		},
+		{
+			name:     "PriorityMedium",
+			priority: internal.PriorityMedium,
+		},
+		{
+			name:     "PriorityHigh",
+			priority: internal.PriorityHigh,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ptr := tt.priority.Pointer()
+			if ptr == nil {
+				t.Fatal("expected non-nil pointer")
+			}
+			if *ptr != tt.priority {
+				t.Errorf("expected *%v, got *%v", tt.priority, *ptr)
+			}
+		})
+	}
+}
+
+func TestPriority_Value(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		input    *internal.Priority
+		expected internal.Priority
+	}{
+		{
+			name:     "nil pointer",
+			input:    nil,
+			expected: internal.PriorityNone,
+		},
+		{
+			name:     "PriorityNone pointer",
+			input:    internal.PriorityNone.Pointer(),
+			expected: internal.PriorityNone,
+		},
+		{
+			name:     "PriorityLow pointer",
+			input:    internal.PriorityLow.Pointer(),
+			expected: internal.PriorityLow,
+		},
+		{
+			name:     "PriorityMedium pointer",
+			input:    internal.PriorityMedium.Pointer(),
+			expected: internal.PriorityMedium,
+		},
+		{
+			name:     "PriorityHigh pointer",
+			input:    internal.PriorityHigh.Pointer(),
+			expected: internal.PriorityHigh,
+		},
+		{
+			name:     "invalid priority pointer returns PriorityNone",
+			input:    internal.Priority(-1).Pointer(),
+			expected: internal.PriorityNone,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := tt.input.Value()
+			if result != tt.expected {
+				t.Errorf("expected %v, got %v", tt.expected, result)
+			}
+		})
+	}
+}
+
 func TestDates_Validate(t *testing.T) {
 	t.Parallel()
 
@@ -112,6 +204,66 @@ func TestDates_Validate(t *testing.T) {
 			var ierr *internal.Error
 			if tt.withErr && !errors.As(actualErr, &ierr) {
 				t.Fatalf("expected %T error, got %T", ierr, actualErr)
+			}
+		})
+	}
+}
+
+func TestDates_Pointer(t *testing.T) {
+	t.Parallel()
+
+	now := time.Now()
+	later := now.Add(2 * time.Hour)
+
+	tests := []struct {
+		name  string
+		dates internal.Dates
+	}{
+		{
+			name: "dates with both start and due",
+			dates: internal.Dates{
+				Start: &now,
+				Due:   &later,
+			},
+		},
+		{
+			name: "dates with only start",
+			dates: internal.Dates{
+				Start: &now,
+			},
+		},
+		{
+			name: "dates with only due",
+			dates: internal.Dates{
+				Due: &later,
+			},
+		},
+		{
+			name:  "empty dates",
+			dates: internal.Dates{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ptr := tt.dates.Pointer()
+			if ptr == nil {
+				t.Fatal("expected non-nil pointer")
+			}
+
+			// Verify the pointer points to correct values
+			if tt.dates.Start != nil && ptr.Start != nil {
+				if !tt.dates.Start.Equal(*ptr.Start) {
+					t.Errorf("start dates don't match")
+				}
+			}
+
+			if tt.dates.Due != nil && ptr.Due != nil {
+				if !tt.dates.Due.Equal(*ptr.Due) {
+					t.Errorf("due dates don't match")
+				}
 			}
 		})
 	}
