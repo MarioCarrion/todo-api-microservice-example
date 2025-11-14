@@ -11,43 +11,8 @@ import (
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 	taskMemcached "github.com/MarioCarrion/todo-api-microservice-example/internal/memcached"
+	"github.com/MarioCarrion/todo-api-microservice-example/internal/memcached/memcachedtesting"
 )
-
-// mockTaskStore is a mock implementation of TaskStore for testing
-type mockTaskStore struct {
-	createFn func(ctx context.Context, params internal.CreateParams) (internal.Task, error)
-	deleteFn func(ctx context.Context, id string) error
-	findFn   func(ctx context.Context, id string) (internal.Task, error)
-	updateFn func(ctx context.Context, id string, params internal.UpdateParams) error
-}
-
-func (m *mockTaskStore) Create(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
-	if m.createFn != nil {
-		return m.createFn(ctx, params)
-	}
-	return internal.Task{}, nil
-}
-
-func (m *mockTaskStore) Delete(ctx context.Context, id string) error {
-	if m.deleteFn != nil {
-		return m.deleteFn(ctx, id)
-	}
-	return nil
-}
-
-func (m *mockTaskStore) Find(ctx context.Context, id string) (internal.Task, error) {
-	if m.findFn != nil {
-		return m.findFn(ctx, id)
-	}
-	return internal.Task{}, nil
-}
-
-func (m *mockTaskStore) Update(ctx context.Context, id string, params internal.UpdateParams) error {
-	if m.updateFn != nil {
-		return m.updateFn(ctx, id, params)
-	}
-	return nil
-}
 
 func TestNewTask(t *testing.T) {
 	t.Parallel()
@@ -65,7 +30,7 @@ func TestNewTask(t *testing.T) {
 			t.Parallel()
 
 			client := memcache.New("localhost:11211")
-			store := &mockTaskStore{}
+			store := &memcachedtesting.FakeTaskStore{}
 			logger := zap.NewNop()
 
 			task := taskMemcached.NewTask(client, store, logger)
@@ -83,7 +48,7 @@ func TestTask_Create(t *testing.T) {
 	tests := []struct {
 		name           string
 		params         internal.CreateParams
-		mockStore      *mockTaskStore
+		setupMock      func(*memcachedtesting.FakeTaskStore)
 		expectedTask   internal.Task
 		expectedErrMsg string
 	}{
@@ -93,14 +58,12 @@ func TestTask_Create(t *testing.T) {
 				Description: "test task",
 				Priority:    internal.PriorityHigh.Pointer(),
 			},
-			mockStore: &mockTaskStore{
-				createFn: func(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
-					return internal.Task{
-						ID:          "123",
-						Description: params.Description,
-						Priority:    params.Priority,
-					}, nil
-				},
+			setupMock: func(m *memcachedtesting.FakeTaskStore) {
+				m.CreateReturns(internal.Task{
+					ID:          "123",
+					Description: "test task",
+					Priority:    internal.PriorityHigh.Pointer(),
+				}, nil)
 			},
 			expectedTask: internal.Task{
 				ID:          "123",
@@ -114,10 +77,8 @@ func TestTask_Create(t *testing.T) {
 			params: internal.CreateParams{
 				Description: "test task",
 			},
-			mockStore: &mockTaskStore{
-				createFn: func(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
-					return internal.Task{}, errors.New("create error")
-				},
+			setupMock: func(m *memcachedtesting.FakeTaskStore) {
+				m.CreateReturns(internal.Task{}, errors.New("create error"))
 			},
 			expectedTask:   internal.Task{},
 			expectedErrMsg: "orig.Create",
@@ -130,7 +91,9 @@ func TestTask_Create(t *testing.T) {
 
 			client := memcache.New("localhost:11211")
 			logger := zap.NewNop()
-			task := taskMemcached.NewTask(client, tt.mockStore, logger)
+			mockStore := &memcachedtesting.FakeTaskStore{}
+			tt.setupMock(mockStore)
+			task := taskMemcached.NewTask(client, mockStore, logger)
 
 			result, err := task.Create(context.Background(), tt.params)
 
@@ -159,26 +122,22 @@ func TestTask_Delete(t *testing.T) {
 	tests := []struct {
 		name           string
 		id             string
-		mockStore      *mockTaskStore
+		setupMock      func(*memcachedtesting.FakeTaskStore)
 		expectedErrMsg string
 	}{
 		{
 			name: "successful delete",
 			id:   "123",
-			mockStore: &mockTaskStore{
-				deleteFn: func(ctx context.Context, id string) error {
-					return nil
-				},
+			setupMock: func(m *memcachedtesting.FakeTaskStore) {
+				m.DeleteReturns(nil)
 			},
 			expectedErrMsg: "",
 		},
 		{
 			name: "store error",
 			id:   "123",
-			mockStore: &mockTaskStore{
-				deleteFn: func(ctx context.Context, id string) error {
-					return errors.New("delete error")
-				},
+			setupMock: func(m *memcachedtesting.FakeTaskStore) {
+				m.DeleteReturns(errors.New("delete error"))
 			},
 			expectedErrMsg: "orig.Delete",
 		},
@@ -190,7 +149,9 @@ func TestTask_Delete(t *testing.T) {
 
 			client := memcache.New("localhost:11211")
 			logger := zap.NewNop()
-			task := taskMemcached.NewTask(client, tt.mockStore, logger)
+			mockStore := &memcachedtesting.FakeTaskStore{}
+			tt.setupMock(mockStore)
+			task := taskMemcached.NewTask(client, mockStore, logger)
 
 			err := task.Delete(context.Background(), tt.id)
 
@@ -217,7 +178,7 @@ func TestTask_Update(t *testing.T) {
 		name           string
 		id             string
 		params         internal.UpdateParams
-		mockStore      *mockTaskStore
+		setupMock      func(*memcachedtesting.FakeTaskStore)
 		expectedErrMsg string
 	}{
 		{
@@ -226,13 +187,9 @@ func TestTask_Update(t *testing.T) {
 			params: internal.UpdateParams{
 				Description: internal.ValueToPointer("updated"),
 			},
-			mockStore: &mockTaskStore{
-				updateFn: func(ctx context.Context, id string, params internal.UpdateParams) error {
-					return nil
-				},
-				findFn: func(ctx context.Context, id string) (internal.Task, error) {
-					return internal.Task{ID: id, Description: "updated"}, nil
-				},
+			setupMock: func(m *memcachedtesting.FakeTaskStore) {
+				m.UpdateReturns(nil)
+				m.FindReturns(internal.Task{ID: "123", Description: "updated"}, nil)
 			},
 			expectedErrMsg: "",
 		},
@@ -242,10 +199,8 @@ func TestTask_Update(t *testing.T) {
 			params: internal.UpdateParams{
 				Description: internal.ValueToPointer("updated"),
 			},
-			mockStore: &mockTaskStore{
-				updateFn: func(ctx context.Context, id string, params internal.UpdateParams) error {
-					return errors.New("update error")
-				},
+			setupMock: func(m *memcachedtesting.FakeTaskStore) {
+				m.UpdateReturns(errors.New("update error"))
 			},
 			expectedErrMsg: "orig.Update",
 		},
@@ -257,7 +212,9 @@ func TestTask_Update(t *testing.T) {
 
 			client := memcache.New("localhost:11211")
 			logger := zap.NewNop()
-			task := taskMemcached.NewTask(client, tt.mockStore, logger)
+			mockStore := &memcachedtesting.FakeTaskStore{}
+			tt.setupMock(mockStore)
+			task := taskMemcached.NewTask(client, mockStore, logger)
 
 			err := task.Update(context.Background(), tt.id, tt.params)
 
