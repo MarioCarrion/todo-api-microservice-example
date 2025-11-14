@@ -64,6 +64,8 @@ github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK3
 github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
 github.com/cespare/xxhash/v2 v2.2.0 h1:DC2CZ1Ep5Y4k3ZQ899DldepgrayRUGE6BBZ/cd9Cj44=
 github.com/cespare/xxhash/v2 v2.2.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
+github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
+github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/compose-spec/compose-go/v2 v2.1.3 h1:bD67uqLuL/XgkAK6ir3xZvNLFPxPScEi1KW7R5esrLE=
 github.com/compose-spec/compose-go/v2 v2.1.3/go.mod h1:lFN0DrMxIncJGYAXTfWuajfwj5haBJqrBkarHcnjJKc=
 github.com/confluentinc/confluent-kafka-go/v2 v2.12.0 h1:If5Bi+oJVehEdjuhHa7QEFppQtyexvBXJiuZIloJtIw=
@@ -404,8 +406,16 @@ github.com/testcontainers/testcontainers-go v0.39.0 h1:uCUJ5tA+fcxbFAB0uP3pIK3EJ
 github.com/testcontainers/testcontainers-go v0.39.0/go.mod h1:qmHpkG7H5uPf/EvOORKvS6EuDkBUPE3zpVGaH9NL7f8=
 github.com/testcontainers/testcontainers-go/modules/compose v0.33.0 h1:PyrUOF+zG+xrS3p+FesyVxMI+9U+7pwhZhyFozH3jKY=
 github.com/testcontainers/testcontainers-go/modules/compose v0.33.0/go.mod h1:oqZaUnFEskdZriO51YBquku/jhgzoXHPot6xe1DqKV4=
+github.com/testcontainers/testcontainers-go/modules/elasticsearch v0.39.0 h1:rf35NQMlo1YxfCrv8HNsSFbZc3EejOc0TOHopHrSUaE=
+github.com/testcontainers/testcontainers-go/modules/elasticsearch v0.39.0/go.mod h1:/6i0qhcP1IC/m7dV9yWg1nl5P6deVh3tS09AmNamOAU=
+github.com/testcontainers/testcontainers-go/modules/kafka v0.39.0 h1:Nkrk5fjoHbj1bqE8OkMT25Y8bcSDgS5smdVaX3Xkfyc=
+github.com/testcontainers/testcontainers-go/modules/kafka v0.39.0/go.mod h1:9Si8E8u8DWMUPQpHSSDseA3lXfhyMgVnCfdMWjoqNNw=
 github.com/testcontainers/testcontainers-go/modules/postgres v0.39.0 h1:REJz+XwNpGC/dCgTfYvM4SKqobNqDBfvhq74s2oHTUM=
 github.com/testcontainers/testcontainers-go/modules/postgres v0.39.0/go.mod h1:4K2OhtHEeT+JSIFX4V8DkGKsyLa96Y2vLdd3xsxD5HE=
+github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.39.0 h1:1bZYBo/Gj8XFIXwOMZOCKR2cj5KR7834HRQiXld1qLY=
+github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.39.0/go.mod h1:6QrVnYo9ZclD5lUutAAtQAFx7YNNoufJYvKPgfH+7hs=
+github.com/testcontainers/testcontainers-go/modules/redis v0.39.0 h1:p54qELdCx4Gftkxzf44k9RJRRhaO/S5ehP9zo8SUTLM=
+github.com/testcontainers/testcontainers-go/modules/redis v0.39.0/go.mod h1:P1mTbHruHqAU2I26y0RADz1BitF59FLbQr7ceqN9bt4=
 github.com/testcontainers/testcontainers-go/modules/vault v0.39.0 h1:2FdaAcV6qzjh00LwGei9f6EuxdHGvfZ87zAyK+1b/6Q=
 github.com/testcontainers/testcontainers-go/modules/vault v0.39.0/go.mod h1:noXKEtMDYUMhNL8wPnuRQtMgUzAE2cNYA9M1ZYLv6zk=
 github.com/theupdateframework/notary v0.7.0 h1:QyagRZ7wlSpjT5N2qQAh/pN+DVqgekv4DzbAiAiEL3c=
@@ -487,6 +497,8 @@ golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3 h1:hNQpMuAJe5CtcUqCXaWga3FHu
 golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3/go.mod h1:idGWGoKP1toJGkd5/ig9ZLuPcZBC3ewk7SzmH0uou08=
 golang.org/x/mod v0.2.0/go.mod h1:s0Qsj1ACt9ePp/hMypM3fl4fZqREWJwdYDEqhRiZZUA=
 golang.org/x/mod v0.3.0/go.mod h1:s0Qsj1ACt9ePp/hMypM3fl4fZqREWJwdYDEqhRiZZUA=
+golang.org/x/mod v0.25.0 h1:n7a+ZbQKQA/Ysbyb0/6IbB1H/X41mKgbhfv7AfG/44w=
+golang.org/x/mod v0.25.0/go.mod h1:IXM97Txy2VM4PJ3gI61r1YEk/gAj6zAHN3AdZt6S9Ww=
 golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3/go.mod h1:t9HGtf8HONx5eT2rtn7q6eTqICYqUVnKs3thJo3Qplg=
 golang.org/x/net v0.0.0-20190620200207-3b0461eec859/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/net v0.0.0-20200226121028-0de0cce0169b/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
