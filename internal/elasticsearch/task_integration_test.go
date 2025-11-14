@@ -21,7 +21,7 @@ func TestTask_Index_Integration(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	// Start Elasticsearch container
 	esContainer, err := elasticsearch.Run(ctx, "docker.elastic.co/elasticsearch/elasticsearch:7.17.10")
@@ -93,7 +93,7 @@ func TestTask_Delete_Integration(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	esContainer, err := elasticsearch.Run(ctx, "docker.elastic.co/elasticsearch/elasticsearch:7.17.10")
 	if err != nil {
@@ -146,7 +146,7 @@ func TestTask_Search_Integration(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	esContainer, err := elasticsearch.Run(ctx, "docker.elastic.co/elasticsearch/elasticsearch:7.17.10")
 	if err != nil {

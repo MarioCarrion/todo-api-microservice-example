@@ -20,7 +20,7 @@ func TestTask_Created_Integration(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	// Start RabbitMQ container
 	rmqContainer, err := rabbitmq.Run(ctx, "rabbitmq:3.12-management-alpine")
@@ -88,7 +88,7 @@ func TestTask_Updated_Integration(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	rmqContainer, err := rabbitmq.Run(ctx, "rabbitmq:3.12-management-alpine")
 	if err != nil {
@@ -141,7 +141,7 @@ func TestTask_Deleted_Integration(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	rmqContainer, err := rabbitmq.Run(ctx, "rabbitmq:3.12-management-alpine")
 	if err != nil {

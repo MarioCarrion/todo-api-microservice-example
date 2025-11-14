@@ -1,7 +1,6 @@
 package memcached_test
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -95,7 +94,7 @@ func TestTask_Create(t *testing.T) {
 			tt.setupMock(mockStore)
 			task := taskMemcached.NewTask(client, mockStore, logger)
 
-			result, err := task.Create(context.Background(), tt.params)
+			result, err := task.Create(t.Context(), tt.params)
 
 			if tt.expectedErrMsg != "" {
 				if err == nil {
@@ -153,7 +152,7 @@ func TestTask_Delete(t *testing.T) {
 			tt.setupMock(mockStore)
 			task := taskMemcached.NewTask(client, mockStore, logger)
 
-			err := task.Delete(context.Background(), tt.id)
+			err := task.Delete(t.Context(), tt.id)
 
 			if tt.expectedErrMsg != "" {
 				if err == nil {
@@ -216,7 +215,7 @@ func TestTask_Update(t *testing.T) {
 			tt.setupMock(mockStore)
 			task := taskMemcached.NewTask(client, mockStore, logger)
 
-			err := task.Update(context.Background(), tt.id, tt.params)
+			err := task.Update(t.Context(), tt.id, tt.params)
 
 			if tt.expectedErrMsg != "" {
 				if err == nil {

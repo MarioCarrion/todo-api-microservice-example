@@ -157,7 +157,7 @@ func TestTask_Create(t *testing.T) {
 
 			svc := service.NewTask(logger, tt.mockRepo, &mockTaskSearchRepository{}, tt.mockMsgBroker)
 
-			task, err := svc.Create(context.Background(), tt.params)
+			task, err := svc.Create(t.Context(), tt.params)
 
 			if tt.expectedErrMsg != "" {
 				if err == nil {
@@ -220,7 +220,7 @@ func TestTask_Delete(t *testing.T) {
 
 			svc := service.NewTask(logger, tt.mockRepo, &mockTaskSearchRepository{}, tt.mockMsgBroker)
 
-			err := svc.Delete(context.Background(), tt.id)
+			err := svc.Delete(t.Context(), tt.id)
 
 			if tt.expectedErrMsg != "" {
 				if err == nil {
@@ -286,7 +286,7 @@ func TestTask_ByID(t *testing.T) {
 
 			svc := service.NewTask(logger, tt.mockRepo, &mockTaskSearchRepository{}, &mockTaskMessageBrokerPublisher{})
 
-			task, err := svc.ByID(context.Background(), tt.id)
+			task, err := svc.ByID(t.Context(), tt.id)
 
 			if tt.expectedErrMsg != "" {
 				if err == nil {
@@ -359,7 +359,7 @@ func TestTask_Update(t *testing.T) {
 
 			svc := service.NewTask(logger, tt.mockRepo, &mockTaskSearchRepository{}, tt.mockMsgBroker)
 
-			err := svc.Update(context.Background(), tt.id, tt.params)
+			err := svc.Update(t.Context(), tt.id, tt.params)
 
 			if tt.expectedErrMsg != "" {
 				if err == nil {
@@ -437,7 +437,7 @@ func TestTask_By(t *testing.T) {
 
 			svc := service.NewTask(logger, &mockTaskRepository{}, tt.mockSearch, &mockTaskMessageBrokerPublisher{})
 
-			result, err := svc.By(context.Background(), tt.params)
+			result, err := svc.By(t.Context(), tt.params)
 
 			if tt.expectedErrMsg != "" {
 				if err == nil {

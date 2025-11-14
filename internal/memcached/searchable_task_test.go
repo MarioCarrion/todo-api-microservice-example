@@ -1,7 +1,6 @@
 package memcached_test
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -82,7 +81,7 @@ func TestSearchableTask_Index(t *testing.T) {
 			tt.setupMock(mockStore)
 			searchable := taskMemcached.NewSearchableTask(client, mockStore)
 
-			err := searchable.Index(context.Background(), tt.task)
+			err := searchable.Index(t.Context(), tt.task)
 
 			if tt.expectedErrMsg != "" {
 				if err == nil {
@@ -136,7 +135,7 @@ func TestSearchableTask_Delete(t *testing.T) {
 			tt.setupMock(mockStore)
 			searchable := taskMemcached.NewSearchableTask(client, mockStore)
 
-			err := searchable.Delete(context.Background(), tt.id)
+			err := searchable.Delete(t.Context(), tt.id)
 
 			if tt.expectedErrMsg != "" {
 				if err == nil {
