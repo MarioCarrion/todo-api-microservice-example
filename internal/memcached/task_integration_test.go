@@ -22,7 +22,7 @@ func TestTask_Find_Integration(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	// Start Memcached container
 	req := testcontainers.ContainerRequest{
@@ -103,7 +103,7 @@ func TestTask_Create_Integration(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	req := testcontainers.ContainerRequest{
 		Image:        "memcached:1.6-alpine",
@@ -174,7 +174,7 @@ func TestTask_Delete_Integration(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	req := testcontainers.ContainerRequest{
 		Image:        "memcached:1.6-alpine",

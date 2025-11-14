@@ -20,7 +20,7 @@ func TestTask_Created_Integration(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	// Start Redis container
 	redisContainer, err := redismodule.Run(ctx, "redis:7-alpine")
@@ -73,7 +73,7 @@ func TestTask_Updated_Integration(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	redisContainer, err := redismodule.Run(ctx, "redis:7-alpine")
 	if err != nil {
@@ -114,7 +114,7 @@ func TestTask_Deleted_Integration(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	redisContainer, err := redismodule.Run(ctx, "redis:7-alpine")
 	if err != nil {
