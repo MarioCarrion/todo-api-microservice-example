@@ -127,7 +127,7 @@ func TestTaskHandler_ReadTask(t *testing.T) {
 	tests := []struct {
 		name         string
 		request      rest.ReadTaskRequestObject
-		mockService  *resttesting.FakeTaskService
+		setupMock    func(*resttesting.FakeTaskService)
 		expectError  bool
 		validateResp func(t *testing.T, resp rest.ReadTaskResponseObject)
 	}{
@@ -136,13 +136,11 @@ func TestTaskHandler_ReadTask(t *testing.T) {
 			request: rest.ReadTaskRequestObject{
 				Id: taskID,
 			},
-			mockService: &resttesting.FakeTaskService{
-				byIDFn: func(ctx context.Context, id string) (internal.Task, error) {
-					return internal.Task{
-						ID:          taskID.String(),
-						Description: "test task",
-					}, nil
-				},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.ByIDReturns(internal.Task{
+					ID:          taskID.String(),
+					Description: "test task",
+				}, nil)
 			},
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.ReadTaskResponseObject) {
@@ -161,10 +159,8 @@ func TestTaskHandler_ReadTask(t *testing.T) {
 			request: rest.ReadTaskRequestObject{
 				Id: taskID,
 			},
-			mockService: &resttesting.FakeTaskService{
-				byIDFn: func(ctx context.Context, id string) (internal.Task, error) {
-					return internal.Task{}, errors.New("not found")
-				},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.ByIDReturns(internal.Task{}, errors.New("not found"))
 			},
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.ReadTaskResponseObject) {
@@ -181,7 +177,9 @@ func TestTaskHandler_ReadTask(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			handler := rest.NewTaskHandler(tt.mockService)
+			mockService := &resttesting.FakeTaskService{}
+			tt.setupMock(mockService)
+			handler := rest.NewTaskHandler(mockService)
 			resp, err := handler.ReadTask(t.Context(), tt.request)
 
 			if tt.expectError && err == nil {
@@ -206,7 +204,7 @@ func TestTaskHandler_DeleteTask(t *testing.T) {
 	tests := []struct {
 		name         string
 		request      rest.DeleteTaskRequestObject
-		mockService  *resttesting.FakeTaskService
+		setupMock    func(*resttesting.FakeTaskService)
 		expectError  bool
 		validateResp func(t *testing.T, resp rest.DeleteTaskResponseObject)
 	}{
@@ -215,10 +213,8 @@ func TestTaskHandler_DeleteTask(t *testing.T) {
 			request: rest.DeleteTaskRequestObject{
 				Id: taskID,
 			},
-			mockService: &resttesting.FakeTaskService{
-				deleteFn: func(ctx context.Context, id string) error {
-					return nil
-				},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.DeleteReturns(nil)
 			},
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.DeleteTaskResponseObject) {
@@ -234,10 +230,8 @@ func TestTaskHandler_DeleteTask(t *testing.T) {
 			request: rest.DeleteTaskRequestObject{
 				Id: taskID,
 			},
-			mockService: &resttesting.FakeTaskService{
-				deleteFn: func(ctx context.Context, id string) error {
-					return errors.New("delete error")
-				},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.DeleteReturns(errors.New("delete error"))
 			},
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.DeleteTaskResponseObject) {
@@ -254,7 +248,9 @@ func TestTaskHandler_DeleteTask(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			handler := rest.NewTaskHandler(tt.mockService)
+			mockService := &resttesting.FakeTaskService{}
+			tt.setupMock(mockService)
+			handler := rest.NewTaskHandler(mockService)
 			resp, err := handler.DeleteTask(t.Context(), tt.request)
 
 			if tt.expectError && err == nil {
@@ -279,7 +275,7 @@ func TestTaskHandler_UpdateTask(t *testing.T) {
 	tests := []struct {
 		name         string
 		request      rest.UpdateTaskRequestObject
-		mockService  *resttesting.FakeTaskService
+		setupMock    func(*resttesting.FakeTaskService)
 		expectError  bool
 		validateResp func(t *testing.T, resp rest.UpdateTaskResponseObject)
 	}{
@@ -291,10 +287,8 @@ func TestTaskHandler_UpdateTask(t *testing.T) {
 					Description: internal.ValueToPointer("updated task"),
 				},
 			},
-			mockService: &resttesting.FakeTaskService{
-				updateFn: func(ctx context.Context, id string, args internal.UpdateParams) error {
-					return nil
-				},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.UpdateReturns(nil)
 			},
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.UpdateTaskResponseObject) {
@@ -313,10 +307,8 @@ func TestTaskHandler_UpdateTask(t *testing.T) {
 					Description: internal.ValueToPointer("updated task"),
 				},
 			},
-			mockService: &resttesting.FakeTaskService{
-				updateFn: func(ctx context.Context, id string, args internal.UpdateParams) error {
-					return errors.New("update error")
-				},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.UpdateReturns(errors.New("update error"))
 			},
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.UpdateTaskResponseObject) {
@@ -333,7 +325,9 @@ func TestTaskHandler_UpdateTask(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			handler := rest.NewTaskHandler(tt.mockService)
+			mockService := &resttesting.FakeTaskService{}
+			tt.setupMock(mockService)
+			handler := rest.NewTaskHandler(mockService)
 			resp, err := handler.UpdateTask(t.Context(), tt.request)
 
 			if tt.expectError && err == nil {
@@ -359,7 +353,7 @@ func TestTaskHandler_SearchTask(t *testing.T) {
 	tests := []struct {
 		name         string
 		request      rest.SearchTaskRequestObject
-		mockService  *resttesting.FakeTaskService
+		setupMock    func(*resttesting.FakeTaskService)
 		expectError  bool
 		validateResp func(t *testing.T, resp rest.SearchTaskResponseObject)
 	}{
@@ -372,16 +366,14 @@ func TestTaskHandler_SearchTask(t *testing.T) {
 					Size:        10,
 				},
 			},
-			mockService: &resttesting.FakeTaskService{
-				byFn: func(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
-					return internal.SearchResults{
-						Tasks: []internal.Task{
-							{ID: taskID1.String(), Description: "test task 1"},
-							{ID: taskID2.String(), Description: "test task 2"},
-						},
-						Total: 2,
-					}, nil
-				},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.ByReturns(internal.SearchResults{
+					Tasks: []internal.Task{
+						{ID: taskID1.String(), Description: "test task 1"},
+						{ID: taskID2.String(), Description: "test task 2"},
+					},
+					Total: 2,
+				}, nil)
 			},
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.SearchTaskResponseObject) {
@@ -402,10 +394,8 @@ func TestTaskHandler_SearchTask(t *testing.T) {
 					Description: internal.ValueToPointer("test"),
 				},
 			},
-			mockService: &resttesting.FakeTaskService{
-				byFn: func(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
-					return internal.SearchResults{}, errors.New("search error")
-				},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.ByReturns(internal.SearchResults{}, errors.New("search error"))
 			},
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.SearchTaskResponseObject) {
@@ -422,7 +412,9 @@ func TestTaskHandler_SearchTask(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			handler := rest.NewTaskHandler(tt.mockService)
+			mockService := &resttesting.FakeTaskService{}
+			tt.setupMock(mockService)
+			handler := rest.NewTaskHandler(mockService)
 			resp, err := handler.SearchTask(t.Context(), tt.request)
 
 			if tt.expectError && err == nil {
