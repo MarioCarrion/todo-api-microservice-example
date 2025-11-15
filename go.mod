@@ -19,7 +19,11 @@ require (
 	github.com/oapi-codegen/runtime v1.1.2
 	github.com/streadway/amqp v1.1.0
 	github.com/testcontainers/testcontainers-go v0.39.0
+	github.com/testcontainers/testcontainers-go/modules/elasticsearch v0.39.0
+	github.com/testcontainers/testcontainers-go/modules/kafka v0.39.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.39.0
+	github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.39.0
+	github.com/testcontainers/testcontainers-go/modules/redis v0.39.0
 	github.com/testcontainers/testcontainers-go/modules/vault v0.39.0
 	go.uber.org/zap v1.27.1
 )
@@ -102,10 +106,6 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
-	github.com/testcontainers/testcontainers-go/modules/elasticsearch v0.39.0 // indirect
-	github.com/testcontainers/testcontainers-go/modules/kafka v0.39.0 // indirect
-	github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.39.0 // indirect
-	github.com/testcontainers/testcontainers-go/modules/redis v0.39.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
