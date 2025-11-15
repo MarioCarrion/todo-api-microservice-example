@@ -1,6 +1,5 @@
 //go:build integration
 
-
 package rabbitmq_test
 
 import (
@@ -54,13 +53,13 @@ func TestTask_Created_Integration(t *testing.T) {
 
 	// Declare the exchange
 	err = channel.ExchangeDeclare(
-		"tasks",  // name
-		"topic",  // type
-		true,     // durable
-		false,    // auto-deleted
-		false,    // internal
-		false,    // no-wait
-		nil,      // arguments
+		"tasks", // name
+		"topic", // type
+		true,    // durable
+		false,   // auto-deleted
+		false,   // internal
+		false,   // no-wait
+		nil,     // arguments
 	)
 	if err != nil {
 		t.Fatalf("failed to declare exchange: %v", err)

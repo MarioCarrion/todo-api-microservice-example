@@ -1,6 +1,5 @@
 //go:build integration
 
-
 package kafka_test
 
 import (

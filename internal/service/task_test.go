@@ -3,6 +3,7 @@ package service_test
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -460,7 +461,7 @@ func TestTask_By(t *testing.T) {
 
 // containsString checks if a string contains a substring
 func containsString(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(s) > len(substr) && (s[:len(substr)] == substr || s[len(s)-len(substr):] == substr || len(s) > len(substr)+1))
+	return strings.Contains(s, substr)
 }
 
 func TestNewTask(t *testing.T) {
