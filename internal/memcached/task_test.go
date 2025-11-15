@@ -2,6 +2,7 @@ package memcached_test
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/bradfitz/gomemcache/memcache"
@@ -100,7 +101,7 @@ func TestTask_Create(t *testing.T) {
 				if err == nil {
 					t.Fatalf("expected error containing %q, got nil", tt.expectedErrMsg)
 				}
-				if !containsString(err.Error(), tt.expectedErrMsg) {
+				if !strings.Contains(err.Error(), tt.expectedErrMsg) {
 					t.Errorf("expected error containing %q, got %q", tt.expectedErrMsg, err.Error())
 				}
 			} else {
@@ -158,7 +159,7 @@ func TestTask_Delete(t *testing.T) {
 				if err == nil {
 					t.Fatalf("expected error containing %q, got nil", tt.expectedErrMsg)
 				}
-				if !containsString(err.Error(), tt.expectedErrMsg) {
+				if !strings.Contains(err.Error(), tt.expectedErrMsg) {
 					t.Errorf("expected error containing %q, got %q", tt.expectedErrMsg, err.Error())
 				}
 			} else {
@@ -221,7 +222,7 @@ func TestTask_Update(t *testing.T) {
 				if err == nil {
 					t.Fatalf("expected error containing %q, got nil", tt.expectedErrMsg)
 				}
-				if !containsString(err.Error(), tt.expectedErrMsg) {
+				if !strings.Contains(err.Error(), tt.expectedErrMsg) {
 					t.Errorf("expected error containing %q, got %q", tt.expectedErrMsg, err.Error())
 				}
 			} else {

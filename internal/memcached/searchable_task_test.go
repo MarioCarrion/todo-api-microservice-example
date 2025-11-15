@@ -44,10 +44,10 @@ func TestSearchableTask_Index(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name           string
-		task           internal.Task
-		setupMock      func(*memcachedtesting.FakeSearchableTaskStore)
-		expectedErrMsg string
+		name      string
+		task      internal.Task
+		setupMock func(*memcachedtesting.FakeSearchableTaskStore)
+		verify    func(*testing.T, error)
 	}{
 		{
 			name: "successful index",
@@ -58,7 +58,12 @@ func TestSearchableTask_Index(t *testing.T) {
 			setupMock: func(m *memcachedtesting.FakeSearchableTaskStore) {
 				m.IndexReturns(nil)
 			},
-			expectedErrMsg: "",
+			verify: func(t *testing.T, err error) {
+				t.Helper()
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			},
 		},
 		{
 			name: "store error",
@@ -69,7 +74,15 @@ func TestSearchableTask_Index(t *testing.T) {
 			setupMock: func(m *memcachedtesting.FakeSearchableTaskStore) {
 				m.IndexReturns(errors.New("index error"))
 			},
-			expectedErrMsg: "orig.Index",
+			verify: func(t *testing.T, err error) {
+				t.Helper()
+				if err == nil {
+					t.Fatalf("expected error containing %q, got nil", "orig.Index")
+				}
+				if !strings.Contains(err.Error(), "orig.Index") {
+					t.Errorf("expected error containing %q, got %q", "orig.Index", err.Error())
+				}
+			},
 		},
 	}
 
@@ -83,19 +96,7 @@ func TestSearchableTask_Index(t *testing.T) {
 			searchable := taskMemcached.NewSearchableTask(client, mockStore)
 
 			err := searchable.Index(t.Context(), tt.task)
-
-			if tt.expectedErrMsg != "" {
-				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tt.expectedErrMsg)
-				}
-				if !containsString(err.Error(), tt.expectedErrMsg) {
-					t.Errorf("expected error containing %q, got %q", tt.expectedErrMsg, err.Error())
-				}
-			} else {
-				if err != nil {
-					t.Fatalf("unexpected error: %v", err)
-				}
-			}
+			tt.verify(t, err)
 		})
 	}
 }
@@ -104,10 +105,10 @@ func TestSearchableTask_Delete(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name           string
-		id             string
-		setupMock      func(*memcachedtesting.FakeSearchableTaskStore)
-		expectedErrMsg string
+		name      string
+		id        string
+		setupMock func(*memcachedtesting.FakeSearchableTaskStore)
+		verify    func(*testing.T, error)
 	}{
 		{
 			name: "successful delete",
@@ -115,7 +116,12 @@ func TestSearchableTask_Delete(t *testing.T) {
 			setupMock: func(m *memcachedtesting.FakeSearchableTaskStore) {
 				m.DeleteReturns(nil)
 			},
-			expectedErrMsg: "",
+			verify: func(t *testing.T, err error) {
+				t.Helper()
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			},
 		},
 		{
 			name: "store error",
@@ -123,7 +129,15 @@ func TestSearchableTask_Delete(t *testing.T) {
 			setupMock: func(m *memcachedtesting.FakeSearchableTaskStore) {
 				m.DeleteReturns(errors.New("delete error"))
 			},
-			expectedErrMsg: "orig.Delete",
+			verify: func(t *testing.T, err error) {
+				t.Helper()
+				if err == nil {
+					t.Fatalf("expected error containing %q, got nil", "orig.Delete")
+				}
+				if !strings.Contains(err.Error(), "orig.Delete") {
+					t.Errorf("expected error containing %q, got %q", "orig.Delete", err.Error())
+				}
+			},
 		},
 	}
 
@@ -137,19 +151,7 @@ func TestSearchableTask_Delete(t *testing.T) {
 			searchable := taskMemcached.NewSearchableTask(client, mockStore)
 
 			err := searchable.Delete(t.Context(), tt.id)
-
-			if tt.expectedErrMsg != "" {
-				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tt.expectedErrMsg)
-				}
-				if !containsString(err.Error(), tt.expectedErrMsg) {
-					t.Errorf("expected error containing %q, got %q", tt.expectedErrMsg, err.Error())
-				}
-			} else {
-				if err != nil {
-					t.Fatalf("unexpected error: %v", err)
-				}
-			}
+			tt.verify(t, err)
 		})
 	}
 }
@@ -159,8 +161,3 @@ func TestSearchableTask_Delete(t *testing.T) {
 // memcached server, it returns a connection error instead of ErrCacheMiss, making it
 // difficult to unit test without infrastructure. Integration tests with testcontainers
 // would be more appropriate for testing the caching behavior.
-
-// containsString checks if a string contains a substring (simple helper for test)
-func containsString(s, substr string) bool {
-	return strings.Contains(s, substr)
-}
