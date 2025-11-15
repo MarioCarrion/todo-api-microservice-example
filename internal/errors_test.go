@@ -75,7 +75,7 @@ func TestWrapErrorf(t *testing.T) {
 					t.Errorf("expected error to wrap original error")
 				}
 
-				if ierr.Unwrap() != tt.orig {
+				if !errors.Is(ierr, tt.orig) {
 					t.Errorf("expected Unwrap() to return original error")
 				}
 			}

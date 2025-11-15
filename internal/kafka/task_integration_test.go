@@ -1,5 +1,3 @@
-//go:build integration
-
 package kafka_test
 
 import (
@@ -14,38 +12,51 @@ import (
 	kafkaTask "github.com/MarioCarrion/todo-api-microservice-example/internal/kafka"
 )
 
+// setupKafkaProducer starts a Kafka container and returns a configured producer
+func setupKafkaProducer(ctx context.Context, t *testing.T) (*kafka.Producer, func()) {
+	t.Helper()
+
+	kafkaContainer, err := kafkamodule.Run(ctx, "confluentinc/confluent-local:7.5.0")
+	if err != nil {
+		t.Fatalf("failed to start kafka container: %v", err)
+	}
+
+	cleanup := func() {
+		if err := testcontainers.TerminateContainer(kafkaContainer); err != nil {
+			t.Logf("failed to terminate container: %v", err)
+		}
+	}
+
+	brokers, err := kafkaContainer.Brokers(ctx)
+	if err != nil {
+		cleanup()
+		t.Fatalf("failed to get brokers: %v", err)
+	}
+
+	producer, err := kafka.NewProducer(&kafka.ConfigMap{
+		"bootstrap.servers": brokers[0],
+	})
+	if err != nil {
+		cleanup()
+		t.Fatalf("failed to create producer: %v", err)
+	}
+
+	cleanupAll := func() {
+		producer.Close()
+		cleanup()
+	}
+
+	return producer, cleanupAll
+}
+
 func TestTask_Created_Integration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
 	ctx := t.Context()
-
-	// Start Kafka container
-	kafkaContainer, err := kafkamodule.Run(ctx, "confluentinc/confluent-local:7.5.0")
-	if err != nil {
-		t.Fatalf("failed to start kafka container: %v", err)
-	}
-	defer func() {
-		if err := testcontainers.TerminateContainer(kafkaContainer); err != nil {
-			t.Logf("failed to terminate container: %v", err)
-		}
-	}()
-
-	// Get broker address
-	brokers, err := kafkaContainer.Brokers(ctx)
-	if err != nil {
-		t.Fatalf("failed to get brokers: %v", err)
-	}
-
-	// Create Kafka producer
-	producer, err := kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": brokers[0],
-	})
-	if err != nil {
-		t.Fatalf("failed to create producer: %v", err)
-	}
-	defer producer.Close()
+	producer, cleanup := setupKafkaProducer(ctx, t)
+	defer cleanup()
 
 	// Create task publisher
 	taskPub := kafkaTask.NewTask(producer, "test-tasks")
@@ -58,7 +69,7 @@ func TestTask_Created_Integration(t *testing.T) {
 		IsDone:      false,
 	}
 
-	err = taskPub.Created(ctx, task)
+	err := taskPub.Created(ctx, task)
 	if err != nil {
 		t.Fatalf("Failed to publish created event: %v", err)
 	}
@@ -73,29 +84,8 @@ func TestTask_Updated_Integration(t *testing.T) {
 	}
 
 	ctx := t.Context()
-
-	kafkaContainer, err := kafkamodule.Run(ctx, "confluentinc/confluent-local:7.5.0")
-	if err != nil {
-		t.Fatalf("failed to start kafka container: %v", err)
-	}
-	defer func() {
-		if err := testcontainers.TerminateContainer(kafkaContainer); err != nil {
-			t.Logf("failed to terminate container: %v", err)
-		}
-	}()
-
-	brokers, err := kafkaContainer.Brokers(ctx)
-	if err != nil {
-		t.Fatalf("failed to get brokers: %v", err)
-	}
-
-	producer, err := kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": brokers[0],
-	})
-	if err != nil {
-		t.Fatalf("failed to create producer: %v", err)
-	}
-	defer producer.Close()
+	producer, cleanup := setupKafkaProducer(ctx, t)
+	defer cleanup()
 
 	taskPub := kafkaTask.NewTask(producer, "test-tasks")
 
@@ -105,7 +95,7 @@ func TestTask_Updated_Integration(t *testing.T) {
 		IsDone:      true,
 	}
 
-	err = taskPub.Updated(ctx, task)
+	err := taskPub.Updated(ctx, task)
 	if err != nil {
 		t.Fatalf("Failed to publish updated event: %v", err)
 	}
@@ -119,33 +109,12 @@ func TestTask_Deleted_Integration(t *testing.T) {
 	}
 
 	ctx := t.Context()
-
-	kafkaContainer, err := kafkamodule.Run(ctx, "confluentinc/confluent-local:7.5.0")
-	if err != nil {
-		t.Fatalf("failed to start kafka container: %v", err)
-	}
-	defer func() {
-		if err := testcontainers.TerminateContainer(kafkaContainer); err != nil {
-			t.Logf("failed to terminate container: %v", err)
-		}
-	}()
-
-	brokers, err := kafkaContainer.Brokers(ctx)
-	if err != nil {
-		t.Fatalf("failed to get brokers: %v", err)
-	}
-
-	producer, err := kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": brokers[0],
-	})
-	if err != nil {
-		t.Fatalf("failed to create producer: %v", err)
-	}
-	defer producer.Close()
+	producer, cleanup := setupKafkaProducer(ctx, t)
+	defer cleanup()
 
 	taskPub := kafkaTask.NewTask(producer, "test-tasks")
 
-	err = taskPub.Deleted(ctx, "test-789")
+	err := taskPub.Deleted(ctx, "test-789")
 	if err != nil {
 		t.Fatalf("Failed to publish deleted event: %v", err)
 	}

@@ -1,5 +1,3 @@
-//go:build integration
-
 package elasticsearch_test
 
 import (
@@ -15,38 +13,41 @@ import (
 	esTask "github.com/MarioCarrion/todo-api-microservice-example/internal/elasticsearch"
 )
 
+// setupElasticsearchContainer starts an Elasticsearch container and returns a configured client
+func setupElasticsearchContainer(ctx context.Context, t *testing.T) (*esv7.Client, func()) {
+	t.Helper()
+
+	esContainer, err := elasticsearch.Run(ctx, "docker.elastic.co/elasticsearch/elasticsearch:7.17.10")
+	if err != nil {
+		t.Fatalf("failed to start elasticsearch container: %v", err)
+	}
+
+	cleanup := func() {
+		if err := testcontainers.TerminateContainer(esContainer); err != nil {
+			t.Logf("failed to terminate container: %v", err)
+		}
+	}
+
+	cfg := esv7.Config{
+		Addresses: []string{esContainer.Settings.Address},
+	}
+	client, err := esv7.NewClient(cfg)
+	if err != nil {
+		cleanup()
+		t.Fatalf("failed to create elasticsearch client: %v", err)
+	}
+
+	return client, cleanup
+}
+
 func TestTask_Index_Integration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
 	ctx := t.Context()
-
-	// Start Elasticsearch container
-	esContainer, err := elasticsearch.Run(ctx, "docker.elastic.co/elasticsearch/elasticsearch:7.17.10")
-	if err != nil {
-		t.Fatalf("failed to start elasticsearch container: %v", err)
-	}
-	defer func() {
-		if err := testcontainers.TerminateContainer(esContainer); err != nil {
-			t.Logf("failed to terminate container: %v", err)
-		}
-	}()
-
-	// Get connection string
-	connStr, err := esContainer.Address(ctx)
-	if err != nil {
-		t.Fatalf("failed to get connection string: %v", err)
-	}
-
-	// Create Elasticsearch client
-	cfg := esv7.Config{
-		Addresses: []string{connStr},
-	}
-	client, err := esv7.NewClient(cfg)
-	if err != nil {
-		t.Fatalf("failed to create elasticsearch client: %v", err)
-	}
+	client, cleanup := setupElasticsearchContainer(ctx, t)
+	defer cleanup()
 
 	// Create task repository
 	taskRepo := esTask.NewTask(client)
@@ -64,7 +65,7 @@ func TestTask_Index_Integration(t *testing.T) {
 		},
 	}
 
-	err = taskRepo.Index(ctx, task)
+	err := taskRepo.Index(ctx, task)
 	if err != nil {
 		t.Fatalf("Failed to index task: %v", err)
 	}
@@ -93,29 +94,8 @@ func TestTask_Delete_Integration(t *testing.T) {
 	}
 
 	ctx := t.Context()
-
-	esContainer, err := elasticsearch.Run(ctx, "docker.elastic.co/elasticsearch/elasticsearch:7.17.10")
-	if err != nil {
-		t.Fatalf("failed to start elasticsearch container: %v", err)
-	}
-	defer func() {
-		if err := testcontainers.TerminateContainer(esContainer); err != nil {
-			t.Logf("failed to terminate container: %v", err)
-		}
-	}()
-
-	connStr, err := esContainer.Address(ctx)
-	if err != nil {
-		t.Fatalf("failed to get connection string: %v", err)
-	}
-
-	cfg := esv7.Config{
-		Addresses: []string{connStr},
-	}
-	client, err := esv7.NewClient(cfg)
-	if err != nil {
-		t.Fatalf("failed to create elasticsearch client: %v", err)
-	}
+	client, cleanup := setupElasticsearchContainer(ctx, t)
+	defer cleanup()
 
 	taskRepo := esTask.NewTask(client)
 
@@ -126,7 +106,7 @@ func TestTask_Delete_Integration(t *testing.T) {
 		IsDone:      false,
 	}
 
-	err = taskRepo.Index(ctx, task)
+	err := taskRepo.Index(ctx, task)
 	if err != nil {
 		t.Fatalf("Failed to index task: %v", err)
 	}
@@ -146,29 +126,8 @@ func TestTask_Search_Integration(t *testing.T) {
 	}
 
 	ctx := t.Context()
-
-	esContainer, err := elasticsearch.Run(ctx, "docker.elastic.co/elasticsearch/elasticsearch:7.17.10")
-	if err != nil {
-		t.Fatalf("failed to start elasticsearch container: %v", err)
-	}
-	defer func() {
-		if err := testcontainers.TerminateContainer(esContainer); err != nil {
-			t.Logf("failed to terminate container: %v", err)
-		}
-	}()
-
-	connStr, err := esContainer.Address(ctx)
-	if err != nil {
-		t.Fatalf("failed to get connection string: %v", err)
-	}
-
-	cfg := esv7.Config{
-		Addresses: []string{connStr},
-	}
-	client, err := esv7.NewClient(cfg)
-	if err != nil {
-		t.Fatalf("failed to create elasticsearch client: %v", err)
-	}
+	client, cleanup := setupElasticsearchContainer(ctx, t)
+	defer cleanup()
 
 	taskRepo := esTask.NewTask(client)
 

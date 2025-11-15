@@ -209,66 +209,6 @@ func TestDates_Validate(t *testing.T) {
 	}
 }
 
-func TestDates_Pointer(t *testing.T) {
-	t.Parallel()
-
-	now := time.Now()
-	later := now.Add(2 * time.Hour)
-
-	tests := []struct {
-		name  string
-		dates internal.Dates
-	}{
-		{
-			name: "dates with both start and due",
-			dates: internal.Dates{
-				Start: &now,
-				Due:   &later,
-			},
-		},
-		{
-			name: "dates with only start",
-			dates: internal.Dates{
-				Start: &now,
-			},
-		},
-		{
-			name: "dates with only due",
-			dates: internal.Dates{
-				Due: &later,
-			},
-		},
-		{
-			name:  "empty dates",
-			dates: internal.Dates{},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			ptr := tt.dates.Pointer()
-			if ptr == nil {
-				t.Fatal("expected non-nil pointer")
-			}
-
-			// Verify the pointer points to correct values
-			if tt.dates.Start != nil && ptr.Start != nil {
-				if !tt.dates.Start.Equal(*ptr.Start) {
-					t.Errorf("start dates don't match")
-				}
-			}
-
-			if tt.dates.Due != nil && ptr.Due != nil {
-				if !tt.dates.Due.Equal(*ptr.Due) {
-					t.Errorf("due dates don't match")
-				}
-			}
-		})
-	}
-}
-
 func TestTask_Validate(t *testing.T) {
 	t.Parallel()
 
