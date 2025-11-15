@@ -1,9 +1,6 @@
-//go:build integration
-
 package memcached_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/bradfitz/gomemcache/memcache"

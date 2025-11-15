@@ -46,11 +46,10 @@ func TestTask_Create(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name           string
-		params         internal.CreateParams
-		setupMock      func(*memcachedtesting.FakeTaskStore)
-		expectedTask   internal.Task
-		expectedErrMsg string
+		name      string
+		params    internal.CreateParams
+		setupMock func(*memcachedtesting.FakeTaskStore)
+		verify    func(*testing.T, internal.Task, error)
 	}{
 		{
 			name: "successful create",
@@ -65,12 +64,20 @@ func TestTask_Create(t *testing.T) {
 					Priority:    internal.PriorityHigh.Pointer(),
 				}, nil)
 			},
-			expectedTask: internal.Task{
-				ID:          "123",
-				Description: "test task",
-				Priority:    internal.PriorityHigh.Pointer(),
+			verify: func(t *testing.T, result internal.Task, err error) {
+				t.Helper()
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+				expectedTask := internal.Task{
+					ID:          "123",
+					Description: "test task",
+					Priority:    internal.PriorityHigh.Pointer(),
+				}
+				if diff := cmp.Diff(expectedTask, result); diff != "" {
+					t.Errorf("task mismatch (-want +got):\n%s", diff)
+				}
 			},
-			expectedErrMsg: "",
 		},
 		{
 			name: "store error",
@@ -80,8 +87,15 @@ func TestTask_Create(t *testing.T) {
 			setupMock: func(m *memcachedtesting.FakeTaskStore) {
 				m.CreateReturns(internal.Task{}, errors.New("create error"))
 			},
-			expectedTask:   internal.Task{},
-			expectedErrMsg: "orig.Create",
+			verify: func(t *testing.T, _ internal.Task, err error) {
+				t.Helper()
+				if err == nil {
+					t.Fatal("expected error but got nil")
+				}
+				if !strings.Contains(err.Error(), "orig.Create") {
+					t.Errorf("expected error to contain %q, got %q", "orig.Create", err.Error())
+				}
+			},
 		},
 	}
 
@@ -96,22 +110,7 @@ func TestTask_Create(t *testing.T) {
 			task := taskMemcached.NewTask(client, mockStore, logger)
 
 			result, err := task.Create(t.Context(), tt.params)
-
-			if tt.expectedErrMsg != "" {
-				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tt.expectedErrMsg)
-				}
-				if !strings.Contains(err.Error(), tt.expectedErrMsg) {
-					t.Errorf("expected error containing %q, got %q", tt.expectedErrMsg, err.Error())
-				}
-			} else {
-				if err != nil {
-					t.Fatalf("unexpected error: %v", err)
-				}
-				if diff := cmp.Diff(tt.expectedTask, result); diff != "" {
-					t.Errorf("task mismatch (-want +got):\n%s", diff)
-				}
-			}
+			tt.verify(t, result, err)
 		})
 	}
 }
@@ -120,10 +119,10 @@ func TestTask_Delete(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name           string
-		id             string
-		setupMock      func(*memcachedtesting.FakeTaskStore)
-		expectedErrMsg string
+		name      string
+		id        string
+		setupMock func(*memcachedtesting.FakeTaskStore)
+		verify    func(*testing.T, error)
 	}{
 		{
 			name: "successful delete",
@@ -131,7 +130,12 @@ func TestTask_Delete(t *testing.T) {
 			setupMock: func(m *memcachedtesting.FakeTaskStore) {
 				m.DeleteReturns(nil)
 			},
-			expectedErrMsg: "",
+			verify: func(t *testing.T, err error) {
+				t.Helper()
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			},
 		},
 		{
 			name: "store error",
@@ -139,7 +143,15 @@ func TestTask_Delete(t *testing.T) {
 			setupMock: func(m *memcachedtesting.FakeTaskStore) {
 				m.DeleteReturns(errors.New("delete error"))
 			},
-			expectedErrMsg: "orig.Delete",
+			verify: func(t *testing.T, err error) {
+				t.Helper()
+				if err == nil {
+					t.Fatal("expected error but got nil")
+				}
+				if !strings.Contains(err.Error(), "orig.Delete") {
+					t.Errorf("expected error to contain %q, got %q", "orig.Delete", err.Error())
+				}
+			},
 		},
 	}
 
@@ -154,19 +166,7 @@ func TestTask_Delete(t *testing.T) {
 			task := taskMemcached.NewTask(client, mockStore, logger)
 
 			err := task.Delete(t.Context(), tt.id)
-
-			if tt.expectedErrMsg != "" {
-				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tt.expectedErrMsg)
-				}
-				if !strings.Contains(err.Error(), tt.expectedErrMsg) {
-					t.Errorf("expected error containing %q, got %q", tt.expectedErrMsg, err.Error())
-				}
-			} else {
-				if err != nil {
-					t.Fatalf("unexpected error: %v", err)
-				}
-			}
+			tt.verify(t, err)
 		})
 	}
 }
@@ -175,11 +175,11 @@ func TestTask_Update(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name           string
-		id             string
-		params         internal.UpdateParams
-		setupMock      func(*memcachedtesting.FakeTaskStore)
-		expectedErrMsg string
+		name      string
+		id        string
+		params    internal.UpdateParams
+		setupMock func(*memcachedtesting.FakeTaskStore)
+		verify    func(*testing.T, error)
 	}{
 		{
 			name: "successful update",
@@ -191,7 +191,12 @@ func TestTask_Update(t *testing.T) {
 				m.UpdateReturns(nil)
 				m.FindReturns(internal.Task{ID: "123", Description: "updated"}, nil)
 			},
-			expectedErrMsg: "",
+			verify: func(t *testing.T, err error) {
+				t.Helper()
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			},
 		},
 		{
 			name: "update error",
@@ -202,7 +207,15 @@ func TestTask_Update(t *testing.T) {
 			setupMock: func(m *memcachedtesting.FakeTaskStore) {
 				m.UpdateReturns(errors.New("update error"))
 			},
-			expectedErrMsg: "orig.Update",
+			verify: func(t *testing.T, err error) {
+				t.Helper()
+				if err == nil {
+					t.Fatal("expected error but got nil")
+				}
+				if !strings.Contains(err.Error(), "orig.Update") {
+					t.Errorf("expected error to contain %q, got %q", "orig.Update", err.Error())
+				}
+			},
 		},
 	}
 
@@ -217,19 +230,7 @@ func TestTask_Update(t *testing.T) {
 			task := taskMemcached.NewTask(client, mockStore, logger)
 
 			err := task.Update(t.Context(), tt.id, tt.params)
-
-			if tt.expectedErrMsg != "" {
-				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tt.expectedErrMsg)
-				}
-				if !strings.Contains(err.Error(), tt.expectedErrMsg) {
-					t.Errorf("expected error containing %q, got %q", tt.expectedErrMsg, err.Error())
-				}
-			} else {
-				if err != nil {
-					t.Fatalf("unexpected error: %v", err)
-				}
-			}
+			tt.verify(t, err)
 		})
 	}
 }

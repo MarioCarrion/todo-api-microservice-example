@@ -15,10 +15,10 @@ import (
 
 // mockTaskRepository is a mock implementation of TaskRepository for testing
 type mockTaskRepository struct {
-	createFn func(ctx context.Context, params internal.CreateParams) (internal.Task, error)
-	deleteFn func(ctx context.Context, id string) error
-	findFn   func(ctx context.Context, id string) (internal.Task, error)
-	updateFn func(ctx context.Context, id string, params internal.UpdateParams) error
+	createFn func(_ context.Context, params internal.CreateParams) (internal.Task, error)
+	deleteFn func(_ context.Context, id string) error
+	findFn   func(_ context.Context, id string) (internal.Task, error)
+	updateFn func(_ context.Context, id string, params internal.UpdateParams) error
 }
 
 func (m *mockTaskRepository) Create(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
@@ -51,7 +51,7 @@ func (m *mockTaskRepository) Update(ctx context.Context, id string, params inter
 
 // mockTaskSearchRepository is a mock implementation of TaskSearchRepository
 type mockTaskSearchRepository struct {
-	searchFn func(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error)
+	searchFn func(_ context.Context, args internal.SearchParams) (internal.SearchResults, error)
 }
 
 func (m *mockTaskSearchRepository) Search(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
@@ -63,9 +63,9 @@ func (m *mockTaskSearchRepository) Search(ctx context.Context, args internal.Sea
 
 // mockTaskMessageBrokerPublisher is a mock implementation of TaskMessageBrokerPublisher
 type mockTaskMessageBrokerPublisher struct {
-	createdFn func(ctx context.Context, task internal.Task) error
-	deletedFn func(ctx context.Context, id string) error
-	updatedFn func(ctx context.Context, task internal.Task) error
+	createdFn func(_ context.Context, task internal.Task) error
+	deletedFn func(_ context.Context, id string) error
+	updatedFn func(_ context.Context, task internal.Task) error
 }
 
 func (m *mockTaskMessageBrokerPublisher) Created(ctx context.Context, task internal.Task) error {
@@ -108,7 +108,7 @@ func TestTask_Create(t *testing.T) {
 				Priority:    internal.PriorityHigh.Pointer(),
 			},
 			mockRepo: &mockTaskRepository{
-				createFn: func(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
+				createFn: func(_ context.Context, params internal.CreateParams) (internal.Task, error) {
 					return internal.Task{
 						ID:          "123",
 						Description: params.Description,
@@ -156,7 +156,7 @@ func TestTask_Create(t *testing.T) {
 				Priority:    internal.PriorityHigh.Pointer(),
 			},
 			mockRepo: &mockTaskRepository{
-				createFn: func(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
+				createFn: func(_ context.Context, params internal.CreateParams) (internal.Task, error) {
 					return internal.Task{}, errors.New("database error")
 				},
 			},
@@ -200,7 +200,7 @@ func TestTask_Delete(t *testing.T) {
 			name: "successful delete",
 			id:   "123",
 			mockRepo: &mockTaskRepository{
-				deleteFn: func(ctx context.Context, id string) error {
+				deleteFn: func(_ context.Context, id string) error {
 					return nil
 				},
 			},
@@ -216,7 +216,7 @@ func TestTask_Delete(t *testing.T) {
 			name: "repository error",
 			id:   "123",
 			mockRepo: &mockTaskRepository{
-				deleteFn: func(ctx context.Context, id string) error {
+				deleteFn: func(_ context.Context, id string) error {
 					return errors.New("database error")
 				},
 			},
@@ -259,7 +259,7 @@ func TestTask_ByID(t *testing.T) {
 			name: "successful find",
 			id:   "123",
 			mockRepo: &mockTaskRepository{
-				findFn: func(ctx context.Context, id string) (internal.Task, error) {
+				findFn: func(_ context.Context, id string) (internal.Task, error) {
 					return internal.Task{
 						ID:          id,
 						Description: "test task",
@@ -284,7 +284,7 @@ func TestTask_ByID(t *testing.T) {
 			name: "repository error",
 			id:   "123",
 			mockRepo: &mockTaskRepository{
-				findFn: func(ctx context.Context, id string) (internal.Task, error) {
+				findFn: func(_ context.Context, id string) (internal.Task, error) {
 					return internal.Task{}, errors.New("not found")
 				},
 			},
@@ -331,10 +331,10 @@ func TestTask_Update(t *testing.T) {
 				Description: internal.ValueToPointer("updated task"),
 			},
 			mockRepo: &mockTaskRepository{
-				updateFn: func(ctx context.Context, id string, params internal.UpdateParams) error {
+				updateFn: func(_ context.Context, id string, params internal.UpdateParams) error {
 					return nil
 				},
-				findFn: func(ctx context.Context, id string) (internal.Task, error) {
+				findFn: func(_ context.Context, id string) (internal.Task, error) {
 					return internal.Task{ID: id, Description: "updated task"}, nil
 				},
 			},
@@ -353,7 +353,7 @@ func TestTask_Update(t *testing.T) {
 				Description: internal.ValueToPointer("updated task"),
 			},
 			mockRepo: &mockTaskRepository{
-				updateFn: func(ctx context.Context, id string, params internal.UpdateParams) error {
+				updateFn: func(_ context.Context, id string, params internal.UpdateParams) error {
 					return errors.New("database error")
 				},
 			},
@@ -400,7 +400,7 @@ func TestTask_By(t *testing.T) {
 				Size:        10,
 			},
 			mockSearch: &mockTaskSearchRepository{
-				searchFn: func(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
+				searchFn: func(_ context.Context, args internal.SearchParams) (internal.SearchResults, error) {
 					return internal.SearchResults{
 						Tasks: []internal.Task{
 							{ID: "1", Description: "test task 1"},
@@ -433,7 +433,7 @@ func TestTask_By(t *testing.T) {
 				Description: internal.ValueToPointer("test"),
 			},
 			mockSearch: &mockTaskSearchRepository{
-				searchFn: func(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
+				searchFn: func(_ context.Context, args internal.SearchParams) (internal.SearchResults, error) {
 					return internal.SearchResults{}, errors.New("search error")
 				},
 			},

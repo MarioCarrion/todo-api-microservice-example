@@ -1,9 +1,6 @@
-//go:build integration
-
 package rabbitmq_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/streadway/amqp"
