@@ -2,6 +2,7 @@ package memcached_test
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/bradfitz/gomemcache/memcache"
@@ -161,17 +162,5 @@ func TestSearchableTask_Delete(t *testing.T) {
 
 // containsString checks if a string contains a substring (simple helper for test)
 func containsString(s, substr string) bool {
-	// Simple contains check
-	if len(substr) == 0 {
-		return true
-	}
-	if len(s) < len(substr) {
-		return false
-	}
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return true
-		}
-	}
-	return false
+	return strings.Contains(s, substr)
 }

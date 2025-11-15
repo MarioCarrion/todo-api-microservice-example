@@ -1,6 +1,5 @@
 //go:build integration
 
-
 package elasticsearch_test
 
 import (

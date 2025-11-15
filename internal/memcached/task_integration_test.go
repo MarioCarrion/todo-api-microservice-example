@@ -1,6 +1,5 @@
 //go:build integration
 
-
 package memcached_test
 
 import (
