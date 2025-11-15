@@ -1,7 +1,6 @@
 package rest_test
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -9,51 +8,8 @@ import (
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/rest"
+	"github.com/MarioCarrion/todo-api-microservice-example/internal/rest/resttesting"
 )
-
-// mockTaskService is a mock implementation of TaskService for testing
-type mockTaskService struct {
-	byFn     func(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error)
-	createFn func(ctx context.Context, params internal.CreateParams) (internal.Task, error)
-	deleteFn func(ctx context.Context, id string) error
-	byIDFn   func(ctx context.Context, id string) (internal.Task, error)
-	updateFn func(ctx context.Context, id string, args internal.UpdateParams) error
-}
-
-func (m *mockTaskService) By(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
-	if m.byFn != nil {
-		return m.byFn(ctx, args)
-	}
-	return internal.SearchResults{}, nil
-}
-
-func (m *mockTaskService) Create(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
-	if m.createFn != nil {
-		return m.createFn(ctx, params)
-	}
-	return internal.Task{}, nil
-}
-
-func (m *mockTaskService) Delete(ctx context.Context, id string) error {
-	if m.deleteFn != nil {
-		return m.deleteFn(ctx, id)
-	}
-	return nil
-}
-
-func (m *mockTaskService) ByID(ctx context.Context, id string) (internal.Task, error) {
-	if m.byIDFn != nil {
-		return m.byIDFn(ctx, id)
-	}
-	return internal.Task{}, nil
-}
-
-func (m *mockTaskService) Update(ctx context.Context, id string, args internal.UpdateParams) error {
-	if m.updateFn != nil {
-		return m.updateFn(ctx, id, args)
-	}
-	return nil
-}
 
 func TestNewTaskHandler(t *testing.T) {
 	t.Parallel()
@@ -70,7 +26,7 @@ func TestNewTaskHandler(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			svc := &mockTaskService{}
+			svc := &resttesting.FakeTaskService{}
 			handler := rest.NewTaskHandler(svc)
 
 			if handler == nil {
@@ -88,7 +44,7 @@ func TestTaskHandler_CreateTask(t *testing.T) {
 	tests := []struct {
 		name         string
 		request      rest.CreateTaskRequestObject
-		mockService  *mockTaskService
+		setupMock    func(*resttesting.FakeTaskService)
 		expectError  bool
 		validateResp func(t *testing.T, resp rest.CreateTaskResponseObject)
 	}{
@@ -100,14 +56,12 @@ func TestTaskHandler_CreateTask(t *testing.T) {
 					Priority:    (*rest.Priority)(internal.ValueToPointer("high")),
 				},
 			},
-			mockService: &mockTaskService{
-				createFn: func(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
-					return internal.Task{
-						ID:          taskID.String(),
-						Description: params.Description,
-						Priority:    params.Priority,
-					}, nil
-				},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.CreateReturns(internal.Task{
+					ID:          taskID.String(),
+					Description: "test task",
+					Priority:    internal.PriorityHigh.Pointer(),
+				}, nil)
 			},
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.CreateTaskResponseObject) {
@@ -128,10 +82,8 @@ func TestTaskHandler_CreateTask(t *testing.T) {
 					Description: "test task",
 				},
 			},
-			mockService: &mockTaskService{
-				createFn: func(ctx context.Context, params internal.CreateParams) (internal.Task, error) {
-					return internal.Task{}, errors.New("service error")
-				},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.CreateReturns(internal.Task{}, errors.New("service error"))
 			},
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.CreateTaskResponseObject) {
@@ -148,7 +100,9 @@ func TestTaskHandler_CreateTask(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			handler := rest.NewTaskHandler(tt.mockService)
+			mockService := &resttesting.FakeTaskService{}
+			tt.setupMock(mockService)
+			handler := rest.NewTaskHandler(mockService)
 			resp, err := handler.CreateTask(t.Context(), tt.request)
 
 			if tt.expectError && err == nil {
@@ -173,7 +127,7 @@ func TestTaskHandler_ReadTask(t *testing.T) {
 	tests := []struct {
 		name         string
 		request      rest.ReadTaskRequestObject
-		mockService  *mockTaskService
+		mockService  *resttesting.FakeTaskService
 		expectError  bool
 		validateResp func(t *testing.T, resp rest.ReadTaskResponseObject)
 	}{
@@ -182,7 +136,7 @@ func TestTaskHandler_ReadTask(t *testing.T) {
 			request: rest.ReadTaskRequestObject{
 				Id: taskID,
 			},
-			mockService: &mockTaskService{
+			mockService: &resttesting.FakeTaskService{
 				byIDFn: func(ctx context.Context, id string) (internal.Task, error) {
 					return internal.Task{
 						ID:          taskID.String(),
@@ -207,7 +161,7 @@ func TestTaskHandler_ReadTask(t *testing.T) {
 			request: rest.ReadTaskRequestObject{
 				Id: taskID,
 			},
-			mockService: &mockTaskService{
+			mockService: &resttesting.FakeTaskService{
 				byIDFn: func(ctx context.Context, id string) (internal.Task, error) {
 					return internal.Task{}, errors.New("not found")
 				},
@@ -252,7 +206,7 @@ func TestTaskHandler_DeleteTask(t *testing.T) {
 	tests := []struct {
 		name         string
 		request      rest.DeleteTaskRequestObject
-		mockService  *mockTaskService
+		mockService  *resttesting.FakeTaskService
 		expectError  bool
 		validateResp func(t *testing.T, resp rest.DeleteTaskResponseObject)
 	}{
@@ -261,7 +215,7 @@ func TestTaskHandler_DeleteTask(t *testing.T) {
 			request: rest.DeleteTaskRequestObject{
 				Id: taskID,
 			},
-			mockService: &mockTaskService{
+			mockService: &resttesting.FakeTaskService{
 				deleteFn: func(ctx context.Context, id string) error {
 					return nil
 				},
@@ -280,7 +234,7 @@ func TestTaskHandler_DeleteTask(t *testing.T) {
 			request: rest.DeleteTaskRequestObject{
 				Id: taskID,
 			},
-			mockService: &mockTaskService{
+			mockService: &resttesting.FakeTaskService{
 				deleteFn: func(ctx context.Context, id string) error {
 					return errors.New("delete error")
 				},
@@ -325,7 +279,7 @@ func TestTaskHandler_UpdateTask(t *testing.T) {
 	tests := []struct {
 		name         string
 		request      rest.UpdateTaskRequestObject
-		mockService  *mockTaskService
+		mockService  *resttesting.FakeTaskService
 		expectError  bool
 		validateResp func(t *testing.T, resp rest.UpdateTaskResponseObject)
 	}{
@@ -337,7 +291,7 @@ func TestTaskHandler_UpdateTask(t *testing.T) {
 					Description: internal.ValueToPointer("updated task"),
 				},
 			},
-			mockService: &mockTaskService{
+			mockService: &resttesting.FakeTaskService{
 				updateFn: func(ctx context.Context, id string, args internal.UpdateParams) error {
 					return nil
 				},
@@ -359,7 +313,7 @@ func TestTaskHandler_UpdateTask(t *testing.T) {
 					Description: internal.ValueToPointer("updated task"),
 				},
 			},
-			mockService: &mockTaskService{
+			mockService: &resttesting.FakeTaskService{
 				updateFn: func(ctx context.Context, id string, args internal.UpdateParams) error {
 					return errors.New("update error")
 				},
@@ -405,7 +359,7 @@ func TestTaskHandler_SearchTask(t *testing.T) {
 	tests := []struct {
 		name         string
 		request      rest.SearchTaskRequestObject
-		mockService  *mockTaskService
+		mockService  *resttesting.FakeTaskService
 		expectError  bool
 		validateResp func(t *testing.T, resp rest.SearchTaskResponseObject)
 	}{
@@ -418,7 +372,7 @@ func TestTaskHandler_SearchTask(t *testing.T) {
 					Size:        10,
 				},
 			},
-			mockService: &mockTaskService{
+			mockService: &resttesting.FakeTaskService{
 				byFn: func(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
 					return internal.SearchResults{
 						Tasks: []internal.Task{
@@ -448,7 +402,7 @@ func TestTaskHandler_SearchTask(t *testing.T) {
 					Description: internal.ValueToPointer("test"),
 				},
 			},
-			mockService: &mockTaskService{
+			mockService: &resttesting.FakeTaskService{
 				byFn: func(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error) {
 					return internal.SearchResults{}, errors.New("search error")
 				},
