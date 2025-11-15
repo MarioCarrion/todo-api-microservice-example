@@ -95,12 +95,11 @@ func TestTask_Create(t *testing.T) {
 	logger := zap.NewNop()
 
 	tests := []struct {
-		name           string
-		params         internal.CreateParams
-		mockRepo       *mockTaskRepository
-		mockMsgBroker  *mockTaskMessageBrokerPublisher
-		expectedTask   internal.Task
-		expectedErrMsg string
+		name          string
+		params        internal.CreateParams
+		mockRepo      *mockTaskRepository
+		mockMsgBroker *mockTaskMessageBrokerPublisher
+		verify        func(*testing.T, internal.Task, error)
 	}{
 		{
 			name: "successful create",
@@ -118,22 +117,37 @@ func TestTask_Create(t *testing.T) {
 				},
 			},
 			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
-			expectedTask: internal.Task{
-				ID:          "123",
-				Description: "test task",
-				Priority:    internal.PriorityHigh.Pointer(),
+			verify: func(t *testing.T, task internal.Task, err error) {
+				t.Helper()
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+				expectedTask := internal.Task{
+					ID:          "123",
+					Description: "test task",
+					Priority:    internal.PriorityHigh.Pointer(),
+				}
+				if diff := cmp.Diff(expectedTask, task); diff != "" {
+					t.Errorf("task mismatch (-want +got):\n%s", diff)
+				}
 			},
-			expectedErrMsg: "",
 		},
 		{
 			name: "validation error",
 			params: internal.CreateParams{
 				Description: "", // Invalid - empty description
 			},
-			mockRepo:       &mockTaskRepository{},
-			mockMsgBroker:  &mockTaskMessageBrokerPublisher{},
-			expectedTask:   internal.Task{},
-			expectedErrMsg: "params.Validate",
+			mockRepo:      &mockTaskRepository{},
+			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
+			verify: func(t *testing.T, task internal.Task, err error) {
+				t.Helper()
+				if err == nil {
+					t.Fatalf("expected error containing %q, got nil", "params.Validate")
+				}
+				if !strings.Contains(err.Error(), "params.Validate") {
+					t.Errorf("expected error containing %q, got %q", "params.Validate", err.Error())
+				}
+			},
 		},
 		{
 			name: "repository error",
@@ -146,9 +160,16 @@ func TestTask_Create(t *testing.T) {
 					return internal.Task{}, errors.New("database error")
 				},
 			},
-			mockMsgBroker:  &mockTaskMessageBrokerPublisher{},
-			expectedTask:   internal.Task{},
-			expectedErrMsg: "repo.Create",
+			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
+			verify: func(t *testing.T, task internal.Task, err error) {
+				t.Helper()
+				if err == nil {
+					t.Fatalf("expected error containing %q, got nil", "repo.Create")
+				}
+				if !strings.Contains(err.Error(), "repo.Create") {
+					t.Errorf("expected error containing %q, got %q", "repo.Create", err.Error())
+				}
+			},
 		},
 	}
 
@@ -157,24 +178,8 @@ func TestTask_Create(t *testing.T) {
 			t.Parallel()
 
 			svc := service.NewTask(logger, tt.mockRepo, &mockTaskSearchRepository{}, tt.mockMsgBroker)
-
 			task, err := svc.Create(t.Context(), tt.params)
-
-			if tt.expectedErrMsg != "" {
-				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tt.expectedErrMsg)
-				}
-				if !containsString(err.Error(), tt.expectedErrMsg) {
-					t.Errorf("expected error containing %q, got %q", tt.expectedErrMsg, err.Error())
-				}
-			} else {
-				if err != nil {
-					t.Fatalf("unexpected error: %v", err)
-				}
-				if diff := cmp.Diff(tt.expectedTask, task); diff != "" {
-					t.Errorf("task mismatch (-want +got):\n%s", diff)
-				}
-			}
+			tt.verify(t, task, err)
 		})
 	}
 }
@@ -185,11 +190,11 @@ func TestTask_Delete(t *testing.T) {
 	logger := zap.NewNop()
 
 	tests := []struct {
-		name           string
-		id             string
-		mockRepo       *mockTaskRepository
-		mockMsgBroker  *mockTaskMessageBrokerPublisher
-		expectedErrMsg string
+		name          string
+		id            string
+		mockRepo      *mockTaskRepository
+		mockMsgBroker *mockTaskMessageBrokerPublisher
+		verify        func(*testing.T, error)
 	}{
 		{
 			name: "successful delete",
@@ -199,8 +204,13 @@ func TestTask_Delete(t *testing.T) {
 					return nil
 				},
 			},
-			mockMsgBroker:  &mockTaskMessageBrokerPublisher{},
-			expectedErrMsg: "",
+			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
+			verify: func(t *testing.T, err error) {
+				t.Helper()
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			},
 		},
 		{
 			name: "repository error",
@@ -210,8 +220,16 @@ func TestTask_Delete(t *testing.T) {
 					return errors.New("database error")
 				},
 			},
-			mockMsgBroker:  &mockTaskMessageBrokerPublisher{},
-			expectedErrMsg: "Delete",
+			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
+			verify: func(t *testing.T, err error) {
+				t.Helper()
+				if err == nil {
+					t.Fatalf("expected error containing %q, got nil", "Delete")
+				}
+				if !strings.Contains(err.Error(), "Delete") {
+					t.Errorf("expected error containing %q, got %q", "Delete", err.Error())
+				}
+			},
 		},
 	}
 
@@ -220,21 +238,8 @@ func TestTask_Delete(t *testing.T) {
 			t.Parallel()
 
 			svc := service.NewTask(logger, tt.mockRepo, &mockTaskSearchRepository{}, tt.mockMsgBroker)
-
 			err := svc.Delete(t.Context(), tt.id)
-
-			if tt.expectedErrMsg != "" {
-				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tt.expectedErrMsg)
-				}
-				if !containsString(err.Error(), tt.expectedErrMsg) {
-					t.Errorf("expected error containing %q, got %q", tt.expectedErrMsg, err.Error())
-				}
-			} else {
-				if err != nil {
-					t.Fatalf("unexpected error: %v", err)
-				}
-			}
+			tt.verify(t, err)
 		})
 	}
 }
@@ -245,11 +250,10 @@ func TestTask_ByID(t *testing.T) {
 	logger := zap.NewNop()
 
 	tests := []struct {
-		name           string
-		id             string
-		mockRepo       *mockTaskRepository
-		expectedTask   internal.Task
-		expectedErrMsg string
+		name     string
+		id       string
+		mockRepo *mockTaskRepository
+		verify   func(*testing.T, internal.Task, error)
 	}{
 		{
 			name: "successful find",
@@ -262,11 +266,19 @@ func TestTask_ByID(t *testing.T) {
 					}, nil
 				},
 			},
-			expectedTask: internal.Task{
-				ID:          "123",
-				Description: "test task",
+			verify: func(t *testing.T, task internal.Task, err error) {
+				t.Helper()
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+				expectedTask := internal.Task{
+					ID:          "123",
+					Description: "test task",
+				}
+				if diff := cmp.Diff(expectedTask, task); diff != "" {
+					t.Errorf("task mismatch (-want +got):\n%s", diff)
+				}
 			},
-			expectedErrMsg: "",
 		},
 		{
 			name: "repository error",
@@ -276,8 +288,15 @@ func TestTask_ByID(t *testing.T) {
 					return internal.Task{}, errors.New("not found")
 				},
 			},
-			expectedTask:   internal.Task{},
-			expectedErrMsg: "Find",
+			verify: func(t *testing.T, task internal.Task, err error) {
+				t.Helper()
+				if err == nil {
+					t.Fatalf("expected error containing %q, got nil", "Find")
+				}
+				if !strings.Contains(err.Error(), "Find") {
+					t.Errorf("expected error containing %q, got %q", "Find", err.Error())
+				}
+			},
 		},
 	}
 
@@ -286,24 +305,8 @@ func TestTask_ByID(t *testing.T) {
 			t.Parallel()
 
 			svc := service.NewTask(logger, tt.mockRepo, &mockTaskSearchRepository{}, &mockTaskMessageBrokerPublisher{})
-
 			task, err := svc.ByID(t.Context(), tt.id)
-
-			if tt.expectedErrMsg != "" {
-				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tt.expectedErrMsg)
-				}
-				if !containsString(err.Error(), tt.expectedErrMsg) {
-					t.Errorf("expected error containing %q, got %q", tt.expectedErrMsg, err.Error())
-				}
-			} else {
-				if err != nil {
-					t.Fatalf("unexpected error: %v", err)
-				}
-				if diff := cmp.Diff(tt.expectedTask, task); diff != "" {
-					t.Errorf("task mismatch (-want +got):\n%s", diff)
-				}
-			}
+			tt.verify(t, task, err)
 		})
 	}
 }
@@ -314,12 +317,12 @@ func TestTask_Update(t *testing.T) {
 	logger := zap.NewNop()
 
 	tests := []struct {
-		name           string
-		id             string
-		params         internal.UpdateParams
-		mockRepo       *mockTaskRepository
-		mockMsgBroker  *mockTaskMessageBrokerPublisher
-		expectedErrMsg string
+		name          string
+		id            string
+		params        internal.UpdateParams
+		mockRepo      *mockTaskRepository
+		mockMsgBroker *mockTaskMessageBrokerPublisher
+		verify        func(*testing.T, error)
 	}{
 		{
 			name: "successful update",
@@ -335,8 +338,13 @@ func TestTask_Update(t *testing.T) {
 					return internal.Task{ID: id, Description: "updated task"}, nil
 				},
 			},
-			mockMsgBroker:  &mockTaskMessageBrokerPublisher{},
-			expectedErrMsg: "",
+			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
+			verify: func(t *testing.T, err error) {
+				t.Helper()
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			},
 		},
 		{
 			name: "repository update error",
@@ -349,8 +357,16 @@ func TestTask_Update(t *testing.T) {
 					return errors.New("database error")
 				},
 			},
-			mockMsgBroker:  &mockTaskMessageBrokerPublisher{},
-			expectedErrMsg: "repo.Update",
+			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
+			verify: func(t *testing.T, err error) {
+				t.Helper()
+				if err == nil {
+					t.Fatalf("expected error containing %q, got nil", "repo.Update")
+				}
+				if !strings.Contains(err.Error(), "repo.Update") {
+					t.Errorf("expected error containing %q, got %q", "repo.Update", err.Error())
+				}
+			},
 		},
 	}
 
@@ -359,21 +375,8 @@ func TestTask_Update(t *testing.T) {
 			t.Parallel()
 
 			svc := service.NewTask(logger, tt.mockRepo, &mockTaskSearchRepository{}, tt.mockMsgBroker)
-
 			err := svc.Update(t.Context(), tt.id, tt.params)
-
-			if tt.expectedErrMsg != "" {
-				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tt.expectedErrMsg)
-				}
-				if !containsString(err.Error(), tt.expectedErrMsg) {
-					t.Errorf("expected error containing %q, got %q", tt.expectedErrMsg, err.Error())
-				}
-			} else {
-				if err != nil {
-					t.Fatalf("unexpected error: %v", err)
-				}
-			}
+			tt.verify(t, err)
 		})
 	}
 }
@@ -384,11 +387,10 @@ func TestTask_By(t *testing.T) {
 	logger := zap.NewNop()
 
 	tests := []struct {
-		name           string
-		params         internal.SearchParams
-		mockSearch     *mockTaskSearchRepository
-		expectedResult internal.SearchResults
-		expectedErrMsg string
+		name       string
+		params     internal.SearchParams
+		mockSearch *mockTaskSearchRepository
+		verify     func(*testing.T, internal.SearchResults, error)
 	}{
 		{
 			name: "successful search",
@@ -408,14 +410,22 @@ func TestTask_By(t *testing.T) {
 					}, nil
 				},
 			},
-			expectedResult: internal.SearchResults{
-				Tasks: []internal.Task{
-					{ID: "1", Description: "test task 1"},
-					{ID: "2", Description: "test task 2"},
-				},
-				Total: 2,
+			verify: func(t *testing.T, result internal.SearchResults, err error) {
+				t.Helper()
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+				expectedResult := internal.SearchResults{
+					Tasks: []internal.Task{
+						{ID: "1", Description: "test task 1"},
+						{ID: "2", Description: "test task 2"},
+					},
+					Total: 2,
+				}
+				if diff := cmp.Diff(expectedResult, result); diff != "" {
+					t.Errorf("result mismatch (-want +got):\n%s", diff)
+				}
 			},
-			expectedErrMsg: "",
 		},
 		{
 			name: "search error",
@@ -427,8 +437,15 @@ func TestTask_By(t *testing.T) {
 					return internal.SearchResults{}, errors.New("search error")
 				},
 			},
-			expectedResult: internal.SearchResults{},
-			expectedErrMsg: "search",
+			verify: func(t *testing.T, result internal.SearchResults, err error) {
+				t.Helper()
+				if err == nil {
+					t.Fatalf("expected error containing %q, got nil", "search")
+				}
+				if !strings.Contains(err.Error(), "search") {
+					t.Errorf("expected error containing %q, got %q", "search", err.Error())
+				}
+			},
 		},
 	}
 
@@ -437,31 +454,10 @@ func TestTask_By(t *testing.T) {
 			t.Parallel()
 
 			svc := service.NewTask(logger, &mockTaskRepository{}, tt.mockSearch, &mockTaskMessageBrokerPublisher{})
-
 			result, err := svc.By(t.Context(), tt.params)
-
-			if tt.expectedErrMsg != "" {
-				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tt.expectedErrMsg)
-				}
-				if !containsString(err.Error(), tt.expectedErrMsg) {
-					t.Errorf("expected error containing %q, got %q", tt.expectedErrMsg, err.Error())
-				}
-			} else {
-				if err != nil {
-					t.Fatalf("unexpected error: %v", err)
-				}
-				if diff := cmp.Diff(tt.expectedResult, result); diff != "" {
-					t.Errorf("result mismatch (-want +got):\n%s", diff)
-				}
-			}
+			tt.verify(t, result, err)
 		})
 	}
-}
-
-// containsString checks if a string contains a substring
-func containsString(s, substr string) bool {
-	return strings.Contains(s, substr)
 }
 
 func TestNewTask(t *testing.T) {
