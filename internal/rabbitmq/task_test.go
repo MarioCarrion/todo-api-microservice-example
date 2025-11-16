@@ -8,7 +8,7 @@ import (
 	rabbitmqTask "github.com/MarioCarrion/todo-api-microservice-example/internal/rabbitmq"
 )
 
-// TestNewTask tests the constructor
+// TestNewTask tests the constructor.
 func TestNewTask(t *testing.T) {
 	t.Parallel()
 

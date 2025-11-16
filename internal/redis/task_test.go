@@ -8,7 +8,7 @@ import (
 	redisTask "github.com/MarioCarrion/todo-api-microservice-example/internal/redis"
 )
 
-// TestNewTask tests the constructor
+// TestNewTask tests the constructor.
 func TestNewTask(t *testing.T) {
 	t.Parallel()
 

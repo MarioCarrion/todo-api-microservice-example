@@ -2,7 +2,6 @@ package internal_test
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
@@ -161,7 +160,7 @@ func TestError_Error(t *testing.T) {
 		},
 		{
 			name:        "error with wrapped error",
-			err:         internal.WrapErrorf(fmt.Errorf("database error"), internal.ErrorCodeUnknown, "operation failed"),
+			err:         internal.WrapErrorf(errors.New("database error"), internal.ErrorCodeUnknown, "operation failed"),
 			expectedMsg: "operation failed: database error",
 		},
 	}
@@ -203,7 +202,9 @@ func TestErrorCode(t *testing.T) {
 			t.Parallel()
 
 			err := internal.NewErrorf(tt.code, "test error")
+
 			var ierr *internal.Error
+
 			if !errors.As(err, &ierr) {
 				t.Fatalf("expected error to be *internal.Error")
 			}

@@ -93,6 +93,7 @@ func TestPriority_Pointer(t *testing.T) {
 			if ptr == nil {
 				t.Fatal("expected non-nil pointer")
 			}
+
 			if *ptr != tt.priority {
 				t.Errorf("expected *%v, got *%v", tt.priority, *ptr)
 			}

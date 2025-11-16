@@ -8,7 +8,7 @@ import (
 	esTask "github.com/MarioCarrion/todo-api-microservice-example/internal/elasticsearch"
 )
 
-// TestNewTask tests the constructor
+// TestNewTask tests the constructor.
 func TestNewTask(t *testing.T) {
 	t.Parallel()
 
@@ -29,6 +29,7 @@ func TestNewTask(t *testing.T) {
 				Addresses: []string{"http://localhost:9200"},
 			}
 			client, err := esv7.NewClient(cfg)
+
 			if err != nil {
 				t.Fatalf("failed to create client: %v", err)
 			}

@@ -108,6 +108,7 @@ func TestTaskHandler_CreateTask(t *testing.T) {
 			if tt.expectError && err == nil {
 				t.Fatal("expected error, got nil")
 			}
+
 			if !tt.expectError && err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
