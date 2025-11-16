@@ -13,7 +13,7 @@ import (
 	esTask "github.com/MarioCarrion/todo-api-microservice-example/internal/elasticsearch"
 )
 
-// setupElasticsearchContainer starts an Elasticsearch container and returns a configured client
+// setupElasticsearchContainer starts an Elasticsearch container and returns a configured client.
 func setupElasticsearchContainer(ctx context.Context, t *testing.T) (*esv7.Client, func()) {
 	t.Helper()
 
@@ -32,6 +32,7 @@ func setupElasticsearchContainer(ctx context.Context, t *testing.T) (*esv7.Clien
 		Addresses: []string{esContainer.Settings.Address},
 	}
 	client, err := esv7.NewClient(cfg)
+
 	if err != nil {
 		cleanup()
 		t.Fatalf("failed to create elasticsearch client: %v", err)
@@ -41,12 +42,15 @@ func setupElasticsearchContainer(ctx context.Context, t *testing.T) (*esv7.Clien
 }
 
 func TestTask_Index_Integration(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
 	ctx := t.Context()
 	client, cleanup := setupElasticsearchContainer(ctx, t)
+
 	defer cleanup()
 
 	// Create task repository
@@ -89,12 +93,15 @@ func TestTask_Index_Integration(t *testing.T) {
 }
 
 func TestTask_Delete_Integration(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
 	ctx := t.Context()
 	client, cleanup := setupElasticsearchContainer(ctx, t)
+
 	defer cleanup()
 
 	taskRepo := esTask.NewTask(client)
@@ -121,12 +128,15 @@ func TestTask_Delete_Integration(t *testing.T) {
 }
 
 func TestTask_Search_Integration(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
 	ctx := t.Context()
 	client, cleanup := setupElasticsearchContainer(ctx, t)
+
 	defer cleanup()
 
 	taskRepo := esTask.NewTask(client)

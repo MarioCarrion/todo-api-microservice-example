@@ -12,6 +12,8 @@ import (
 )
 
 func TestTask_Created_Integration(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -59,12 +61,13 @@ func TestTask_Created_Integration(t *testing.T) {
 	// Verify message was published (subscribe and check)
 	pubsub := client.Subscribe(ctx, "Task.Created")
 	defer pubsub.Close()
-
 	// Note: In a real test, you'd need a separate goroutine to publish after subscribing
 	// This test verifies the method doesn't error
 }
 
 func TestTask_Updated_Integration(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -106,6 +109,8 @@ func TestTask_Updated_Integration(t *testing.T) {
 }
 
 func TestTask_Deleted_Integration(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
