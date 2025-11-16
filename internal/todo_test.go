@@ -60,6 +60,99 @@ func TestPriority_Validate(t *testing.T) {
 	}
 }
 
+func TestPriority_Pointer(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		priority internal.Priority
+	}{
+		{
+			name:     "PriorityNone",
+			priority: internal.PriorityNone,
+		},
+		{
+			name:     "PriorityLow",
+			priority: internal.PriorityLow,
+		},
+		{
+			name:     "PriorityMedium",
+			priority: internal.PriorityMedium,
+		},
+		{
+			name:     "PriorityHigh",
+			priority: internal.PriorityHigh,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ptr := tt.priority.Pointer()
+			if ptr == nil {
+				t.Fatal("expected non-nil pointer")
+			}
+
+			if *ptr != tt.priority {
+				t.Errorf("expected *%v, got *%v", tt.priority, *ptr)
+			}
+		})
+	}
+}
+
+func TestPriority_Value(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		input    *internal.Priority
+		expected internal.Priority
+	}{
+		{
+			name:     "nil pointer",
+			input:    nil,
+			expected: internal.PriorityNone,
+		},
+		{
+			name:     "PriorityNone pointer",
+			input:    internal.PriorityNone.Pointer(),
+			expected: internal.PriorityNone,
+		},
+		{
+			name:     "PriorityLow pointer",
+			input:    internal.PriorityLow.Pointer(),
+			expected: internal.PriorityLow,
+		},
+		{
+			name:     "PriorityMedium pointer",
+			input:    internal.PriorityMedium.Pointer(),
+			expected: internal.PriorityMedium,
+		},
+		{
+			name:     "PriorityHigh pointer",
+			input:    internal.PriorityHigh.Pointer(),
+			expected: internal.PriorityHigh,
+		},
+		{
+			name:     "invalid priority pointer returns PriorityNone",
+			input:    internal.Priority(-1).Pointer(),
+			expected: internal.PriorityNone,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := tt.input.Value()
+			if result != tt.expected {
+				t.Errorf("expected %v, got %v", tt.expected, result)
+			}
+		})
+	}
+}
+
 func TestDates_Validate(t *testing.T) {
 	t.Parallel()
 
