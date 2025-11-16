@@ -12,6 +12,8 @@ import (
 )
 
 func TestTask_Created_Integration(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -80,6 +82,8 @@ func TestTask_Created_Integration(t *testing.T) {
 }
 
 func TestTask_Updated_Integration(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -133,6 +137,8 @@ func TestTask_Updated_Integration(t *testing.T) {
 }
 
 func TestTask_Deleted_Integration(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}

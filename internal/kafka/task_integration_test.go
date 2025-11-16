@@ -12,7 +12,7 @@ import (
 	kafkaTask "github.com/MarioCarrion/todo-api-microservice-example/internal/kafka"
 )
 
-// setupKafkaProducer starts a Kafka container and returns a configured producer
+// setupKafkaProducer starts a Kafka container and returns a configured producer.
 func setupKafkaProducer(ctx context.Context, t *testing.T) (*kafka.Producer, func()) {
 	t.Helper()
 
@@ -50,12 +50,14 @@ func setupKafkaProducer(ctx context.Context, t *testing.T) (*kafka.Producer, fun
 }
 
 func TestTask_Created_Integration(t *testing.T) {
+	t.Parallel()
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
 	ctx := t.Context()
 	producer, cleanup := setupKafkaProducer(ctx, t)
+
 	defer cleanup()
 
 	// Create task publisher
@@ -79,12 +81,14 @@ func TestTask_Created_Integration(t *testing.T) {
 }
 
 func TestTask_Updated_Integration(t *testing.T) {
+	t.Parallel()
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
 	ctx := t.Context()
 	producer, cleanup := setupKafkaProducer(ctx, t)
+
 	defer cleanup()
 
 	taskPub := kafkaTask.NewTask(producer, "test-tasks")
@@ -104,12 +108,14 @@ func TestTask_Updated_Integration(t *testing.T) {
 }
 
 func TestTask_Deleted_Integration(t *testing.T) {
+	t.Parallel()
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
 	ctx := t.Context()
 	producer, cleanup := setupKafkaProducer(ctx, t)
+
 	defer cleanup()
 
 	taskPub := kafkaTask.NewTask(producer, "test-tasks")

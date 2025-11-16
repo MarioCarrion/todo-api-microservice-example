@@ -13,7 +13,7 @@ import (
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/service"
 )
 
-// mockTaskRepository is a mock implementation of TaskRepository for testing
+// mockTaskRepository is a mock implementation of TaskRepository for testing.
 type mockTaskRepository struct {
 	createFn func(_ context.Context, params internal.CreateParams) (internal.Task, error)
 	deleteFn func(_ context.Context, id string) error
@@ -25,6 +25,7 @@ func (m *mockTaskRepository) Create(ctx context.Context, params internal.CreateP
 	if m.createFn != nil {
 		return m.createFn(ctx, params)
 	}
+
 	return internal.Task{}, nil
 }
 
@@ -32,6 +33,7 @@ func (m *mockTaskRepository) Delete(ctx context.Context, id string) error {
 	if m.deleteFn != nil {
 		return m.deleteFn(ctx, id)
 	}
+
 	return nil
 }
 
@@ -39,6 +41,7 @@ func (m *mockTaskRepository) Find(ctx context.Context, id string) (internal.Task
 	if m.findFn != nil {
 		return m.findFn(ctx, id)
 	}
+
 	return internal.Task{}, nil
 }
 
@@ -46,10 +49,11 @@ func (m *mockTaskRepository) Update(ctx context.Context, id string, params inter
 	if m.updateFn != nil {
 		return m.updateFn(ctx, id, params)
 	}
+
 	return nil
 }
 
-// mockTaskSearchRepository is a mock implementation of TaskSearchRepository
+// mockTaskSearchRepository is a mock implementation of TaskSearchRepository.
 type mockTaskSearchRepository struct {
 	searchFn func(_ context.Context, args internal.SearchParams) (internal.SearchResults, error)
 }
@@ -58,10 +62,11 @@ func (m *mockTaskSearchRepository) Search(ctx context.Context, args internal.Sea
 	if m.searchFn != nil {
 		return m.searchFn(ctx, args)
 	}
+
 	return internal.SearchResults{}, nil
 }
 
-// mockTaskMessageBrokerPublisher is a mock implementation of TaskMessageBrokerPublisher
+// mockTaskMessageBrokerPublisher is a mock implementation of TaskMessageBrokerPublisher.
 type mockTaskMessageBrokerPublisher struct {
 	createdFn func(_ context.Context, task internal.Task) error
 	deletedFn func(_ context.Context, id string) error
@@ -72,6 +77,7 @@ func (m *mockTaskMessageBrokerPublisher) Created(ctx context.Context, task inter
 	if m.createdFn != nil {
 		return m.createdFn(ctx, task)
 	}
+
 	return nil
 }
 
@@ -79,6 +85,7 @@ func (m *mockTaskMessageBrokerPublisher) Deleted(ctx context.Context, id string)
 	if m.deletedFn != nil {
 		return m.deletedFn(ctx, id)
 	}
+
 	return nil
 }
 
@@ -86,6 +93,7 @@ func (m *mockTaskMessageBrokerPublisher) Updated(ctx context.Context, task inter
 	if m.updatedFn != nil {
 		return m.updatedFn(ctx, task)
 	}
+
 	return nil
 }
 
@@ -139,7 +147,7 @@ func TestTask_Create(t *testing.T) {
 			},
 			mockRepo:      &mockTaskRepository{},
 			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
-			verify: func(t *testing.T, task internal.Task, err error) {
+			verify: func(t *testing.T, _ internal.Task, err error) {
 				t.Helper()
 				if err == nil {
 					t.Fatalf("expected error containing %q, got nil", "params.Validate")
@@ -156,12 +164,12 @@ func TestTask_Create(t *testing.T) {
 				Priority:    internal.PriorityHigh.Pointer(),
 			},
 			mockRepo: &mockTaskRepository{
-				createFn: func(_ context.Context, params internal.CreateParams) (internal.Task, error) {
+				createFn: func(_ context.Context, _ internal.CreateParams) (internal.Task, error) {
 					return internal.Task{}, errors.New("database error")
 				},
 			},
 			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
-			verify: func(t *testing.T, task internal.Task, err error) {
+			verify: func(t *testing.T, _ internal.Task, err error) {
 				t.Helper()
 				if err == nil {
 					t.Fatalf("expected error containing %q, got nil", "repo.Create")
@@ -200,7 +208,7 @@ func TestTask_Delete(t *testing.T) {
 			name: "successful delete",
 			id:   "123",
 			mockRepo: &mockTaskRepository{
-				deleteFn: func(_ context.Context, id string) error {
+				deleteFn: func(_ context.Context, _ string) error {
 					return nil
 				},
 			},
@@ -216,7 +224,7 @@ func TestTask_Delete(t *testing.T) {
 			name: "repository error",
 			id:   "123",
 			mockRepo: &mockTaskRepository{
-				deleteFn: func(_ context.Context, id string) error {
+				deleteFn: func(_ context.Context, _ string) error {
 					return errors.New("database error")
 				},
 			},
@@ -284,11 +292,11 @@ func TestTask_ByID(t *testing.T) {
 			name: "repository error",
 			id:   "123",
 			mockRepo: &mockTaskRepository{
-				findFn: func(_ context.Context, id string) (internal.Task, error) {
+				findFn: func(_ context.Context, _ string) (internal.Task, error) {
 					return internal.Task{}, errors.New("not found")
 				},
 			},
-			verify: func(t *testing.T, task internal.Task, err error) {
+			verify: func(t *testing.T, _ internal.Task, err error) {
 				t.Helper()
 				if err == nil {
 					t.Fatalf("expected error containing %q, got nil", "Find")
@@ -331,7 +339,7 @@ func TestTask_Update(t *testing.T) {
 				Description: internal.ValueToPointer("updated task"),
 			},
 			mockRepo: &mockTaskRepository{
-				updateFn: func(_ context.Context, id string, params internal.UpdateParams) error {
+				updateFn: func(_ context.Context, _ string, _ internal.UpdateParams) error {
 					return nil
 				},
 				findFn: func(_ context.Context, id string) (internal.Task, error) {
@@ -353,7 +361,7 @@ func TestTask_Update(t *testing.T) {
 				Description: internal.ValueToPointer("updated task"),
 			},
 			mockRepo: &mockTaskRepository{
-				updateFn: func(_ context.Context, id string, params internal.UpdateParams) error {
+				updateFn: func(_ context.Context, _ string, _ internal.UpdateParams) error {
 					return errors.New("database error")
 				},
 			},
@@ -400,7 +408,7 @@ func TestTask_By(t *testing.T) {
 				Size:        10,
 			},
 			mockSearch: &mockTaskSearchRepository{
-				searchFn: func(_ context.Context, args internal.SearchParams) (internal.SearchResults, error) {
+				searchFn: func(_ context.Context, _ internal.SearchParams) (internal.SearchResults, error) {
 					return internal.SearchResults{
 						Tasks: []internal.Task{
 							{ID: "1", Description: "test task 1"},
@@ -433,11 +441,11 @@ func TestTask_By(t *testing.T) {
 				Description: internal.ValueToPointer("test"),
 			},
 			mockSearch: &mockTaskSearchRepository{
-				searchFn: func(_ context.Context, args internal.SearchParams) (internal.SearchResults, error) {
+				searchFn: func(_ context.Context, _ internal.SearchParams) (internal.SearchResults, error) {
 					return internal.SearchResults{}, errors.New("search error")
 				},
 			},
-			verify: func(t *testing.T, result internal.SearchResults, err error) {
+			verify: func(t *testing.T, _ internal.SearchResults, err error) {
 				t.Helper()
 				if err == nil {
 					t.Fatalf("expected error containing %q, got nil", "search")

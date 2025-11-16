@@ -14,6 +14,7 @@ import (
 )
 
 func TestTask_Find_Integration(t *testing.T) {
+	t.Parallel()
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -83,7 +84,7 @@ func TestTask_Find_Integration(t *testing.T) {
 	}
 
 	// Second call should hit cache
-	result, err = taskCache.Find(ctx, "test-123")
+	_, err = taskCache.Find(ctx, "test-123")
 	if err != nil {
 		t.Fatalf("Failed to find task from cache: %v", err)
 	}
@@ -95,6 +96,7 @@ func TestTask_Find_Integration(t *testing.T) {
 }
 
 func TestTask_Create_Integration(t *testing.T) {
+	t.Parallel()
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -160,12 +162,15 @@ func TestTask_Create_Integration(t *testing.T) {
 	if err != nil {
 		t.Logf("Task not found in cache (expected for write-through): %v", err)
 		// This is OK - the cache set might not complete immediately
-	} else if item != nil {
+	}
+
+	if item != nil {
 		t.Logf("Task successfully cached with key: %s", item.Key)
 	}
 }
 
 func TestTask_Delete_Integration(t *testing.T) {
+	t.Parallel()
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
