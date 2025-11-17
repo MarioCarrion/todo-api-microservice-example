@@ -44,14 +44,9 @@ func setupElasticsearchContainer(ctx context.Context, t *testing.T) (*esv7.Clien
 func TestTask_Index_Integration(t *testing.T) {
 	t.Parallel()
 
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
-
 	ctx := t.Context()
 	client, cleanup := setupElasticsearchContainer(ctx, t)
-
-	defer cleanup()
+	t.Cleanup(cleanup)
 
 	// Create task repository
 	taskRepo := esTask.NewTask(client)
@@ -95,14 +90,9 @@ func TestTask_Index_Integration(t *testing.T) {
 func TestTask_Delete_Integration(t *testing.T) {
 	t.Parallel()
 
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
-
 	ctx := t.Context()
 	client, cleanup := setupElasticsearchContainer(ctx, t)
-
-	defer cleanup()
+	t.Cleanup(cleanup)
 
 	taskRepo := esTask.NewTask(client)
 
@@ -130,14 +120,9 @@ func TestTask_Delete_Integration(t *testing.T) {
 func TestTask_Search_Integration(t *testing.T) {
 	t.Parallel()
 
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
-
 	ctx := t.Context()
 	client, cleanup := setupElasticsearchContainer(ctx, t)
-
-	defer cleanup()
+	t.Cleanup(cleanup)
 
 	taskRepo := esTask.NewTask(client)
 

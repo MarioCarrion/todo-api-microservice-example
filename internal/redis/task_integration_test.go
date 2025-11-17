@@ -1,6 +1,7 @@
 package redis_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/go-redis/redis/v8"
@@ -11,56 +12,62 @@ import (
 	redisTask "github.com/MarioCarrion/todo-api-microservice-example/internal/redis"
 )
 
-func TestTask_Created_Integration(t *testing.T) {
-	t.Parallel()
+// setupRedisClient starts a Redis container and returns a configured client.
+func setupRedisClient(ctx context.Context, t *testing.T) (*redis.Client, func()) {
+	t.Helper()
 
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
-
-	ctx := t.Context()
-
-	// Start Redis container
 	redisContainer, err := redismodule.Run(ctx, "redis:7-alpine")
 	if err != nil {
 		t.Fatalf("failed to start redis container: %v", err)
 	}
-	defer func() {
+
+	cleanup := func() {
 		if err := testcontainers.TerminateContainer(redisContainer); err != nil {
 			t.Logf("failed to terminate container: %v", err)
 		}
-	}()
+	}
 
-	// Get connection string
 	connStr, err := redisContainer.ConnectionString(ctx)
 	if err != nil {
+		cleanup()
 		t.Fatalf("failed to get connection string: %v", err)
 	}
 
-	// Create Redis client
 	client := redis.NewClient(&redis.Options{
 		Addr: connStr,
 	})
-	defer client.Close()
 
-	// Create task publisher
+	cleanupAll := func() {
+		client.Close()
+		cleanup()
+	}
+
+	return client, cleanupAll
+}
+
+func TestTask_Created_Integration(t *testing.T) {
+	t.Parallel()
+
+	ctx := t.Context()
+	client, cleanup := setupRedisClient(ctx, t)
+	t.Cleanup(cleanup)
+
 	taskPub := redisTask.NewTask(client)
 
-	// Test Created method
 	task := internal.Task{
 		ID:          "test-123",
 		Description: "Test task",
 		IsDone:      false,
 	}
 
-	err = taskPub.Created(ctx, task)
+	err := taskPub.Created(ctx, task)
 	if err != nil {
 		t.Fatalf("Failed to publish created event: %v", err)
 	}
 
 	// Verify message was published (subscribe and check)
 	pubsub := client.Subscribe(ctx, "Task.Created")
-	defer pubsub.Close()
+	t.Cleanup(func() { pubsub.Close() })
 	// Note: In a real test, you'd need a separate goroutine to publish after subscribing
 	// This test verifies the method doesn't error
 }
@@ -68,31 +75,9 @@ func TestTask_Created_Integration(t *testing.T) {
 func TestTask_Updated_Integration(t *testing.T) {
 	t.Parallel()
 
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
-
 	ctx := t.Context()
-
-	redisContainer, err := redismodule.Run(ctx, "redis:7-alpine")
-	if err != nil {
-		t.Fatalf("failed to start redis container: %v", err)
-	}
-	defer func() {
-		if err := testcontainers.TerminateContainer(redisContainer); err != nil {
-			t.Logf("failed to terminate container: %v", err)
-		}
-	}()
-
-	connStr, err := redisContainer.ConnectionString(ctx)
-	if err != nil {
-		t.Fatalf("failed to get connection string: %v", err)
-	}
-
-	client := redis.NewClient(&redis.Options{
-		Addr: connStr,
-	})
-	defer client.Close()
+	client, cleanup := setupRedisClient(ctx, t)
+	t.Cleanup(cleanup)
 
 	taskPub := redisTask.NewTask(client)
 
@@ -102,7 +87,7 @@ func TestTask_Updated_Integration(t *testing.T) {
 		IsDone:      true,
 	}
 
-	err = taskPub.Updated(ctx, task)
+	err := taskPub.Updated(ctx, task)
 	if err != nil {
 		t.Fatalf("Failed to publish updated event: %v", err)
 	}
@@ -111,35 +96,13 @@ func TestTask_Updated_Integration(t *testing.T) {
 func TestTask_Deleted_Integration(t *testing.T) {
 	t.Parallel()
 
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
-
 	ctx := t.Context()
-
-	redisContainer, err := redismodule.Run(ctx, "redis:7-alpine")
-	if err != nil {
-		t.Fatalf("failed to start redis container: %v", err)
-	}
-	defer func() {
-		if err := testcontainers.TerminateContainer(redisContainer); err != nil {
-			t.Logf("failed to terminate container: %v", err)
-		}
-	}()
-
-	connStr, err := redisContainer.ConnectionString(ctx)
-	if err != nil {
-		t.Fatalf("failed to get connection string: %v", err)
-	}
-
-	client := redis.NewClient(&redis.Options{
-		Addr: connStr,
-	})
-	defer client.Close()
+	client, cleanup := setupRedisClient(ctx, t)
+	t.Cleanup(cleanup)
 
 	taskPub := redisTask.NewTask(client)
 
-	err = taskPub.Deleted(ctx, "test-789")
+	err := taskPub.Deleted(ctx, "test-789")
 	if err != nil {
 		t.Fatalf("Failed to publish deleted event: %v", err)
 	}

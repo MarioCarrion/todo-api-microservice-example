@@ -14,22 +14,17 @@ import (
 func TestTask_Created_Integration(t *testing.T) {
 	t.Parallel()
 
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
-
 	ctx := t.Context()
 
-	// Start RabbitMQ container
 	rmqContainer, err := rabbitmq.Run(ctx, "rabbitmq:3.12-management-alpine")
 	if err != nil {
 		t.Fatalf("failed to start rabbitmq container: %v", err)
 	}
-	defer func() {
+	t.Cleanup(func() {
 		if err := testcontainers.TerminateContainer(rmqContainer); err != nil {
 			t.Logf("failed to terminate container: %v", err)
 		}
-	}()
+	})
 
 	// Get connection string
 	connStr, err := rmqContainer.AmqpURL(ctx)
@@ -42,13 +37,13 @@ func TestTask_Created_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to connect to rabbitmq: %v", err)
 	}
-	defer conn.Close()
+	t.Cleanup(func() { conn.Close() })
 
 	channel, err := conn.Channel()
 	if err != nil {
 		t.Fatalf("failed to open channel: %v", err)
 	}
-	defer channel.Close()
+	t.Cleanup(func() { channel.Close() })
 
 	// Declare the exchange
 	err = channel.ExchangeDeclare(
@@ -84,21 +79,17 @@ func TestTask_Created_Integration(t *testing.T) {
 func TestTask_Updated_Integration(t *testing.T) {
 	t.Parallel()
 
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
-
 	ctx := t.Context()
 
 	rmqContainer, err := rabbitmq.Run(ctx, "rabbitmq:3.12-management-alpine")
 	if err != nil {
 		t.Fatalf("failed to start rabbitmq container: %v", err)
 	}
-	defer func() {
+	t.Cleanup(func() {
 		if err := testcontainers.TerminateContainer(rmqContainer); err != nil {
 			t.Logf("failed to terminate container: %v", err)
 		}
-	}()
+	})
 
 	connStr, err := rmqContainer.AmqpURL(ctx)
 	if err != nil {
@@ -115,7 +106,7 @@ func TestTask_Updated_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open channel: %v", err)
 	}
-	defer channel.Close()
+	t.Cleanup(func() { channel.Close() })
 
 	err = channel.ExchangeDeclare("tasks", "topic", true, false, false, false, nil)
 	if err != nil {
@@ -139,21 +130,17 @@ func TestTask_Updated_Integration(t *testing.T) {
 func TestTask_Deleted_Integration(t *testing.T) {
 	t.Parallel()
 
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
-
 	ctx := t.Context()
 
 	rmqContainer, err := rabbitmq.Run(ctx, "rabbitmq:3.12-management-alpine")
 	if err != nil {
 		t.Fatalf("failed to start rabbitmq container: %v", err)
 	}
-	defer func() {
+	t.Cleanup(func() {
 		if err := testcontainers.TerminateContainer(rmqContainer); err != nil {
 			t.Logf("failed to terminate container: %v", err)
 		}
-	}()
+	})
 
 	connStr, err := rmqContainer.AmqpURL(ctx)
 	if err != nil {
@@ -170,7 +157,7 @@ func TestTask_Deleted_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open channel: %v", err)
 	}
-	defer channel.Close()
+	t.Cleanup(func() { channel.Close() })
 
 	err = channel.ExchangeDeclare("tasks", "topic", true, false, false, false, nil)
 	if err != nil {
