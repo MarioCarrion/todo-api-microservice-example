@@ -15,13 +15,9 @@ import (
 
 func TestTask_Find_Integration(t *testing.T) {
 	t.Parallel()
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
 
 	ctx := t.Context()
 
-	// Start Memcached container
 	req := testcontainers.ContainerRequest{
 		Image:        "memcached:1.6-alpine",
 		ExposedPorts: []string{"11211/tcp"},
@@ -35,11 +31,11 @@ func TestTask_Find_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to start memcached container: %v", err)
 	}
-	defer func() {
+	t.Cleanup(func() {
 		if err := container.Terminate(ctx); err != nil {
 			t.Logf("failed to terminate container: %v", err)
 		}
-	}()
+	})
 
 	// Get host and port
 	host, err := container.Host(ctx)
@@ -97,9 +93,6 @@ func TestTask_Find_Integration(t *testing.T) {
 
 func TestTask_Create_Integration(t *testing.T) {
 	t.Parallel()
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
 
 	ctx := t.Context()
 
@@ -116,11 +109,11 @@ func TestTask_Create_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to start memcached container: %v", err)
 	}
-	defer func() {
+	t.Cleanup(func() {
 		if err := container.Terminate(ctx); err != nil {
 			t.Logf("failed to terminate container: %v", err)
 		}
-	}()
+	})
 
 	host, err := container.Host(ctx)
 	if err != nil {
@@ -171,9 +164,6 @@ func TestTask_Create_Integration(t *testing.T) {
 
 func TestTask_Delete_Integration(t *testing.T) {
 	t.Parallel()
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
 
 	ctx := t.Context()
 
@@ -190,11 +180,11 @@ func TestTask_Delete_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to start memcached container: %v", err)
 	}
-	defer func() {
+	t.Cleanup(func() {
 		if err := container.Terminate(ctx); err != nil {
 			t.Logf("failed to terminate container: %v", err)
 		}
-	}()
+	})
 
 	host, err := container.Host(ctx)
 	if err != nil {
