@@ -20,6 +20,7 @@ func TestTask_Created_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to start rabbitmq container: %v", err)
 	}
+
 	t.Cleanup(func() {
 		if err := testcontainers.TerminateContainer(rmqContainer); err != nil {
 			t.Logf("failed to terminate container: %v", err)
@@ -37,12 +38,14 @@ func TestTask_Created_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to connect to rabbitmq: %v", err)
 	}
+
 	t.Cleanup(func() { conn.Close() })
 
 	channel, err := conn.Channel()
 	if err != nil {
 		t.Fatalf("failed to open channel: %v", err)
 	}
+
 	t.Cleanup(func() { channel.Close() })
 
 	// Declare the exchange
@@ -85,6 +88,7 @@ func TestTask_Updated_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to start rabbitmq container: %v", err)
 	}
+
 	t.Cleanup(func() {
 		if err := testcontainers.TerminateContainer(rmqContainer); err != nil {
 			t.Logf("failed to terminate container: %v", err)
@@ -100,12 +104,16 @@ func TestTask_Updated_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to connect to rabbitmq: %v", err)
 	}
-	defer conn.Close()
+
+	t.Cleanup(func() {
+		_ = conn.Close()
+	})
 
 	channel, err := conn.Channel()
 	if err != nil {
 		t.Fatalf("failed to open channel: %v", err)
 	}
+
 	t.Cleanup(func() { channel.Close() })
 
 	err = channel.ExchangeDeclare("tasks", "topic", true, false, false, false, nil)
@@ -136,6 +144,7 @@ func TestTask_Deleted_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to start rabbitmq container: %v", err)
 	}
+
 	t.Cleanup(func() {
 		if err := testcontainers.TerminateContainer(rmqContainer); err != nil {
 			t.Logf("failed to terminate container: %v", err)
@@ -151,12 +160,16 @@ func TestTask_Deleted_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to connect to rabbitmq: %v", err)
 	}
-	defer conn.Close()
+
+	t.Cleanup(func() {
+		_ = conn.Close()
+	})
 
 	channel, err := conn.Channel()
 	if err != nil {
 		t.Fatalf("failed to open channel: %v", err)
 	}
+
 	t.Cleanup(func() { channel.Close() })
 
 	err = channel.ExchangeDeclare("tasks", "topic", true, false, false, false, nil)
