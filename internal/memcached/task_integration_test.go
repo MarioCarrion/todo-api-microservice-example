@@ -31,6 +31,7 @@ func TestTask_Find_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to start memcached container: %v", err)
 	}
+
 	t.Cleanup(func() {
 		if err := container.Terminate(ctx); err != nil {
 			t.Logf("failed to terminate container: %v", err)
@@ -109,6 +110,7 @@ func TestTask_Create_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to start memcached container: %v", err)
 	}
+
 	t.Cleanup(func() {
 		if err := container.Terminate(ctx); err != nil {
 			t.Logf("failed to terminate container: %v", err)
@@ -153,8 +155,8 @@ func TestTask_Create_Integration(t *testing.T) {
 	// Verify the task is now in cache by trying to get it
 	item, err := mcClient.Get(testTask.ID)
 	if err != nil {
-		t.Logf("Task not found in cache (expected for write-through): %v", err)
 		// This is OK - the cache set might not complete immediately
+		t.Logf("Task not found in cache (expected for write-through): %v", err)
 	}
 
 	if item != nil {
@@ -180,6 +182,7 @@ func TestTask_Delete_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to start memcached container: %v", err)
 	}
+
 	t.Cleanup(func() {
 		if err := container.Terminate(ctx); err != nil {
 			t.Logf("failed to terminate container: %v", err)

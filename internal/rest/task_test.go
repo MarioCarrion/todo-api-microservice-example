@@ -186,6 +186,7 @@ func TestTaskHandler_ReadTask(t *testing.T) {
 			if tt.expectError && err == nil {
 				t.Fatal("expected error, got nil")
 			}
+
 			if !tt.expectError && err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -257,6 +258,7 @@ func TestTaskHandler_DeleteTask(t *testing.T) {
 			if tt.expectError && err == nil {
 				t.Fatal("expected error, got nil")
 			}
+
 			if !tt.expectError && err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -334,6 +336,7 @@ func TestTaskHandler_UpdateTask(t *testing.T) {
 			if tt.expectError && err == nil {
 				t.Fatal("expected error, got nil")
 			}
+
 			if !tt.expectError && err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -421,6 +424,7 @@ func TestTaskHandler_SearchTask(t *testing.T) {
 			if tt.expectError && err == nil {
 				t.Fatal("expected error, got nil")
 			}
+
 			if !tt.expectError && err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
