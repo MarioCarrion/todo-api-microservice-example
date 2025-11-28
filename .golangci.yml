@@ -57,9 +57,13 @@ issues:
     - path: _test\.go
       linters:
         - cyclop
+        - dupl
+        - errorlint
         - exhaustruct
         - funlen
+        - gocognit
         - varnamelen
+        - wrapcheck
     - path: main\.go
       linters:
         - cyclop

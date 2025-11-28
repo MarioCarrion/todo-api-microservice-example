@@ -10,6 +10,8 @@ import (
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 )
 
+//counterfeiter:generate -o memcachedtesting/task_store.gen.go . TaskStore
+
 type Task struct {
 	client     *memcache.Client
 	orig       TaskStore

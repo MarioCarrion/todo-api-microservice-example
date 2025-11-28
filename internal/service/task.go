@@ -10,6 +10,10 @@ import (
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 )
 
+//go:generate counterfeiter -generate
+
+//counterfeiter:generate -o servicetesting/task_repository.gen.go . TaskRepository
+
 // TaskRepository defines the datastore handling persisting Task records.
 type TaskRepository interface {
 	Create(ctx context.Context, params internal.CreateParams) (internal.Task, error)
@@ -18,10 +22,14 @@ type TaskRepository interface {
 	Update(ctx context.Context, id string, params internal.UpdateParams) error
 }
 
+//counterfeiter:generate -o servicetesting/task_search_repository.gen.go . TaskSearchRepository
+
 // TaskSearchRepository defines the datastore handling searching Task records.
 type TaskSearchRepository interface {
 	Search(ctx context.Context, args internal.SearchParams) (internal.SearchResults, error)
 }
+
+//counterfeiter:generate -o servicetesting/task_message_broker_publisher.gen.go . TaskMessageBrokerPublisher
 
 // TaskMessageBrokerPublisher defines the datastore used to publish Searchable Task records.
 type TaskMessageBrokerPublisher interface {
