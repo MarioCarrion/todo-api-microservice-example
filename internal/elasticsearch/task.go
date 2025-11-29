@@ -1,3 +1,4 @@
+// Package elasticsearch implements the Elasticsearch repository.
 package elasticsearch
 
 import (
@@ -213,11 +214,11 @@ func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal
 			dates := internal.Dates{}
 
 			if hit.Source.DateStart != 0 {
-				res[index].Dates.Start = internal.ValueToPointer(time.Unix(0, hit.Source.DateStart).UTC())
+				dates.Start = internal.ValueToPointer(time.Unix(0, hit.Source.DateStart).UTC())
 			}
 
 			if hit.Source.DateDue != 0 {
-				res[index].Dates.Due = internal.ValueToPointer(time.Unix(0, hit.Source.DateDue).UTC())
+				dates.Due = internal.ValueToPointer(time.Unix(0, hit.Source.DateDue).UTC())
 			}
 
 			res[index].Dates = &dates
