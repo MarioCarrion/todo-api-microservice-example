@@ -20,7 +20,7 @@ require (
 	github.com/mercari/go-circuitbreaker v0.0.2
 	github.com/ory/dockertest/v3 v3.12.0
 	github.com/streadway/amqp v1.1.0
-	go.uber.org/zap v1.27.0
+	go.uber.org/zap v1.27.1
 )
 
 require (
