@@ -236,7 +236,9 @@ func TestTask_All(t *testing.T) {
 var setupClient = sync.OnceValue(func() RedisClient { //nolint: gochecknoglobals
 	var res RedisClient
 
-	container, err := redistest.Run(context.Background(), dockerImage)
+	ctx := context.Background()
+
+	container, err := redistest.Run(ctx, dockerImage)
 	if err != nil {
 		res.err = fmt.Errorf("failed to start redis container: %w", err)
 
@@ -259,7 +261,7 @@ var setupClient = sync.OnceValue(func() RedisClient { //nolint: gochecknoglobals
 	}
 
 	client := redis.NewClient(opt)
-	if status := client.Ping(context.Background()); status.Err() != nil {
+	if status := client.Ping(ctx); status.Err() != nil {
 		res.err = fmt.Errorf("failed to ping: %w", err)
 
 		return res
@@ -276,12 +278,14 @@ type RedisClient struct {
 }
 
 func (r *RedisClient) Teardown() error {
-	if r.err != nil {
-		return r.err
+	if r.container != nil {
+		if err := testcontainers.TerminateContainer(r.container); err != nil {
+			return fmt.Errorf("failed to terminate container: %w", err)
+		}
 	}
 
-	if err := testcontainers.TerminateContainer(r.container); err != nil {
-		return fmt.Errorf("failed to terminate container: %w", err)
+	if r.err != nil {
+		return r.err
 	}
 
 	return nil

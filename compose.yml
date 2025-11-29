@@ -45,6 +45,7 @@ services:
       VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8300
       VAULT_DEV_ROOT_TOKEN_ID: myroot
   elasticsearch:
+    # Make sure the docker image listed here matches the one used in `internal/elasticsearch/task_test.go`.
     image: elasticsearch:7.17.9
     ports:
       - 9200:9200
@@ -62,6 +63,7 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
+    # Make sure the this payload is the same as the one used in `internal/elasticsearch/task_test.go`.
     entrypoint: ["curl", "-X", "PUT", "-H", "Content-Type: application/json", "http://elasticsearch:9200/tasks", "-d", "{\"mappings\":{\"properties\":{\"id\":{\"type\":\"keyword\"},\"description\":{\"type\":\"text\"}}}}"]
   memcached:
     image: memcached:1.6.19-alpine3.17
