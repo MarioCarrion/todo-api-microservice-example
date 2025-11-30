@@ -44,7 +44,7 @@ generate:
 # Lint
 
 .PHONY: lint
-lint: tidy tools fmt security
+lint: tidy tools fmt security dirty
 	golangci-lint run ./...
 	go vet ./...
 
