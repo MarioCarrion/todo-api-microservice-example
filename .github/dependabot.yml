@@ -7,11 +7,6 @@ updates:
       - "/internal/tools/"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "gomod"
-    directories:
-      - "/"
-    schedule:
-      interval: "weekly"
     groups:
       testcontainers-go:
         patterns:
