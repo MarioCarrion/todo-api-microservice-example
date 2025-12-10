@@ -46,7 +46,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestTask_All(t *testing.T) {
+func TestTask_All(t *testing.T) { //nolint: tparallel
 	t.Parallel()
 
 	client := setupClient()
@@ -63,12 +63,14 @@ func TestTask_All(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		call   func(t *testing.T, client *kafkatask.Task)
+		call   func(t *testing.T)
 		verify func(t *testing.T, evnt Event)
 	}{
 		{
 			name: "Created",
-			call: func(t *testing.T, client *kafkatask.Task) {
+			call: func(t *testing.T) {
+				t.Helper()
+
 				task := internal.Task{
 					ID:          "test-123",
 					Description: "Test task",
@@ -81,6 +83,8 @@ func TestTask_All(t *testing.T) {
 				}
 			},
 			verify: func(t *testing.T, evnt Event) {
+				t.Helper()
+
 				if evnt.Type != kafkatask.TaskCreatedMessageType {
 					t.Fatalf("Expected created event type, got %s", evnt.Type)
 				}
@@ -99,12 +103,16 @@ func TestTask_All(t *testing.T) {
 		},
 		{
 			name: "Deleted",
-			call: func(t *testing.T, client *kafkatask.Task) {
+			call: func(t *testing.T) {
+				t.Helper()
+
 				if err := taskPub.Deleted(t.Context(), "task-id-123-456"); err != nil {
 					t.Fatalf("Failed to publish deleted event: %v", err)
 				}
 			},
 			verify: func(t *testing.T, evnt Event) {
+				t.Helper()
+
 				if evnt.Type != kafkatask.TaskDeletedMessageType {
 					t.Fatalf("Expected deleted event type, got %s", evnt.Type)
 				}
@@ -120,7 +128,9 @@ func TestTask_All(t *testing.T) {
 		},
 		{
 			name: "Updated",
-			call: func(t *testing.T, client *kafkatask.Task) {
+			call: func(t *testing.T) {
+				t.Helper()
+
 				task := internal.Task{
 					ID:          "test-123-updated",
 					Description: "Test task updated",
@@ -133,6 +143,8 @@ func TestTask_All(t *testing.T) {
 				}
 			},
 			verify: func(t *testing.T, evnt Event) {
+				t.Helper()
+
 				if evnt.Type != kafkatask.TaskCreatedMessageType {
 					t.Fatalf("Expected updated event type, got %s", evnt.Type)
 				}
@@ -151,11 +163,12 @@ func TestTask_All(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
+	for _, tt := range tests { //nolint: paralleltest
 		t.Run(tt.name, func(t *testing.T) {
-			tt.call(t, taskPub)
+			tt.call(t)
 
 			producedEvent := <-client.producer.Events()
+
 			msg, ok := producedEvent.(*kafka.Message)
 			if !ok {
 				t.Fatalf("Failed to receive produced event: %T - %v", msg, ok)
@@ -170,6 +183,7 @@ func TestTask_All(t *testing.T) {
 
 			if err := json.NewDecoder(bytes.NewReader(msg.Value)).Decode(&evt); err != nil {
 				t.Errorf("Failed to decode message: %v", err)
+
 				if _, err := client.consumer.CommitMessage(msg); err != nil {
 					t.Fatalf("Failed to commit message: %v", err)
 				}
@@ -180,7 +194,7 @@ func TestTask_All(t *testing.T) {
 	}
 }
 
-var setupClient = sync.OnceValue(func() KafkaClient {
+var setupClient = sync.OnceValue(func() KafkaClient { //nolint: gochecknoglobals
 	var res KafkaClient
 
 	ctx := context.Background()
