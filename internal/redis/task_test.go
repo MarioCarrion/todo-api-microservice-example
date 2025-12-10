@@ -223,7 +223,7 @@ func TestTask_All(t *testing.T) {
 			}
 
 			if count != 1 {
-				t.Fatalf("Task was not received after creation")
+				t.Fatalf("Task event was not received after creation")
 			}
 
 			tt.verify(t, msg)

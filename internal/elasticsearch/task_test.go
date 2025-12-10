@@ -31,13 +31,13 @@ const (
 func TestMain(m *testing.M) {
 	client := setupClient()
 	if client.err != nil {
-		panic(fmt.Sprintf("Failed to set up Elastichsearch client: %v", client.err))
+		panic(fmt.Sprintf("Failed to set up Elasticsearch client: %v", client.err))
 	}
 
 	code := m.Run()
 
 	if err := client.Teardown(); err != nil {
-		panic(fmt.Sprintf("Failed to close Elastichsearch client: %v", err))
+		panic(fmt.Sprintf("Failed to close Elasticsearch client: %v", err))
 	}
 
 	os.Exit(code)

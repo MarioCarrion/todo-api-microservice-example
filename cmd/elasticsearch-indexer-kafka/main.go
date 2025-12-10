@@ -18,6 +18,7 @@ import (
 	internaldomain "github.com/MarioCarrion/todo-api-microservice-example/internal"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/elasticsearch"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/envvar"
+	internalkafka "github.com/MarioCarrion/todo-api-microservice-example/internal/kafka"
 )
 
 func main() {
@@ -160,11 +161,11 @@ func (s *Server) ListenAndServe() {
 				ok = false
 
 				switch evt.Type {
-				case "tasks.event.updated", "tasks.event.created":
+				case internalkafka.TaskUpdatedMessageType, internalkafka.TaskCreatedMessageType:
 					if err := s.task.Index(context.Background(), evt.Value); err == nil {
 						ok = true
 					}
-				case "tasks.event.deleted":
+				case internalkafka.TaskDeletedMessageType:
 					if err := s.task.Delete(context.Background(), evt.Value.ID); err == nil {
 						ok = true
 					}

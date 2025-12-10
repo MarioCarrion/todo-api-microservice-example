@@ -1,4 +1,4 @@
-// Package redis implements the Redis repository.
+// Package redis implements the Redis repository to publish events.
 package redis
 
 import (
