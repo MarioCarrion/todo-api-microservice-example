@@ -138,14 +138,14 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 					IsDone:      true,
 				}
 
-				if err := taskPub.Created(t.Context(), task); err != nil {
+				if err := taskPub.Updated(t.Context(), task); err != nil {
 					t.Fatalf("Failed to publish updated event: %v", err)
 				}
 			},
 			verify: func(t *testing.T, evnt Event) {
 				t.Helper()
 
-				if evnt.Type != kafkatask.TaskCreatedMessageType {
+				if evnt.Type != kafkatask.TaskUpdatedMessageType {
 					t.Fatalf("Expected updated event type, got %s", evnt.Type)
 				}
 
