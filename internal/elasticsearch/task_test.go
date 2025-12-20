@@ -2,6 +2,7 @@ package elasticsearch_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -203,15 +204,17 @@ type ElasticsearchClient struct {
 }
 
 func (r *ElasticsearchClient) Teardown() error {
+	var err error
+
 	if r.container != nil {
-		if err := testcontainers.TerminateContainer(r.container); err != nil {
-			return fmt.Errorf("failed to terminate container: %w", err)
+		if err1 := testcontainers.TerminateContainer(r.container); err1 != nil {
+			err = fmt.Errorf("failed to terminate container: %w", err1)
 		}
 	}
 
 	if r.err != nil {
-		return r.err
+		err = errors.Join(err, r.err)
 	}
 
-	return nil
+	return err
 }
