@@ -129,7 +129,7 @@ type Server struct {
 func (s *Server) ListenAndServe() error {
 	queue, err := s.rmq.Channel.QueueDeclare(
 		rabbitmq.ExchangeName, // name
-		false,                 // durable
+		true,                  // durable
 		false,                 // delete when unused
 		true,                  // exclusive
 		false,                 // no-wait
@@ -140,9 +140,9 @@ func (s *Server) ListenAndServe() error {
 	}
 
 	err = s.rmq.Channel.QueueBind(
-		queue.Name, // queue name
-		"Task.*",   // routing key
-		"tasks",    // exchange
+		queue.Name,            // queue name
+		"Task.*",              // routing key
+		rabbitmq.ExchangeName, // exchange
 		false,
 		nil,
 	)

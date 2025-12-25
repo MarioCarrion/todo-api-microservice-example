@@ -154,7 +154,7 @@ Then to start the containers you execute:
 docker compose -f compose.yml -f compose.rabbitmq.yml up
 ```
 
-Once you all the containers are `up` you can access the Swagger UI at http://127.0.0.1:9234/static/swagger-ui/ .
+Once you all the containers are `up` you can access the Swagger UI at [http://0.0.0.0:9234/static/swagger-ui/](http://0.0.0.0:9234/static/swagger-ui/).
 
 ## Diagrams
 

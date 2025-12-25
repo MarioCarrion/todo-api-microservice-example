@@ -5,10 +5,11 @@ import (
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/envvar"
+	rabbitmqtask "github.com/MarioCarrion/todo-api-microservice-example/internal/rabbitmq"
 )
 
-type // RabbitMQ ...
-RabbitMQ struct {
+// RabbitMQ ...
+type RabbitMQ struct {
 	Connection *amqp.Connection
 	Channel    *amqp.Channel
 }
@@ -34,7 +35,7 @@ func NewRabbitMQ(conf *envvar.Configuration) (*RabbitMQ, error) {
 	}
 
 	err = channel.ExchangeDeclare(
-		"tasks", // name
+		rabbitmqtask.ExchangeName,
 		"topic", // type
 		true,    // durable
 		false,   // auto-deleted
