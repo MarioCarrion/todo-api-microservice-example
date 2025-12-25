@@ -17,6 +17,7 @@ import (
 	internaldomain "github.com/MarioCarrion/todo-api-microservice-example/internal"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/elasticsearch"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/envvar"
+	"github.com/MarioCarrion/todo-api-microservice-example/internal/rabbitmq"
 )
 
 const rabbitMQConsumerName = "elasticsearch-indexer"
@@ -127,21 +128,21 @@ type Server struct {
 // XXX: Dead Letter Exchange will be implemented in future episodes.
 func (s *Server) ListenAndServe() error {
 	queue, err := s.rmq.Channel.QueueDeclare(
-		"",    // name
-		false, // durable
-		false, // delete when unused
-		true,  // exclusive
-		false, // no-wait
-		nil,   // arguments
+		rabbitmq.ExchangeName, // name
+		false,                 // durable
+		false,                 // delete when unused
+		true,                  // exclusive
+		false,                 // no-wait
+		nil,                   // arguments
 	)
 	if err != nil {
 		return internaldomain.WrapErrorf(err, internaldomain.ErrorCodeUnknown, "channel.QueueDeclare")
 	}
 
 	err = s.rmq.Channel.QueueBind(
-		queue.Name,      // queue name
-		"tasks.event.*", // routing key
-		"tasks",         // exchange
+		queue.Name, // queue name
+		"Task.*",   // routing key
+		"tasks",    // exchange
 		false,
 		nil,
 	)
@@ -172,7 +173,7 @@ func (s *Server) ListenAndServe() error {
 
 			// XXX: We will revisit defining these topics in a better way in future episodes
 			switch msg.RoutingKey {
-			case "tasks.event.updated", "tasks.event.created":
+			case rabbitmq.TaskCreatedMessageType, rabbitmq.TaskUpdatedMessageType:
 				task, err := decodeTask(msg.Body)
 				if err != nil {
 					return
@@ -181,7 +182,7 @@ func (s *Server) ListenAndServe() error {
 				if err := s.task.Index(context.Background(), task); err != nil {
 					nack = true
 				}
-			case "tasks.event.deleted":
+			case rabbitmq.TaskDeletedMessageType:
 				id, err := decodeID(msg.Body)
 				if err != nil {
 					return

@@ -1,13 +1,18 @@
 package rabbitmq_test
 
 import (
+	"bytes"
 	"context"
+	"encoding/gob"
 	"errors"
 	"fmt"
+	"os"
 	"sync"
 	"testing"
+	"time"
 
-	"github.com/streadway/amqp"
+	"github.com/google/go-cmp/cmp"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/rabbitmq"
 
@@ -15,180 +20,176 @@ import (
 	rabbitmqtask "github.com/MarioCarrion/todo-api-microservice-example/internal/rabbitmq"
 )
 
-// dockerImage must match the docker image listed in `compose.rabbitmq.yml`.
-const dockerImage = "rabbitmq:3.11.10-management-alpine"
+const (
+	// dockerImage must match the docker image listed in `compose.rabbitmq.yml`.
+	dockerImage = "rabbitmq:3.11.10-management-alpine"
 
-func TestTask_Created_Integration(t *testing.T) {
-	t.Parallel()
+	rabbitMQConsumerName = "test-rabbitmq-consumer"
+)
 
-	ctx := t.Context()
-
-	rmqContainer, err := rabbitmq.Run(ctx, dockerImage)
-	if err != nil {
-		t.Fatalf("failed to start rabbitmq container: %v", err)
+func TestMain(m *testing.M) {
+	client := setupClient()
+	if client.err != nil {
+		panic(fmt.Sprintf("Failed to set up RabbitMQ client: %v", client.err))
 	}
 
-	t.Cleanup(func() {
-		if err := testcontainers.TerminateContainer(rmqContainer); err != nil {
-			t.Logf("failed to terminate container: %v", err)
-		}
-	})
+	code := m.Run()
 
-	// Get connection string
-	connStr, err := rmqContainer.AmqpURL(ctx)
-	if err != nil {
-		t.Fatalf("failed to get connection string: %v", err)
+	if err := client.Teardown(); err != nil {
+		panic(fmt.Sprintf("Failed to close RabbitMQ client: %v", err))
 	}
 
-	// Create RabbitMQ connection
-	conn, err := amqp.Dial(connStr)
-	if err != nil {
-		t.Fatalf("failed to connect to rabbitmq: %v", err)
-	}
-
-	t.Cleanup(func() { conn.Close() })
-
-	channel, err := conn.Channel()
-	if err != nil {
-		t.Fatalf("failed to open channel: %v", err)
-	}
-
-	t.Cleanup(func() { channel.Close() })
-
-	// Declare the exchange
-	err = channel.ExchangeDeclare(
-		"tasks", // name
-		"topic", // type
-		true,    // durable
-		false,   // auto-deleted
-		false,   // internal
-		false,   // no-wait
-		nil,     // arguments
-	)
-	if err != nil {
-		t.Fatalf("failed to declare exchange: %v", err)
-	}
-
-	// Create task publisher
-	taskPub := rabbitmqtask.NewTask(channel)
-
-	// Test Created method
-	task := internal.Task{
-		ID:          "test-123",
-		Description: "Test task",
-		Priority:    internal.PriorityHigh.Pointer(),
-		IsDone:      false,
-	}
-
-	err = taskPub.Created(ctx, task)
-	if err != nil {
-		t.Fatalf("Failed to publish created event: %v", err)
-	}
+	os.Exit(code)
 }
 
-func TestTask_Updated_Integration(t *testing.T) {
+func TestTask_All(t *testing.T) { //nolint: tparallel
 	t.Parallel()
 
 	ctx := t.Context()
 
-	rmqContainer, err := rabbitmq.Run(ctx, "rabbitmq:3.12-management-alpine")
-	if err != nil {
-		t.Fatalf("failed to start rabbitmq container: %v", err)
+	client := setupClient()
+	if client.err != nil {
+		t.Fatalf("Failed to setupClient: %v", client.err)
 	}
 
-	t.Cleanup(func() {
-		if err := testcontainers.TerminateContainer(rmqContainer); err != nil {
-			t.Logf("failed to terminate container: %v", err)
-		}
-	})
+	tests := []struct {
+		name   string
+		call   func(t *testing.T, channel *amqp.Channel)
+		verify func(t *testing.T, routingKey string, body []byte)
+	}{
+		{
+			name: "Created",
+			call: func(t *testing.T, channel *amqp.Channel) {
+				t.Helper()
 
-	connStr, err := rmqContainer.AmqpURL(ctx)
-	if err != nil {
-		t.Fatalf("failed to get connection string: %v", err)
+				taskPub := rabbitmqtask.NewTask(channel)
+
+				task := internal.Task{
+					ID:          "test-123",
+					Description: "Test task",
+					Priority:    internal.PriorityHigh.Pointer(),
+					IsDone:      true,
+				}
+
+				if err := taskPub.Created(ctx, task); err != nil {
+					t.Fatalf("Failed to publish created event: %v", err)
+				}
+			},
+			verify: func(t *testing.T, routingKey string, body []byte) {
+				t.Helper()
+
+				if routingKey != rabbitmqtask.TaskCreatedMessageType {
+					t.Fatalf("Expected routing key %s, got %s", rabbitmqtask.TaskCreatedMessageType, routingKey)
+				}
+
+				var got internal.Task
+
+				if err := gob.NewDecoder(bytes.NewReader(body)).Decode(&got); err != nil {
+					t.Fatalf("Failed to decode body: %v", err)
+				}
+
+				expected := internal.Task{
+					ID:          "test-123",
+					Description: "Test task",
+					Priority:    internal.PriorityHigh.Pointer(),
+					IsDone:      true,
+				}
+
+				if diff := cmp.Diff(got, expected); diff != "" {
+					t.Fatalf("Received task is not the same as the created one: %s", diff)
+				}
+			},
+		},
+		{
+			name: "Updated",
+			call: func(t *testing.T, channel *amqp.Channel) {
+				t.Helper()
+
+				taskPub := rabbitmqtask.NewTask(channel)
+
+				task := internal.Task{
+					ID:          "test-123",
+					Description: "Test task",
+					Priority:    internal.PriorityHigh.Pointer(),
+					IsDone:      true,
+				}
+
+				if err := taskPub.Updated(ctx, task); err != nil {
+					t.Fatalf("Failed to publish created event: %v", err)
+				}
+			},
+			verify: func(t *testing.T, routingKey string, body []byte) {
+				t.Helper()
+
+				if routingKey != rabbitmqtask.TaskUpdatedMessageType {
+					t.Fatalf("Expected routing key %s, got %s", rabbitmqtask.TaskUpdatedMessageType, routingKey)
+				}
+
+				var got internal.Task
+
+				if err := gob.NewDecoder(bytes.NewReader(body)).Decode(&got); err != nil {
+					t.Fatalf("Failed to decode body: %v", err)
+				}
+
+				expected := internal.Task{
+					ID:          "test-123",
+					Description: "Test task",
+					Priority:    internal.PriorityHigh.Pointer(),
+					IsDone:      true,
+				}
+
+				if diff := cmp.Diff(got, expected); diff != "" {
+					t.Fatalf("Received task is not the same as the created one: %s", diff)
+				}
+			},
+		},
+		{
+			name: "Deleted",
+			call: func(t *testing.T, channel *amqp.Channel) {
+				t.Helper()
+
+				taskPub := rabbitmqtask.NewTask(channel)
+
+				if err := taskPub.Deleted(ctx, "test-123"); err != nil {
+					t.Fatalf("Failed to publish created event: %v", err)
+				}
+			},
+			verify: func(t *testing.T, routingKey string, body []byte) {
+				t.Helper()
+
+				if routingKey != rabbitmqtask.TaskDeletedMessageType {
+					t.Fatalf("Expected routing key %s, got %s", rabbitmqtask.TaskDeletedMessageType, routingKey)
+				}
+
+				var got string
+
+				if err := gob.NewDecoder(bytes.NewReader(body)).Decode(&got); err != nil {
+					t.Fatalf("Failed to decode body: %v", err)
+				}
+
+				expected := "test-123"
+
+				if diff := cmp.Diff(got, expected); diff != "" {
+					t.Fatalf("Received task is not the same as the created one: %s", diff)
+				}
+			},
+		},
 	}
 
-	conn, err := amqp.Dial(connStr)
-	if err != nil {
-		t.Fatalf("failed to connect to rabbitmq: %v", err)
-	}
+	for _, tt := range tests { //nolint: paralleltest
+		t.Run(tt.name, func(t *testing.T) {
+			tt.call(t, client.producerChannel)
 
-	t.Cleanup(func() {
-		_ = conn.Close()
-	})
+			ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+			t.Cleanup(cancel)
 
-	channel, err := conn.Channel()
-	if err != nil {
-		t.Fatalf("failed to open channel: %v", err)
-	}
-
-	t.Cleanup(func() { channel.Close() })
-
-	err = channel.ExchangeDeclare("tasks", "topic", true, false, false, false, nil)
-	if err != nil {
-		t.Fatalf("failed to declare exchange: %v", err)
-	}
-
-	taskPub := rabbitmqtask.NewTask(channel)
-
-	task := internal.Task{
-		ID:          "test-456",
-		Description: "Updated task",
-		IsDone:      true,
-	}
-
-	err = taskPub.Updated(ctx, task)
-	if err != nil {
-		t.Fatalf("Failed to publish updated event: %v", err)
-	}
-}
-
-func TestTask_Deleted_Integration(t *testing.T) {
-	t.Parallel()
-
-	ctx := t.Context()
-
-	rmqContainer, err := rabbitmq.Run(ctx, "rabbitmq:3.12-management-alpine")
-	if err != nil {
-		t.Fatalf("failed to start rabbitmq container: %v", err)
-	}
-
-	t.Cleanup(func() {
-		if err := testcontainers.TerminateContainer(rmqContainer); err != nil {
-			t.Logf("failed to terminate container: %v", err)
-		}
-	})
-
-	connStr, err := rmqContainer.AmqpURL(ctx)
-	if err != nil {
-		t.Fatalf("failed to get connection string: %v", err)
-	}
-
-	conn, err := amqp.Dial(connStr)
-	if err != nil {
-		t.Fatalf("failed to connect to rabbitmq: %v", err)
-	}
-
-	t.Cleanup(func() {
-		_ = conn.Close()
-	})
-
-	channel, err := conn.Channel()
-	if err != nil {
-		t.Fatalf("failed to open channel: %v", err)
-	}
-
-	t.Cleanup(func() { channel.Close() })
-
-	err = channel.ExchangeDeclare("tasks", "topic", true, false, false, false, nil)
-	if err != nil {
-		t.Fatalf("failed to declare exchange: %v", err)
-	}
-
-	taskPub := rabbitmqtask.NewTask(channel)
-
-	err = taskPub.Deleted(ctx, "test-789")
-	if err != nil {
-		t.Fatalf("Failed to publish deleted event: %v", err)
+			select {
+			case msg := <-client.msgs:
+				tt.verify(t, msg.RoutingKey, msg.Body)
+			case <-ctx.Done():
+				t.Fatal("Did not receive message in time")
+			}
+		})
 	}
 }
 
@@ -216,6 +217,7 @@ var setupClient = sync.OnceValue(func() RabbitMQClient { //nolint: gochecknoglob
 	}
 
 	//- RabbitMQ connection
+
 	conn, err := amqp.Dial(connStr)
 	if err != nil {
 		res.err = fmt.Errorf("failed to connect to rabbitmq: %w", err)
@@ -225,37 +227,169 @@ var setupClient = sync.OnceValue(func() RabbitMQClient { //nolint: gochecknoglob
 
 	res.connection = conn
 
-	//- RabbitMQ Channel
+	//- Publisher
 
-	channel, err := conn.Channel()
+	pubChannel, err := conn.Channel()
 	if err != nil {
-		res.err = fmt.Errorf("failed to open channel: %w", err)
+		res.err = fmt.Errorf("failed to open publisher channel: %w", err)
 
 		return res
 	}
 
-	res.channel = channel
+	res.producerChannel = pubChannel
+
+	err = res.producerChannel.ExchangeDeclare(
+		rabbitmqtask.ExchangeName, // name
+		"topic",                   // type
+		true,                      // durable
+		false,                     // auto-deleted
+		false,                     // internal
+		false,                     // no-wait
+		nil,                       // arguments
+	)
+	if err != nil {
+		res.err = fmt.Errorf("failed to exchange declare (producer): %w", err)
+
+		return res
+	}
+
+	queue, err := res.producerChannel.QueueDeclare(
+		rabbitmqtask.ExchangeName, // name
+		true,                      // durable
+		false,                     // delete when unused
+		true,                      // exclusive
+		false,                     // no-wait
+		nil,                       // arguments
+	)
+	if err != nil {
+		res.err = fmt.Errorf("failed to queue declare (producer): %w", err)
+
+		return res
+	}
+
+	if err := pubChannel.Qos(
+		1,     // prefetch count
+		0,     // prefetch size
+		false, // global
+	); err != nil {
+		res.err = fmt.Errorf("failed to channel Qos: %w", err)
+
+		return res
+	}
+
+	if err := res.producerChannel.QueueBind(
+		queue.Name,                // queue name
+		"Tasks.*",                 // routing key
+		rabbitmqtask.ExchangeName, // exchange
+		false,
+		nil,
+	); err != nil {
+		res.err = fmt.Errorf("failed to queue bind (producer): %w", err)
+
+		return res
+	}
+
+	//- Consumer
+
+	conChannel, err := conn.Channel()
+	if err != nil {
+		res.err = fmt.Errorf("failed to open consumer channel: %w", err)
+
+		return res
+	}
+
+	res.consumerChannel = conChannel
+
+	err = res.consumerChannel.ExchangeDeclare(
+		rabbitmqtask.ExchangeName, // name
+		"topic",                   // type
+		true,                      // durable
+		false,                     // auto-deleted
+		false,                     // internal
+		false,                     // no-wait
+		nil,                       // arguments
+	)
+	if err != nil {
+		res.err = fmt.Errorf("failed to exchange declare (consumer): %w", err)
+
+		return res
+	}
+
+	queue, err = res.consumerChannel.QueueDeclare(
+		rabbitmqtask.ExchangeName, // name
+		true,                      // durable
+		false,                     // delete when unused
+		true,                      // exclusive
+		false,                     // no-wait
+		nil,                       // arguments
+	)
+	if err != nil {
+		res.err = fmt.Errorf("failed to queue declare (consumer): %w", err)
+
+		return res
+	}
+
+	if err := res.consumerChannel.QueueBind(
+		queue.Name,                // queue name
+		"Task.*",                  // routing key
+		rabbitmqtask.ExchangeName, // exchange
+		false,
+		nil,
+	); err != nil {
+		res.err = fmt.Errorf("failed to queue bind (consumer): %w", err)
+
+		return res
+	}
+
+	msgs, err := res.consumerChannel.Consume(
+		queue.Name,           // queue
+		rabbitMQConsumerName, // consumer
+		true,                 // auto-ack
+		false,                // exclusive
+		false,                // no-local
+		false,                // no-wait
+		nil,                  // args
+	)
+	if err != nil {
+		res.err = fmt.Errorf("failed to consume msgs: %w", err)
+
+		return res
+	}
+
+	res.msgs = msgs
 
 	return res
 
 })
 
 type RabbitMQClient struct {
-	container  *rabbitmq.RabbitMQContainer
-	channel    *amqp.Channel
-	connection *amqp.Connection
-	err        error
+	container       *rabbitmq.RabbitMQContainer
+	producerChannel *amqp.Channel
+	consumerChannel *amqp.Channel
+	connection      *amqp.Connection
+	msgs            <-chan amqp.Delivery
+	err             error
 }
 
 func (r *RabbitMQClient) Teardown() error {
 	var err error
 
-	if r.channel != nil {
-		err = r.channel.Close()
+	if r.consumerChannel != nil {
+		if err1 := r.consumerChannel.Close(); err1 != nil {
+			err = fmt.Errorf("failed to close consumer channel: %w", err1)
+		}
+	}
+
+	if r.producerChannel != nil {
+		if err1 := r.producerChannel.Close(); err1 != nil {
+			err = errors.Join(err, fmt.Errorf("failed to close producer channel: %w", err1))
+		}
 	}
 
 	if r.connection != nil {
-		err = errors.Join(err, fmt.Errorf("failed to close connection: %w", r.connection.Close()))
+		if err1 := r.connection.Close(); err1 != nil {
+			err = errors.Join(err, fmt.Errorf("failed to close connection: %w", err1))
+		}
 	}
 
 	if r.container != nil {

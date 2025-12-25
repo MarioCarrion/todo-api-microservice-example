@@ -17,7 +17,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/mercari/go-circuitbreaker v0.0.2
 	github.com/oapi-codegen/runtime v1.1.2
-	github.com/streadway/amqp v1.1.0
+	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/testcontainers/testcontainers-go v0.39.0
 	github.com/testcontainers/testcontainers-go/modules/elasticsearch v0.39.0
 	github.com/testcontainers/testcontainers-go/modules/kafka v0.39.0
