@@ -1,3 +1,4 @@
+// Package memcached implements the memcached repository to cache tasks.
 package memcached
 
 import (

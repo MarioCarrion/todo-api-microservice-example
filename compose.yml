@@ -66,6 +66,7 @@ services:
     # Make sure the this payload is the same as the one used in `internal/elasticsearch/task_test.go`.
     entrypoint: ["curl", "-X", "PUT", "-H", "Content-Type: application/json", "http://elasticsearch:9200/tasks", "-d", "{\"mappings\":{\"properties\":{\"id\":{\"type\":\"keyword\"},\"description\":{\"type\":\"text\"}}}}"]
   memcached:
+    # Make sure the docker image listed here matches the one used in `internal/memcached/task_test.go`.
     image: memcached:1.6.19-alpine3.17
     ports:
       - 11211:11211
