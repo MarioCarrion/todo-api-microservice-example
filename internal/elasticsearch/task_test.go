@@ -25,8 +25,8 @@ const (
 	// dockerImage must match the docker image listed in `compose.yml`.
 	dockerImage = "elasticsearch:7.17.9"
 
-	// defaultIndexTimeount is timeout to wait for indexing operations.
-	defaultIndexTimeount = 5 * time.Second
+	// defaultIndexTimeout is timeout to wait for indexing operations.
+	defaultIndexTimeout = 5 * time.Second
 )
 
 func TestMain(m *testing.M) {
@@ -131,7 +131,7 @@ var setupClient = sync.OnceValue(func() ElasticsearchClient { //nolint: gocheckn
 	//- Create index
 
 	hclient := http.Client{
-		Timeout: defaultIndexTimeount,
+		Timeout: defaultIndexTimeout,
 	}
 
 	u, err := url.Parse(container.Settings.Address)

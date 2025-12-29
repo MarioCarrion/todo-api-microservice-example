@@ -305,7 +305,7 @@ func newDB(tb testing.TB) *pgxpool.Pool {
 
 	const (
 		username = "username"
-		password = "passord"
+		password = "password"
 		dbName   = "todo"
 	)
 
