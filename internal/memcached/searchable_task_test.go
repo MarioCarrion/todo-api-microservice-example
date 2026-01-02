@@ -76,6 +76,59 @@ func TestSearchableTask_All(t *testing.T) {
 				}
 			},
 		},
+		{
+			name: "Search",
+			setUpMockStore: func() *memcachedtesting.FakeSearchableTaskStore {
+				mock := &memcachedtesting.FakeSearchableTaskStore{}
+
+				mock.SearchReturns(internal.SearchResults{
+					Tasks: []internal.Task{
+						{
+							ID:          "test-123",
+							Description: "Test task",
+							Priority:    internal.PriorityHigh.Pointer(),
+						},
+					},
+					Total: 1,
+				}, nil)
+
+				return mock
+			},
+			callAndVerify: func(t *testing.T, task *memcachedtask.SearchableTask, store *memcachedtesting.FakeSearchableTaskStore) {
+				t.Helper()
+
+				got, err := task.Search(t.Context(), internal.SearchParams{
+					Description: internal.ValueToPointer("description"),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
+					IsDone:      internal.ValueToPointer(true),
+					From:        0,
+					Size:        2,
+				})
+				if err != nil {
+					t.Fatalf("Failed to search tasks: %v", err)
+				}
+				// return fmt.Sprintf("%s_%d_%t_%d_%d", description, priority, isDone, args.From, args.Size)
+
+				if count := store.SearchCallCount(); count != 1 {
+					t.Errorf("Expected store.Search to be called once, got %d", count)
+				}
+
+				expected := internal.SearchResults{
+					Tasks: []internal.Task{
+						{
+							ID:          "test-123",
+							Description: "Test task",
+							Priority:    internal.PriorityHigh.Pointer(),
+						},
+					},
+					Total: 1,
+				}
+
+				if diff := cmp.Diff(got, expected); diff != "" {
+					t.Fatalf("Found tasks are not the same as the mocked one: %s", diff)
+				}
+			},
+		},
 	}
 
 	for _, tt := range tests {
