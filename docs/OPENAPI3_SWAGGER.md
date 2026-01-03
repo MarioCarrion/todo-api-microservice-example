@@ -6,15 +6,14 @@
 
 * [github.com/getkin/kin-openapi/openapi3](https://pkg.go.dev/github.com/getkin/kin-openapi/openapi3#section-documentation): Package openapi3 parses and writes OpenAPI 3 specifications.
 * [Swagger Editor](https://editor.swagger.io/)
-* [Swagger Codegen 3.X](https://github.com/swagger-api/swagger-codegen/tree/3.0.0)
 * [Swagger UI](https://github.com/swagger-api/swagger-ui), local copy is in [`cmd/rest-server/static/swagger-ui`](../cmd/rest-server/static/swagger-ui).
     * Local demo: [http://0.0.0.0:9234/static/swagger-ui/](http://0.0.0.0:9234/static/swagger-ui/)
 
-### Swagger Codegen 3.X
+### OpenAPI Codegen 3.X
 
-For Go the types in `pkg/openapi3/`: [`oapi-codegen`](https://github.com/deepmap/oapi-codegen) is used for generating them.
+For Go the types representing the REST API in [`.`](../.): [`oapi-codegen`](https://github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen) is used for generating them.
 
-For other languages you may want to use: `swaggerapi/swagger-codegen-cli-v3`, for example for Ruby:
+For other languages you may want to use their corresponding equivalent, for example for Ruby you can use `swaggerapi/swagger-codegen-cli-v3`:
 
 ```
 docker run --rm -v ${PWD}:/gen swaggerapi/swagger-codegen-cli-v3:3.0.25 generate \

@@ -27,7 +27,10 @@ const (
 
 // Dates defines model for Dates.
 type Dates struct {
-	Due   *time.Time `json:"due"`
+	// Due When the task is expected to be due, seconds are dropped.
+	Due *time.Time `json:"due"`
+
+	// Start When the task is expected to begin, seconds are dropped.
 	Start *time.Time `json:"start"`
 }
 
