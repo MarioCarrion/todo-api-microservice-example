@@ -20,6 +20,9 @@ const (
 
 	// TaskUpdatedChannel is the channel used when a Task is updated.
 	TaskUpdatedChannel = "Task.Updated"
+
+	// ChannelsWildcard is the wildcard used to subscribe to all Task events.
+	ChannelsWildcard = "Task.*"
 )
 
 // Task represents the repository used for publishing Task records.

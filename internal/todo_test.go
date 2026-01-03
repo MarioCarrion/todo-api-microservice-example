@@ -92,16 +92,14 @@ func TestPriority_Pointer(t *testing.T) {
 			ptr := tt.priority.Pointer()
 			if ptr == nil {
 				t.Fatal("expected non-nil pointer")
-			}
-
-			if *ptr != tt.priority {
+			} else if *ptr != tt.priority {
 				t.Errorf("expected *%v, got *%v", tt.priority, *ptr)
 			}
 		})
 	}
 }
 
-func TestPriority_Value(t *testing.T) {
+func TestPriority_ValueOrDefault(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -145,7 +143,7 @@ func TestPriority_Value(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			result := tt.input.Value()
+			result := tt.input.ValueOrDefault()
 			if result != tt.expected {
 				t.Errorf("expected %v, got %v", tt.expected, result)
 			}

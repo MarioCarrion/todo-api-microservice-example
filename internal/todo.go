@@ -39,7 +39,7 @@ func (p Priority) Pointer() *Priority {
 	return &p
 }
 
-func (p *Priority) Value() Priority {
+func (p *Priority) ValueOrDefault() Priority {
 	if p == nil {
 		return PriorityNone
 	}

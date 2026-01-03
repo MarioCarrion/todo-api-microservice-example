@@ -12,7 +12,7 @@ type CreateParams struct {
 }
 
 // Validate indicates whether the fields are valid or not.
-func (c *CreateParams) Validate() error {
+func (c CreateParams) Validate() error {
 	task := Task{
 		Description: c.Description,
 		Priority:    c.Priority,

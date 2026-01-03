@@ -1,7 +1,7 @@
 openapi: 3.0.0
 servers:
   - description: Local development
-    url: http://0.0.0.0:9234
+    url: http://localhost:9234
 info:
   contact:
     url: https://github.com/MarioCarrion/todo-api-microservice-example

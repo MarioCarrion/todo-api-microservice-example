@@ -43,7 +43,7 @@ func (t *Task) Create(ctx context.Context, params internal.CreateParams) (intern
 		}
 	}
 
-	// FIXME: We are intentionally NOT SUPPORTING `SubTasks` and `Categories` JUST YET.
+	// TODO: We are intentionally NOT SUPPORTING `SubTasks` and `Categories` JUST YET.
 	newID, err := t.q.InsertTask(ctx, db.InsertTaskParams{
 		Description: params.Description,
 		Priority:    newPriority(params.Priority),
@@ -57,7 +57,7 @@ func (t *Task) Create(ctx context.Context, params internal.CreateParams) (intern
 	return internal.Task{
 		ID:          newID.String(),
 		Description: params.Description,
-		Priority:    params.Priority.Value().Pointer(), // Allocate a new pointer
+		Priority:    params.Priority,
 		Dates:       dates,
 	}, nil
 }
