@@ -24,6 +24,9 @@ const (
 
 	// ExchangeName is the name of the exchange used for Task messages.
 	ExchangeName = "Tasks"
+
+	// RoutingKeyWildcard is the wildcard used to subscribe to all Task events.
+	RoutingKeyWildcard = "Task.*"
 )
 
 // Task represents the repository used for publishing Task records.

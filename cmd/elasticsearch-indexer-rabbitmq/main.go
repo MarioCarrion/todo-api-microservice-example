@@ -140,9 +140,9 @@ func (s *Server) ListenAndServe() error {
 	}
 
 	err = s.rmq.Channel.QueueBind(
-		queue.Name,            // queue name
-		"Task.*",              // routing key
-		rabbitmq.ExchangeName, // exchange
+		queue.Name,                  // queue name
+		rabbitmq.RoutingKeyWildcard, // routing key
+		rabbitmq.ExchangeName,       // exchange
 		false,
 		nil,
 	)
