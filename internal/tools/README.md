@@ -10,4 +10,4 @@ I use the [_Tools as Dependencies_](https://mariocarrion.com/2021/10/15/learning
 
 Go 1.24 added a [`tool` command](https://go.dev/doc/go1.24#go-command) to track tool dependencies, however Dependabot is not able to track updates of those tools using this new Go command that's the reason I still prefer using the old _"tools paradigm"_ instead.
 
-See the [Github issue](https://github.com/dependabot/dependabot-core/issues/12050) for more information.
+See the [GitHub issue](https://github.com/dependabot/dependabot-core/issues/12050) for more information.

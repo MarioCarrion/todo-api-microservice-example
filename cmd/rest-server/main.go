@@ -200,9 +200,20 @@ func newServer(conf serverConfig) *http.Server {
 		BaseRouter:  router,
 		Middlewares: conf.Middlewares,
 		ErrorHandlerFunc: func(w http.ResponseWriter, _ *http.Request, err error) {
-			// FIXME: use the right status code and error message
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error())) //nolint:errcheck
+			switch {
+			case errors.Is(err, context.Canceled):
+				// Client canceled the request; treat as a bad request from the client's perspective.
+				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			case errors.Is(err, context.DeadlineExceeded):
+				// Request timed out; indicate a gateway timeout.
+				http.Error(w, http.StatusText(http.StatusGatewayTimeout), http.StatusGatewayTimeout)
+			default:
+				// Log internal error details but do not expose them to the client.
+				if conf.Logger != nil {
+					conf.Logger.Error("request failed", zap.Error(err))
+				}
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			}
 		},
 	}
 

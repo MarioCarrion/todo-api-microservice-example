@@ -96,7 +96,7 @@ func (t *TaskHandler) DeleteTask(ctx context.Context, request DeleteTaskRequestO
 
 func (t *TaskHandler) ReadTask(ctx context.Context, request ReadTaskRequestObject) (ReadTaskResponseObject, error) {
 	task, err := t.svc.ByID(ctx, request.Id.String())
-	// TODO: determine if this a validation error or a different kind of error, and use "CreateTask400JSONResponse"
+	// TODO: determine if this is a validation error or a different kind of error, and use "CreateTask400JSONResponse"
 	if err != nil {
 		resp := ReadTask500JSONResponse{}
 		resp.Error = err.Error()
@@ -146,7 +146,7 @@ func (t *TaskHandler) UpdateTask(ctx context.Context, req UpdateTaskRequestObjec
 		Dates:       dates,
 		IsDone:      req.Body.IsDone,
 	}); err != nil {
-		// TODO: determine if this a validation error or a different kind of error, and use "CreateTask400JSONResponse"
+		// TODO: determine if this is a validation error or a different kind of error, and use "CreateTask400JSONResponse"
 		return UpdateTask500JSONResponse{Error: err.Error()}, nil //nolint: nilerr
 	}
 
@@ -167,7 +167,7 @@ func (t *TaskHandler) SearchTask(ctx context.Context, req SearchTaskRequestObjec
 		From:        req.Body.From,
 		Size:        req.Body.Size,
 	})
-	// TODO: determine if this a validation error or a different kind of error, and use "CreateTask400JSONResponse"
+	// TODO: determine if this is a validation error or a different kind of error, and use "CreateTask400JSONResponse"
 	if err != nil {
 		return SearchTask500JSONResponse{ //nolint: nilerr
 			Error: err.Error(),
