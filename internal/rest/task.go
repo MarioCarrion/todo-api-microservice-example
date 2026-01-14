@@ -36,7 +36,7 @@ func NewTaskHandler(svc TaskService) *TaskHandler {
 func (t *TaskHandler) CreateTask(ctx context.Context, req CreateTaskRequestObject) (CreateTaskResponseObject, error) {
 	var priority *internal.Priority
 	if req.Body.Priority != nil {
-		priority = internal.ValueToPointer(req.Body.Priority.Convert())
+		priority = req.Body.Priority.ToDomain()
 	}
 
 	var dates *internal.Dates
@@ -75,7 +75,7 @@ func (t *TaskHandler) CreateTask(ctx context.Context, req CreateTaskRequestObjec
 	}
 
 	if task.Priority != nil {
-		resp.Task.Priority = internal.ValueToPointer(NewPriority(*task.Priority))
+		resp.Task.Priority = NewPriorityFromDomain(task.Priority)
 	}
 
 	return resp, nil
@@ -123,7 +123,7 @@ func (t *TaskHandler) ReadTask(ctx context.Context, request ReadTaskRequestObjec
 	}
 
 	if task.Priority != nil {
-		resp.Task.Priority = internal.ValueToPointer(NewPriority(*task.Priority))
+		resp.Task.Priority = NewPriorityFromDomain(task.Priority)
 	}
 
 	return resp, nil
@@ -132,7 +132,7 @@ func (t *TaskHandler) ReadTask(ctx context.Context, request ReadTaskRequestObjec
 func (t *TaskHandler) UpdateTask(ctx context.Context, req UpdateTaskRequestObject) (UpdateTaskResponseObject, error) {
 	var priority *internal.Priority
 	if req.Body.Priority != nil {
-		priority = internal.ValueToPointer(req.Body.Priority.Convert())
+		priority = req.Body.Priority.ToDomain()
 	}
 
 	var dates *internal.Dates
@@ -157,7 +157,7 @@ func (t *TaskHandler) SearchTask(ctx context.Context, req SearchTaskRequestObjec
 	var priority *internal.Priority
 
 	if req.Body.Priority != nil {
-		priority = internal.ValueToPointer(req.Body.Priority.Convert())
+		priority = req.Body.Priority.ToDomain()
 	}
 
 	res, err := t.svc.By(ctx, internal.SearchParams{
@@ -188,7 +188,7 @@ func (t *TaskHandler) SearchTask(ctx context.Context, req SearchTaskRequestObjec
 		tasks[i].Description = task.Description
 
 		if task.Priority != nil {
-			tasks[i].Priority = internal.ValueToPointer(NewPriority(*task.Priority))
+			tasks[i].Priority = NewPriorityFromDomain(task.Priority)
 		}
 
 		if task.Dates != nil {
