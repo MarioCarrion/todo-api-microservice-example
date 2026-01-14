@@ -18,6 +18,7 @@ import (
 	internaldomain "github.com/MarioCarrion/todo-api-microservice-example/internal"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/elasticsearch"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/envvar"
+	redistask "github.com/MarioCarrion/todo-api-microservice-example/internal/redis"
 )
 
 func main() {
@@ -125,7 +126,7 @@ type Server struct {
 
 // ListenAndServe ...
 func (s *Server) ListenAndServe() error {
-	pubsub := s.rdb.PSubscribe(context.Background(), "tasks.*")
+	pubsub := s.rdb.PSubscribe(context.Background(), redistask.ChannelsWildcard)
 
 	_, err := pubsub.Receive(context.Background())
 	if err != nil {
@@ -144,7 +145,7 @@ func (s *Server) ListenAndServe() error {
 
 			// XXX: We will revisit defining these topics in a better way in future episodes
 			switch msg.Channel {
-			case "tasks.event.updated", "tasks.event.created":
+			case redistask.TaskCreatedChannel, redistask.TaskUpdatedChannel:
 				var task internaldomain.Task
 
 				if err := json.NewDecoder(strings.NewReader(msg.Payload)).Decode(&task); err != nil {
@@ -158,7 +159,7 @@ func (s *Server) ListenAndServe() error {
 				}
 
 				s.logger.Info("Record saved")
-			case "tasks.event.deleted":
+			case redistask.TaskDeletedChannel:
 				var id string
 
 				if err := json.NewDecoder(strings.NewReader(msg.Payload)).Decode(&id); err != nil {

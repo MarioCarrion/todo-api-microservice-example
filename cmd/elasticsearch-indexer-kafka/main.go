@@ -18,6 +18,7 @@ import (
 	internaldomain "github.com/MarioCarrion/todo-api-microservice-example/internal"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/elasticsearch"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/envvar"
+	internalkafka "github.com/MarioCarrion/todo-api-microservice-example/internal/kafka"
 )
 
 func main() {
@@ -108,9 +109,7 @@ func run(env string) (<-chan error, error) {
 	go func() {
 		logger.Info("Listening and serving")
 
-		if err := srv.ListenAndServe(); err != nil {
-			errC <- err
-		}
+		srv.ListenAndServe()
 	}()
 
 	return errC, nil
@@ -125,7 +124,7 @@ type Server struct {
 }
 
 // ListenAndServe ...
-func (s *Server) ListenAndServe() error {
+func (s *Server) ListenAndServe() {
 	commit := func(msg *kafka.Message) {
 		if _, err := s.kafka.Consumer.CommitMessage(msg); err != nil {
 			s.logger.Error("commit failed", zap.Error(err))
@@ -162,11 +161,11 @@ func (s *Server) ListenAndServe() error {
 				ok = false
 
 				switch evt.Type {
-				case "tasks.event.updated", "tasks.event.created":
+				case internalkafka.TaskUpdatedMessageType, internalkafka.TaskCreatedMessageType:
 					if err := s.task.Index(context.Background(), evt.Value); err == nil {
 						ok = true
 					}
-				case "tasks.event.deleted":
+				case internalkafka.TaskDeletedMessageType:
 					if err := s.task.Delete(context.Background(), evt.Value.ID); err == nil {
 						ok = true
 					}
@@ -183,8 +182,6 @@ func (s *Server) ListenAndServe() error {
 
 		s.doneC <- struct{}{}
 	}()
-
-	return nil
 }
 
 // Shutdown ...

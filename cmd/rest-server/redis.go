@@ -32,7 +32,7 @@ func NewMessageBrokerPublisher(conf *envvar.Configuration) (MessageBrokerPublish
 }
 
 // Publisher returns the Redis broker.
-func (m *RedisMessageBroker) Publisher() service.TaskMessageBrokerPublisher { //nolint: ireturn
+func (m *RedisMessageBroker) Publisher() service.TaskMessageBrokerPublisher { //nolint: nolintlint,ireturn
 	return m.publisher
 }
 

@@ -1,14 +1,12 @@
 package vault_test
 
 import (
-	"errors"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/vault/api"
-	"github.com/ory/dockertest/v3"
-	"github.com/ory/dockertest/v3/docker"
+	"github.com/testcontainers/testcontainers-go"
+	tvault "github.com/testcontainers/testcontainers-go/modules/vault"
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/envvar/vault"
 )
@@ -38,8 +36,8 @@ func TestProvider_Get(t *testing.T) {
 			"OK",
 			func(v *vaultClient) error {
 				if _, err := v.Client.Logical().Write("/secret/data/ok",
-					map[string]interface{}{
-						"data": map[string]interface{}{
+					map[string]any{
+						"data": map[string]any{
 							"one": "1",
 							"two": "2",
 						},
@@ -90,8 +88,8 @@ func TestProvider_Get(t *testing.T) {
 			"ERR: key not found in retrieved data",
 			func(v *vaultClient) error {
 				if _, err := v.Client.Logical().Write("/secret/data/err",
-					map[string]interface{}{
-						"data": map[string]interface{}{
+					map[string]any{
+						"data": map[string]any{
 							"hello": "world",
 						},
 					}); err != nil {
@@ -140,93 +138,62 @@ func TestProvider_Get(t *testing.T) {
 func newVault(tb testing.TB) *vaultClient {
 	tb.Helper()
 
-	pool, err := dockertest.NewPool("")
-
-	if err != nil {
-		tb.Fatalf("Couldn't connect to docker: %s", err)
-	}
-
-	pool.MaxWait = 5 * time.Second
-
 	token := "myroot"
-	address := "0.0.0.0:8300"
 
-	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
-		Repository: "vault",
-		Tag:        "1.12.4",
-		Env: []string{
-			"VAULT_DEV_ROOT_TOKEN_ID=" + token,
-			"VAULT_DEV_LISTEN_ADDRESS=" + address,
-		},
-		ExposedPorts: []string{"8300/tcp"},
-		PortBindings: map[docker.Port][]docker.PortBinding{ // Because of the way Vault works internally we bind to a port on the host
-			"8300/tcp": {
-				{
-					HostIP:   "0.0.0.0",
-					HostPort: "8300/tcp",
-				},
-			},
-		},
-		CapAdd: []string{"IPC_LOCK"},
-	}, func(config *docker.HostConfig) {
-		config.AutoRemove = true
-		config.RestartPolicy = docker.RestartPolicy{
-			Name: "no",
-		}
-	})
-	if err != nil {
-		tb.Fatalf("Couldn't start resource: %s", err)
-	}
-
-	_ = resource.Expire(60)
+	vaultContainer, err := tvault.Run(
+		tb.Context(),
+		"hashicorp/vault:1.21.0",
+		tvault.WithToken(token),
+	)
 
 	tb.Cleanup(func() {
-		if err := pool.Purge(resource); err != nil {
-			tb.Fatalf("Couldn't purge container: %s", err)
+		if err := testcontainers.TerminateContainer(vaultContainer); err != nil {
+			tb.Logf("Failed to terminate container: %s", err)
 		}
 	})
 
-	address = "http://" + address
+	if err != nil {
+		tb.Fatalf("Failed run container: %s", err)
+	}
+
+	host, err := vaultContainer.HttpHostAddress(tb.Context())
+	if err != nil {
+		tb.Fatalf("Failed to get host address: %s", err)
+	}
 
 	config := &api.Config{
-		Address: address,
+		Address: host,
 	}
 
 	client, err := api.NewClient(config)
 	if err != nil {
-		tb.Fatalf("Couldn't open new client: %s", err)
+		tb.Fatalf("Failed to instantiate client: %s", err)
 	}
 
 	client.SetToken(token)
 
-	if err := pool.Retry(func() error {
-		_, err = client.Logical().Write("/secret/data/example",
-			map[string]interface{}{
-				"data": map[string]interface{}{
-					"one": "two",
-				},
-			})
-		if err != nil {
-			return err
-		}
+	_, err = client.Logical().Write("/secret/data/example",
+		map[string]any{
+			"data": map[string]any{
+				"one": "two",
+			},
+		})
+	if err != nil {
+		tb.Fatalf("Failed to write secret: %s", err)
+	}
 
-		secret, err := client.Logical().Read("/secret/data/example")
-		if err != nil {
-			return err
-		}
+	secret, err := client.Logical().Read("/secret/data/example")
+	if err != nil {
+		tb.Fatalf("Failed to read write secret: %s", err)
+	}
 
-		if secret == nil {
-			return errors.New("no secret")
-		}
-
-		return nil
-	}); err != nil {
-		tb.Fatalf("Couldn't retry: %s", err)
+	if secret == nil {
+		tb.Fatalf("Secret was nil: %s", err)
 	}
 
 	return &vaultClient{
 		Client:  client,
 		Token:   token,
-		Address: address,
+		Address: host,
 	}
 }
