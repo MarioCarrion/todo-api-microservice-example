@@ -14,7 +14,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/vault/api v1.22.0
-	github.com/jackc/pgx/v5 v5.7.6
+	github.com/jackc/pgx/v5 v5.8.0
 	github.com/jackc/tern/v2 v2.3.4
 	github.com/joho/godotenv v1.5.1
 	github.com/mercari/go-circuitbreaker v0.0.2
