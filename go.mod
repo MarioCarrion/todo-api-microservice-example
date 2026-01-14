@@ -4,7 +4,7 @@ go 1.25
 
 require (
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
-	github.com/confluentinc/confluent-kafka-go/v2 v2.12.0
+	github.com/confluentinc/confluent-kafka-go/v2 v2.13.0
 	github.com/didip/tollbooth/v6 v6.1.2
 	github.com/elastic/go-elasticsearch/v7 v7.17.10
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
@@ -12,7 +12,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/vault/api v1.22.0
-	github.com/jackc/pgx/v5 v5.7.6
+	github.com/jackc/pgx/v5 v5.8.0
 	github.com/jackc/tern/v2 v2.3.4
 	github.com/joho/godotenv v1.5.1
 	github.com/mercari/go-circuitbreaker v0.0.2
@@ -105,7 +105,7 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
+	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
