@@ -71,6 +71,7 @@ func TestPriority_ToDomain(t *testing.T) {
 			input: rest.Priority("none"),
 			output: func() *internal.Priority {
 				res := internal.PriorityNone
+
 				return &res
 			}(),
 		},
@@ -79,6 +80,7 @@ func TestPriority_ToDomain(t *testing.T) {
 			input: rest.Priority("none"),
 			output: func() *internal.Priority {
 				res := internal.PriorityNone
+
 				return &res
 			}(),
 		},
@@ -87,6 +89,7 @@ func TestPriority_ToDomain(t *testing.T) {
 			input: rest.Priority("low"),
 			output: func() *internal.Priority {
 				res := internal.PriorityLow
+
 				return &res
 			}(),
 		},
@@ -95,6 +98,7 @@ func TestPriority_ToDomain(t *testing.T) {
 			input: rest.Priority("medium"),
 			output: func() *internal.Priority {
 				res := internal.PriorityMedium
+
 				return &res
 			}(),
 		},
@@ -103,6 +107,7 @@ func TestPriority_ToDomain(t *testing.T) {
 			input: rest.Priority("high"),
 			output: func() *internal.Priority {
 				res := internal.PriorityHigh
+
 				return &res
 			}(),
 		},
@@ -111,6 +116,7 @@ func TestPriority_ToDomain(t *testing.T) {
 			input: rest.Priority("err"),
 			output: func() *internal.Priority {
 				res := internal.PriorityNone
+
 				return &res
 			}(),
 		}}
@@ -239,10 +245,12 @@ func TestNewPriorityFromDomain(t *testing.T) {
 			name: "not nil",
 			input: func() *internal.Priority {
 				p := internal.PriorityHigh
+
 				return &p
 			}(),
 			expected: func() *rest.Priority {
 				p := rest.Priority("high")
+
 				return &p
 			}(),
 		},
