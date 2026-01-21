@@ -1,442 +1,437 @@
 package rest_test
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
-	"net/http"
-	"net/http/httptest"
 	"testing"
-	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/google/uuid"
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/rest"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/rest/resttesting"
 )
 
-func TestTasks_Delete(t *testing.T) {
+func TestNewTaskHandler(t *testing.T) {
 	t.Parallel()
 
-	// XXX: Test "serviceArgs"
-
-	type output struct {
-		expectedStatus int
-		expected       interface{}
-		target         interface{}
-	}
-
 	tests := []struct {
-		name   string
-		setup  func(*resttesting.FakeTaskService)
-		output output
+		name string
 	}{
 		{
-			"OK: 200",
-			func(_ *resttesting.FakeTaskService) {},
-			output{
-				http.StatusOK,
-				&struct{}{},
-				&struct{}{},
-			},
-		},
-		{
-			"ERR: 404",
-			func(s *resttesting.FakeTaskService) {
-				s.DeleteReturns(internal.NewErrorf(internal.ErrorCodeNotFound, "not found"))
-			},
-			output{
-				http.StatusNotFound,
-				&struct{}{},
-				&struct{}{},
-			},
-		},
-		{
-			"ERR: 500",
-			func(s *resttesting.FakeTaskService) {
-				s.DeleteReturns(errors.New("service failed"))
-			},
-			output{
-				http.StatusInternalServerError,
-				&struct{}{},
-				&struct{}{},
-			},
+			name: "creates new task handler",
 		},
 	}
-
-	//-
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := newRouter()
 			svc := &resttesting.FakeTaskService{}
-			tt.setup(svc)
+			handler := rest.NewTaskHandler(svc)
 
-			rest.NewTaskHandler(svc).Register(router)
-
-			//-
-
-			res := doRequest(router,
-				httptest.NewRequest(http.MethodDelete, "/tasks/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", nil))
-
-			//-
-
-			assertResponse(t, res, test{tt.output.expected, tt.output.target})
-
-			if tt.output.expectedStatus != res.StatusCode {
-				t.Fatalf("expected code %d, actual %d", tt.output.expectedStatus, res.StatusCode)
+			if handler == nil {
+				t.Fatal("expected non-nil handler")
 			}
 		})
 	}
 }
 
-func TestTasks_Post(t *testing.T) {
+func TestTaskHandler_CreateTask(t *testing.T) {
 	t.Parallel()
 
-	// XXX: Test "serviceArgs"
-
-	type output struct {
-		expectedStatus int
-		expected       interface{}
-		target         interface{}
-	}
+	taskID := uuid.New()
 
 	tests := []struct {
-		name   string
-		setup  func(*resttesting.FakeTaskService)
-		input  []byte
-		output output
+		name         string
+		request      rest.CreateTaskRequestObject
+		setupMock    func(*resttesting.FakeTaskService)
+		expectError  bool
+		validateResp func(t *testing.T, resp rest.CreateTaskResponseObject)
 	}{
 		{
-			"OK: 201",
-			func(s *resttesting.FakeTaskService) {
-				s.CreateReturns(
-					internal.Task{
-						ID:          "1-2-3",
-						Description: "new task",
-						Priority:    internal.PriorityHigh,
-					},
-					nil)
-			},
-			func() []byte {
-				b, _ := json.Marshal(&rest.CreateTasksRequest{
-					Description: "new task",
-					Priority:    "high",
-				})
-
-				return b
-			}(),
-			output{
-				http.StatusCreated,
-				&rest.CreateTasksResponse{
-					Task: rest.Task{
-						ID:          "1-2-3",
-						Description: "new task",
-						Priority:    "high",
-					},
+			name: "successful creation",
+			request: rest.CreateTaskRequestObject{
+				Body: &rest.CreateTaskJSONRequestBody{
+					Description: "test task",
+					Priority:    (*rest.Priority)(internal.ValueToPointer("high")),
 				},
-				&rest.CreateTasksResponse{},
+			},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.CreateReturns(internal.Task{
+					ID:          taskID.String(),
+					Description: "test task",
+					Priority:    internal.PriorityHigh.Pointer(),
+				}, nil)
+			},
+			expectError: false,
+			validateResp: func(t *testing.T, resp rest.CreateTaskResponseObject) {
+				t.Helper()
+				r, ok := resp.(rest.CreateTask201JSONResponse)
+				if !ok {
+					t.Fatalf("expected CreateTask201JSONResponse, got %T", resp)
+				}
+				if r.Task.ID != taskID {
+					t.Errorf("expected task ID %v, got %v", taskID, r.Task.ID)
+				}
 			},
 		},
 		{
-			"ERR: 400",
-			func(*resttesting.FakeTaskService) {},
-			[]byte(`{"invalid":"json`),
-			output{
-				http.StatusBadRequest,
-				&rest.ErrorResponse{
-					Error: "invalid request",
+			name: "service error",
+			request: rest.CreateTaskRequestObject{
+				Body: &rest.CreateTaskJSONRequestBody{
+					Description: "test task",
 				},
-				&rest.ErrorResponse{},
 			},
-		},
-		{
-			"ERR: 500",
-			func(s *resttesting.FakeTaskService) {
-				s.CreateReturns(internal.Task{},
-					errors.New("service error"))
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.CreateReturns(internal.Task{}, errors.New("service error"))
 			},
-			[]byte(`{}`),
-			output{
-				http.StatusInternalServerError,
-				&rest.ErrorResponse{
-					Error: "internal error",
-				},
-				&rest.ErrorResponse{},
+			expectError: false,
+			validateResp: func(t *testing.T, resp rest.CreateTaskResponseObject) {
+				t.Helper()
+				_, ok := resp.(rest.CreateTask500JSONResponse)
+				if !ok {
+					t.Fatalf("expected CreateTask500JSONResponse, got %T", resp)
+				}
 			},
 		},
 	}
-
-	//-
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := newRouter()
-			svc := &resttesting.FakeTaskService{}
-			tt.setup(svc)
+			mockService := &resttesting.FakeTaskService{}
+			tt.setupMock(mockService)
+			handler := rest.NewTaskHandler(mockService)
+			resp, err := handler.CreateTask(t.Context(), tt.request)
 
-			rest.NewTaskHandler(svc).Register(router)
+			if tt.expectError && err == nil {
+				t.Fatal("expected error, got nil")
+			}
 
-			//-
+			if !tt.expectError && err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
 
-			res := doRequest(router,
-				httptest.NewRequest(http.MethodPost, "/tasks", bytes.NewReader(tt.input)))
-
-			//-
-
-			assertResponse(t, res, test{tt.output.expected, tt.output.target})
-
-			if tt.output.expectedStatus != res.StatusCode {
-				t.Fatalf("expected code %d, actual %d", tt.output.expectedStatus, res.StatusCode)
+			if tt.validateResp != nil {
+				tt.validateResp(t, resp)
 			}
 		})
 	}
 }
 
-func TestTasks_Read(t *testing.T) {
+func TestTaskHandler_ReadTask(t *testing.T) {
 	t.Parallel()
 
-	// XXX: Test "serviceArgs"
-
-	type output struct {
-		expectedStatus int
-		expected       interface{}
-		target         interface{}
-	}
+	taskID := uuid.New()
 
 	tests := []struct {
-		name   string
-		setup  func(*resttesting.FakeTaskService)
-		output output
+		name         string
+		request      rest.ReadTaskRequestObject
+		setupMock    func(*resttesting.FakeTaskService)
+		expectError  bool
+		validateResp func(t *testing.T, resp rest.ReadTaskResponseObject)
 	}{
 		{
-			"OK: 200",
-			func(s *resttesting.FakeTaskService) {
-				s.TaskReturns(
-					internal.Task{
-						ID:          "a-b-c",
-						Description: "existing task",
-						IsDone:      true,
-					},
-					nil)
+			name: "successful read",
+			request: rest.ReadTaskRequestObject{
+				Id: taskID,
 			},
-			output{
-				http.StatusOK,
-				&rest.ReadTasksResponse{
-					Task: rest.Task{
-						ID:          "a-b-c",
-						Description: "existing task",
-						Priority:    "none",
-						IsDone:      true,
-					},
-				},
-				&rest.ReadTasksResponse{},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.ByIDReturns(internal.Task{
+					ID:          taskID.String(),
+					Description: "test task",
+				}, nil)
 			},
-		},
-		{
-			"OK: 200",
-			func(s *resttesting.FakeTaskService) {
-				s.TaskReturns(internal.Task{},
-					internal.NewErrorf(internal.ErrorCodeNotFound, "not found"))
-			},
-			output{
-				http.StatusNotFound,
-				&rest.ErrorResponse{
-					Error: "find failed",
-				},
-				&rest.ErrorResponse{},
+			expectError: false,
+			validateResp: func(t *testing.T, resp rest.ReadTaskResponseObject) {
+				t.Helper()
+				r, ok := resp.(rest.ReadTask200JSONResponse)
+				if !ok {
+					t.Fatalf("expected ReadTask200JSONResponse, got %T", resp)
+				}
+				if r.Task.ID != taskID {
+					t.Errorf("expected task ID %v, got %v", taskID, r.Task.ID)
+				}
 			},
 		},
 		{
-			"ERR: 500",
-			func(s *resttesting.FakeTaskService) {
-				s.TaskReturns(internal.Task{},
-					errors.New("service error"))
+			name: "service error",
+			request: rest.ReadTaskRequestObject{
+				Id: taskID,
 			},
-			output{
-				http.StatusInternalServerError,
-				&rest.ErrorResponse{
-					Error: "internal error",
-				},
-				&rest.ErrorResponse{},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.ByIDReturns(internal.Task{}, errors.New("not found"))
+			},
+			expectError: false,
+			validateResp: func(t *testing.T, resp rest.ReadTaskResponseObject) {
+				t.Helper()
+				_, ok := resp.(rest.ReadTask500JSONResponse)
+				if !ok {
+					t.Fatalf("expected ReadTask500JSONResponse, got %T", resp)
+				}
 			},
 		},
 	}
-
-	//-
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := newRouter()
-			svc := &resttesting.FakeTaskService{}
-			tt.setup(svc)
+			mockService := &resttesting.FakeTaskService{}
+			tt.setupMock(mockService)
+			handler := rest.NewTaskHandler(mockService)
+			resp, err := handler.ReadTask(t.Context(), tt.request)
 
-			rest.NewTaskHandler(svc).Register(router)
+			if tt.expectError && err == nil {
+				t.Fatal("expected error, got nil")
+			}
 
-			//-
+			if !tt.expectError && err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
 
-			res := doRequest(router,
-				httptest.NewRequest(http.MethodGet, "/tasks/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", nil))
-
-			//-
-
-			assertResponse(t, res, test{tt.output.expected, tt.output.target})
-
-			if tt.output.expectedStatus != res.StatusCode {
-				t.Fatalf("expected code %d, actual %d", tt.output.expectedStatus, res.StatusCode)
+			if tt.validateResp != nil {
+				tt.validateResp(t, resp)
 			}
 		})
 	}
 }
 
-func TestTasks_Update(t *testing.T) {
+func TestTaskHandler_DeleteTask(t *testing.T) {
 	t.Parallel()
 
-	// XXX: Test "serviceArgs"
-
-	type output struct {
-		expectedStatus int
-		expected       interface{}
-		target         interface{}
-	}
+	taskID := uuid.New()
 
 	tests := []struct {
-		name   string
-		setup  func(*resttesting.FakeTaskService)
-		input  []byte
-		output output
+		name         string
+		request      rest.DeleteTaskRequestObject
+		setupMock    func(*resttesting.FakeTaskService)
+		expectError  bool
+		validateResp func(t *testing.T, resp rest.DeleteTaskResponseObject)
 	}{
 		{
-			"OK: 200",
-			func(_ *resttesting.FakeTaskService) {},
-			func() []byte {
-				b, _ := json.Marshal(&rest.UpdateTasksRequest{
-					Description: "update task",
-					Priority:    "low",
-				})
-
-				return b
-			}(),
-			output{
-				http.StatusOK,
-				&struct{}{},
-				&struct{}{},
+			name: "successful delete",
+			request: rest.DeleteTaskRequestObject{
+				Id: taskID,
+			},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.DeleteReturns(nil)
+			},
+			expectError: false,
+			validateResp: func(t *testing.T, resp rest.DeleteTaskResponseObject) {
+				t.Helper()
+				_, ok := resp.(rest.DeleteTask200Response)
+				if !ok {
+					t.Fatalf("expected DeleteTask200Response, got %T", resp)
+				}
 			},
 		},
 		{
-			"ERR: 400",
-			func(*resttesting.FakeTaskService) {},
-			[]byte(`{"invalid":"json`),
-			output{
-				http.StatusBadRequest,
-				&rest.ErrorResponse{
-					Error: "invalid request",
-				},
-				&rest.ErrorResponse{},
+			name: "service error",
+			request: rest.DeleteTaskRequestObject{
+				Id: taskID,
 			},
-		},
-		{
-			"ERR: 404",
-			func(s *resttesting.FakeTaskService) {
-				s.UpdateReturns(internal.NewErrorf(internal.ErrorCodeNotFound, "not found"))
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.DeleteReturns(errors.New("delete error"))
 			},
-			func() []byte {
-				b, _ := json.Marshal(&rest.UpdateTasksRequest{
-					Description: "update task",
-					Priority:    "low",
-				})
-
-				return b
-			}(),
-			output{
-				http.StatusNotFound,
-				&struct{}{},
-				&struct{}{},
-			},
-		},
-		{
-			"ERR: 500",
-			func(s *resttesting.FakeTaskService) {
-				s.UpdateReturns(errors.New("service error"))
-			},
-			[]byte(`{}`),
-			output{
-				http.StatusInternalServerError,
-				&rest.ErrorResponse{
-					Error: "internal error",
-				},
-				&rest.ErrorResponse{},
+			expectError: false,
+			validateResp: func(t *testing.T, resp rest.DeleteTaskResponseObject) {
+				t.Helper()
+				_, ok := resp.(rest.DeleteTask500JSONResponse)
+				if !ok {
+					t.Fatalf("expected DeleteTask500JSONResponse, got %T", resp)
+				}
 			},
 		},
 	}
-
-	//-
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			router := newRouter()
-			svc := &resttesting.FakeTaskService{}
-			tt.setup(svc)
+			mockService := &resttesting.FakeTaskService{}
+			tt.setupMock(mockService)
+			handler := rest.NewTaskHandler(mockService)
+			resp, err := handler.DeleteTask(t.Context(), tt.request)
 
-			rest.NewTaskHandler(svc).Register(router)
+			if tt.expectError && err == nil {
+				t.Fatal("expected error, got nil")
+			}
 
-			//-
+			if !tt.expectError && err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
 
-			res := doRequest(router,
-				httptest.NewRequest(http.MethodPut, "/tasks/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", bytes.NewReader(tt.input)))
-
-			//-
-
-			assertResponse(t, res, test{tt.output.expected, tt.output.target})
-
-			if tt.output.expectedStatus != res.StatusCode {
-				t.Fatalf("expected code %d, actual %d", tt.output.expectedStatus, res.StatusCode)
+			if tt.validateResp != nil {
+				tt.validateResp(t, resp)
 			}
 		})
 	}
 }
 
-type test struct {
-	expected interface{}
-	target   interface{}
-}
+func TestTaskHandler_UpdateTask(t *testing.T) {
+	t.Parallel()
 
-func doRequest(router *chi.Mux, req *http.Request) *http.Response {
-	rr := httptest.NewRecorder()
+	taskID := uuid.New()
 
-	router.ServeHTTP(rr, req)
-
-	return rr.Result()
-}
-
-func assertResponse(t *testing.T, res *http.Response, test test) {
-	t.Helper()
-
-	if err := json.NewDecoder(res.Body).Decode(test.target); err != nil {
-		t.Fatalf("couldn't decode %s", err)
+	tests := []struct {
+		name         string
+		request      rest.UpdateTaskRequestObject
+		setupMock    func(*resttesting.FakeTaskService)
+		expectError  bool
+		validateResp func(t *testing.T, resp rest.UpdateTaskResponseObject)
+	}{
+		{
+			name: "successful update",
+			request: rest.UpdateTaskRequestObject{
+				Id: taskID,
+				Body: &rest.UpdateTaskJSONRequestBody{
+					Description: internal.ValueToPointer("updated task"),
+				},
+			},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.UpdateReturns(nil)
+			},
+			expectError: false,
+			validateResp: func(t *testing.T, resp rest.UpdateTaskResponseObject) {
+				t.Helper()
+				_, ok := resp.(rest.UpdateTask200Response)
+				if !ok {
+					t.Fatalf("expected UpdateTask200Response, got %T", resp)
+				}
+			},
+		},
+		{
+			name: "service error",
+			request: rest.UpdateTaskRequestObject{
+				Id: taskID,
+				Body: &rest.UpdateTaskJSONRequestBody{
+					Description: internal.ValueToPointer("updated task"),
+				},
+			},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.UpdateReturns(errors.New("update error"))
+			},
+			expectError: false,
+			validateResp: func(t *testing.T, resp rest.UpdateTaskResponseObject) {
+				t.Helper()
+				_, ok := resp.(rest.UpdateTask500JSONResponse)
+				if !ok {
+					t.Fatalf("expected UpdateTask500JSONResponse, got %T", resp)
+				}
+			},
+		},
 	}
-	defer res.Body.Close()
 
-	if !cmp.Equal(test.expected, test.target, cmpopts.IgnoreUnexported(time.Time{})) {
-		t.Fatalf("expected results don't match: %s", cmp.Diff(test.expected, test.target, cmpopts.IgnoreUnexported(time.Time{})))
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			mockService := &resttesting.FakeTaskService{}
+			tt.setupMock(mockService)
+			handler := rest.NewTaskHandler(mockService)
+			resp, err := handler.UpdateTask(t.Context(), tt.request)
+
+			if tt.expectError && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+
+			if !tt.expectError && err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			if tt.validateResp != nil {
+				tt.validateResp(t, resp)
+			}
+		})
 	}
 }
 
-func newRouter() *chi.Mux {
-	r := chi.NewRouter()
-	r.Use(render.SetContentType(render.ContentTypeJSON))
+func TestTaskHandler_SearchTask(t *testing.T) {
+	t.Parallel()
 
-	return r
+	taskID1 := uuid.New()
+	taskID2 := uuid.New()
+
+	tests := []struct {
+		name         string
+		request      rest.SearchTaskRequestObject
+		setupMock    func(*resttesting.FakeTaskService)
+		expectError  bool
+		validateResp func(t *testing.T, resp rest.SearchTaskResponseObject)
+	}{
+		{
+			name: "successful search",
+			request: rest.SearchTaskRequestObject{
+				Body: &rest.SearchTaskJSONRequestBody{
+					Description: internal.ValueToPointer("test"),
+					From:        0,
+					Size:        10,
+				},
+			},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.ByReturns(internal.SearchResults{
+					Tasks: []internal.Task{
+						{ID: taskID1.String(), Description: "test task 1"},
+						{ID: taskID2.String(), Description: "test task 2"},
+					},
+					Total: 2,
+				}, nil)
+			},
+			expectError: false,
+			validateResp: func(t *testing.T, resp rest.SearchTaskResponseObject) {
+				t.Helper()
+				r, ok := resp.(rest.SearchTask200JSONResponse)
+				if !ok {
+					t.Fatalf("expected SearchTask200JSONResponse, got %T", resp)
+				}
+				if r.Tasks == nil || len(*r.Tasks) != 2 {
+					t.Errorf("expected 2 tasks, got %v", r.Tasks)
+				}
+			},
+		},
+		{
+			name: "service error",
+			request: rest.SearchTaskRequestObject{
+				Body: &rest.SearchTaskJSONRequestBody{
+					Description: internal.ValueToPointer("test"),
+				},
+			},
+			setupMock: func(m *resttesting.FakeTaskService) {
+				m.ByReturns(internal.SearchResults{}, errors.New("search error"))
+			},
+			expectError: false,
+			validateResp: func(t *testing.T, resp rest.SearchTaskResponseObject) {
+				t.Helper()
+				_, ok := resp.(rest.SearchTask500JSONResponse)
+				if !ok {
+					t.Fatalf("expected SearchTask500JSONResponse, got %T", resp)
+				}
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			mockService := &resttesting.FakeTaskService{}
+			tt.setupMock(mockService)
+			handler := rest.NewTaskHandler(mockService)
+			resp, err := handler.SearchTask(t.Context(), tt.request)
+
+			if tt.expectError && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+
+			if !tt.expectError && err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			if tt.validateResp != nil {
+				tt.validateResp(t, resp)
+			}
+		})
+	}
 }

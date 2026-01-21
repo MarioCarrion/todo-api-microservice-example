@@ -11,11 +11,15 @@ import (
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 )
 
+//go:generate counterfeiter -generate
+
 // SearchableTask ...
 type SearchableTask struct {
 	client *memcache.Client
 	orig   SearchableTaskStore
 }
+
+//counterfeiter:generate -o memcachedtesting/searchable_task_store.gen.go . SearchableTaskStore
 
 type SearchableTaskStore interface {
 	Delete(ctx context.Context, id string) error
