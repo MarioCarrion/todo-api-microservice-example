@@ -117,7 +117,7 @@ func TestTask_Find(t *testing.T) {
 	t.Run("Find: OK", func(t *testing.T) {
 		t.Parallel()
 
-		now := time.Now().UTC().Truncate(time.Second)
+		now := time.Now().UTC().Truncate(time.Minute)
 
 		store := postgresql.NewTask(newDB(t))
 
@@ -188,7 +188,7 @@ func TestTask_Update(t *testing.T) {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		now := time.Now().UTC().Truncate(time.Second)
+		now := time.Now().UTC().Truncate(time.Minute)
 
 		originalTask.Description = "changed"
 		originalTask.Dates = &internal.Dates{

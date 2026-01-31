@@ -34,7 +34,7 @@ func newTimestamp(t *time.Time) pgtype.Timestamp {
 		}
 	}
 
-	truncated := t.Truncate(time.Second)
+	truncated := t.Truncate(time.Minute)
 
 	return pgtype.Timestamp{
 		Time:  truncated,

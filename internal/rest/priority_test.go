@@ -67,7 +67,7 @@ func TestPriority_ToDomain(t *testing.T) {
 		output *internal.Priority
 	}{
 		{
-			name:  "OK: nil",
+			name:  "OK: none",
 			input: rest.Priority("none"),
 			output: func() *internal.Priority {
 				res := internal.PriorityNone
