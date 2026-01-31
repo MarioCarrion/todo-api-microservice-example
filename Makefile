@@ -59,7 +59,7 @@ security:
 .PHONY: test
 test:
 	go test -shuffle=on -race -coverprofile=coverage.txt -covermode=atomic $$(go list ./... | grep -v /cmd/)
-
+	go tool cover -html=coverage.txt -o coverage/index.html
 
 # Build
 .PHONY: docker

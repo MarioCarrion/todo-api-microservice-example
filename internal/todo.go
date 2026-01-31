@@ -22,7 +22,7 @@ const (
 )
 
 // Priority indicates how important a Task is.
-type Priority int8 //nolint: recvcheck
+type Priority int8
 
 // Validate ...
 func (p Priority) Validate() error {
