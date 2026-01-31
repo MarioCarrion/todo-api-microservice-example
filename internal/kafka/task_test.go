@@ -74,7 +74,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 				task := internal.Task{
 					ID:          "test-123",
 					Description: "Test task",
-					Priority:    internal.PriorityHigh.Pointer(),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
 					IsDone:      true,
 				}
 
@@ -92,7 +92,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 				expected := internal.Task{
 					ID:          "test-123",
 					Description: "Test task",
-					Priority:    internal.PriorityHigh.Pointer(),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
 					IsDone:      true,
 				}
 
@@ -134,7 +134,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 				task := internal.Task{
 					ID:          "test-123-updated",
 					Description: "Test task updated",
-					Priority:    internal.PriorityHigh.Pointer(),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
 					IsDone:      true,
 				}
 
@@ -152,7 +152,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 				expected := internal.Task{
 					ID:          "test-123-updated",
 					Description: "Test task updated",
-					Priority:    internal.PriorityHigh.Pointer(),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
 					IsDone:      true,
 				}
 

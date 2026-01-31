@@ -34,11 +34,6 @@ func (p Priority) Validate() error {
 	return NewErrorf(ErrorCodeInvalidArgument, "unknown value")
 }
 
-// Pointer returns the pointer of p.
-func (p Priority) Pointer() *Priority {
-	return &p
-}
-
 func (p *Priority) ValueOrDefault() Priority {
 	if p == nil {
 		return PriorityNone
@@ -73,11 +68,6 @@ func (d Dates) Validate() error {
 	}
 
 	return nil
-}
-
-// Pointer returns the pointer of d.
-func (d Dates) Pointer() *Dates {
-	return &d
 }
 
 // Task is an activity that needs to be completed within a period of time.

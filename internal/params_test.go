@@ -21,7 +21,7 @@ func TestCreateParams_Validate(t *testing.T) {
 			"OK",
 			internal.CreateParams{
 				Description: "Description",
-				Priority:    internal.PriorityLow.Pointer(),
+				Priority:    internal.ValueToPointer(internal.PriorityLow),
 			},
 			false,
 		},
@@ -66,7 +66,7 @@ func TestSearchParams_IsZero(t *testing.T) {
 			"OK",
 			internal.SearchParams{
 				Description: internal.ValueToPointer("description"),
-				Priority:    internal.PriorityHigh.Pointer(),
+				Priority:    internal.ValueToPointer(internal.PriorityHigh),
 				IsDone:      internal.ValueToPointer(false),
 			},
 			false,
@@ -74,7 +74,7 @@ func TestSearchParams_IsZero(t *testing.T) {
 		{
 			"OK: Description",
 			internal.SearchParams{
-				Priority: internal.PriorityHigh.Pointer(),
+				Priority: internal.ValueToPointer(internal.PriorityHigh),
 				IsDone:   internal.ValueToPointer(false),
 			},
 			false,
@@ -91,7 +91,7 @@ func TestSearchParams_IsZero(t *testing.T) {
 			"OK: IsDone",
 			internal.SearchParams{
 				Description: internal.ValueToPointer("description"),
-				Priority:    internal.PriorityHigh.Pointer(),
+				Priority:    internal.ValueToPointer(internal.PriorityHigh),
 			},
 			false,
 		},

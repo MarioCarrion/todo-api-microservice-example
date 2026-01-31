@@ -113,7 +113,7 @@ func TestTask_Create(t *testing.T) {
 			name: "successful create",
 			params: internal.CreateParams{
 				Description: "test task",
-				Priority:    internal.PriorityHigh.Pointer(),
+				Priority:    internal.ValueToPointer(internal.PriorityHigh),
 			},
 			mockRepo: &mockTaskRepository{
 				createFn: func(_ context.Context, params internal.CreateParams) (internal.Task, error) {
@@ -133,7 +133,7 @@ func TestTask_Create(t *testing.T) {
 				expectedTask := internal.Task{
 					ID:          "123",
 					Description: "test task",
-					Priority:    internal.PriorityHigh.Pointer(),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
 				}
 				if diff := cmp.Diff(expectedTask, task); diff != "" {
 					t.Errorf("task mismatch (-want +got):\n%s", diff)
@@ -161,7 +161,7 @@ func TestTask_Create(t *testing.T) {
 			name: "repository error",
 			params: internal.CreateParams{
 				Description: "test task",
-				Priority:    internal.PriorityHigh.Pointer(),
+				Priority:    internal.ValueToPointer(internal.PriorityHigh),
 			},
 			mockRepo: &mockTaskRepository{
 				createFn: func(_ context.Context, _ internal.CreateParams) (internal.Task, error) {

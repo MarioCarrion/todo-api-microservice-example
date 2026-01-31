@@ -60,7 +60,7 @@ func TestTaskHandler_CreateTask(t *testing.T) {
 				m.CreateReturns(internal.Task{
 					ID:          taskID.String(),
 					Description: "test task",
-					Priority:    internal.PriorityHigh.Pointer(),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
 				}, nil)
 			},
 			expectError: false,

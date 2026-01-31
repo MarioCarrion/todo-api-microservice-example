@@ -62,7 +62,7 @@ func TestTask_All(t *testing.T) {
 	task := internal.Task{
 		ID:          "test-123",
 		Description: "Test task for elasticsearch",
-		Priority:    internal.PriorityHigh.Pointer(),
+		Priority:    internal.ValueToPointer(internal.PriorityHigh),
 		IsDone:      false,
 		Dates: &internal.Dates{
 			Start: &now,

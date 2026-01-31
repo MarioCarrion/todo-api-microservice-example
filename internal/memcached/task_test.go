@@ -57,7 +57,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 				testTask := internal.Task{
 					ID:          "test-123",
 					Description: "Test task",
-					Priority:    internal.PriorityHigh.Pointer(),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
 				}
 				mockStore.FindReturns(testTask, nil)
 
@@ -74,7 +74,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 				expected := internal.Task{
 					ID:          "test-123",
 					Description: "Test task",
-					Priority:    internal.PriorityHigh.Pointer(),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
 				}
 
 				if diff := cmp.Diff(got, expected); diff != "" {
@@ -104,7 +104,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 				testTask := internal.Task{
 					ID:          "test-123",
 					Description: "Create task",
-					Priority:    internal.PriorityHigh.Pointer(),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
 				}
 				mockStore.CreateReturns(testTask, nil)
 
@@ -115,7 +115,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 
 				params := internal.CreateParams{
 					Description: "Create task",
-					Priority:    internal.PriorityHigh.Pointer(),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
 				}
 
 				got, err := task.Create(ctx, params)
@@ -126,7 +126,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 				expected := internal.Task{
 					ID:          "test-123",
 					Description: "Create task",
-					Priority:    internal.PriorityHigh.Pointer(),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
 				}
 
 				if diff := cmp.Diff(got, expected); diff != "" {
@@ -157,7 +157,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 				testTask := internal.Task{
 					ID:          "test-123",
 					Description: "Delete task",
-					Priority:    internal.PriorityHigh.Pointer(),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
 				}
 				mockStore.CreateReturns(testTask, nil)
 
@@ -170,7 +170,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 
 				params := internal.CreateParams{
 					Description: "Delete task",
-					Priority:    internal.PriorityHigh.Pointer(),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
 				}
 
 				got, err := task.Create(ctx, params)
@@ -181,7 +181,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 				expected := internal.Task{
 					ID:          "test-123",
 					Description: "Delete task",
-					Priority:    internal.PriorityHigh.Pointer(),
+					Priority:    internal.ValueToPointer(internal.PriorityHigh),
 				}
 
 				if diff := cmp.Diff(got, expected); diff != "" {
