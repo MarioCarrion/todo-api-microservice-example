@@ -216,6 +216,7 @@ func TestTask_Validate(t *testing.T) {
 			Start: &start,
 			Due:   &due,
 		}
+
 		return &res
 	}
 
