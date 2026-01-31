@@ -5,5 +5,4 @@ mdl--*
 
 cover.cov
 coverage.txt
-
-coverage/
+coverage.html

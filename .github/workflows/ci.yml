@@ -29,4 +29,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: code-coverage
-          path: coverage/index.html
+          path: coverage.html
