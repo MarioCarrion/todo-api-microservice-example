@@ -34,20 +34,6 @@ func (p Priority) Validate() error {
 	return NewErrorf(ErrorCodeInvalidArgument, "unknown value")
 }
 
-func (p *Priority) ValueOrDefault() Priority {
-	if p == nil {
-		return PriorityNone
-	}
-
-	val := *p
-	switch val {
-	case PriorityNone, PriorityLow, PriorityMedium, PriorityHigh:
-		return val
-	}
-
-	return PriorityNone
-}
-
 // Category is human readable value meant to be used to organize your tasks. Category values are unique.
 type Category string
 

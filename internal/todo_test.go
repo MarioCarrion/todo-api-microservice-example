@@ -99,58 +99,6 @@ func TestPriority_Pointer(t *testing.T) {
 	}
 }
 
-func TestPriority_ValueOrDefault(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name     string
-		input    *internal.Priority
-		expected internal.Priority
-	}{
-		{
-			name:     "nil pointer",
-			input:    nil,
-			expected: internal.PriorityNone,
-		},
-		{
-			name:     "PriorityNone pointer",
-			input:    internal.ValueToPointer(internal.PriorityNone),
-			expected: internal.PriorityNone,
-		},
-		{
-			name:     "PriorityLow pointer",
-			input:    internal.ValueToPointer(internal.PriorityLow),
-			expected: internal.PriorityLow,
-		},
-		{
-			name:     "PriorityMedium pointer",
-			input:    internal.ValueToPointer(internal.PriorityMedium),
-			expected: internal.PriorityMedium,
-		},
-		{
-			name:     "PriorityHigh pointer",
-			input:    internal.ValueToPointer(internal.PriorityHigh),
-			expected: internal.PriorityHigh,
-		},
-		{
-			name:     "invalid priority pointer returns PriorityNone",
-			input:    internal.ValueToPointer(internal.Priority(-1)),
-			expected: internal.PriorityNone,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			result := tt.input.ValueOrDefault()
-			if result != tt.expected {
-				t.Errorf("expected %v, got %v", tt.expected, result)
-			}
-		})
-	}
-}
-
 func TestDates_Validate(t *testing.T) {
 	t.Parallel()
 
