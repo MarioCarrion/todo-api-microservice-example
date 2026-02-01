@@ -7,18 +7,12 @@ import (
 // CreateParams defines the arguments used for creating Task records.
 type CreateParams struct {
 	Description string
-	Priority    Priority
-	Dates       Dates
+	Priority    *Priority
+	Dates       *Dates
 }
 
 // Validate indicates whether the fields are valid or not.
 func (c CreateParams) Validate() error {
-	if c.Priority == PriorityNone {
-		return validation.Errors{
-			"priority": NewErrorf(ErrorCodeInvalidArgument, "must be set"),
-		}
-	}
-
 	task := Task{
 		Description: c.Description,
 		Priority:    c.Priority,
@@ -54,4 +48,12 @@ func (a SearchParams) IsZero() bool {
 type SearchResults struct {
 	Tasks []Task
 	Total int64
+}
+
+// UpdateParams defines the arguments used to update a Task record.
+type UpdateParams struct {
+	Description *string
+	Priority    *Priority
+	Dates       *Dates
+	IsDone      *bool
 }

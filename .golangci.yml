@@ -1,17 +1,19 @@
 linters:
   enable-all: true
   disable:
+    # Disagree with the rationale behind these linters
+    - depguard # No need to explicitly list what packages to import.
     - gofumpt # Prefer `gofmt` rules / some rules conflict with `wsl`
-    - spancheck # Calling End() is implemented as expected
-    # I disagree with the rationale behind these linters
+    # These will be re-enabled after some code refactoring.
     - err113
-    - depguard
     - musttag
     - nonamedreturns
-    # -
     - mnd # Magic number
     # The following are deprecated linters, added to avoid initial warning when running
     - tenv
+  exclusions:
+    paths:
+      - '(.gen.go)' # Exclude generated code
 linters-settings:
   lll:
     line-length: 130
@@ -51,61 +53,28 @@ linters-settings:
       - github.com/MarioCarrion/todo-api-microservice-example/*
 issues:
   exclude-rules:
-    # All tests
     - path: _test\.go
       linters:
         - cyclop
-        - errchkjson
+        - dupl
+        - errorlint
         - exhaustruct
         - funlen
-        - goerr113
-        - lll
-        - nonamedreturns
-        - nosnakecase
+        - gocognit
+        - musttag
+        - testpackage
         - varnamelen
         - wrapcheck
-    # Handles the C4 diagrams
-    - path: internal/doc/doc.go
-      linters:
-        - lll
-        - revive
-        - stylecheck
-    # Generates OpenAPI 3 documentation
-    - path: internal/rest/open_api.go
-      linters:
-        - funlen
-    # Final binaries
-    - path: cmd/
+    - path: main\.go
       linters:
         - cyclop
         - funlen
+        - godox
         - gocognit
-        - unparam
-    # Handles generating code from OpenAPI 3
-    - path: cmd/openapi-gen/main.go
+    - path: internal/postgresql/task_handler.go
       linters:
-        - forbidigo
-    - path: cmd/internal/postgresql.go
+        - godox
+    - path: internal/rest/task_handler.go
       linters:
-        - revive # blank-imports
-    # XXX: This will be reremove in future episodes when "exhaustruct" is enabled
-    - path: internal/postgresql/task.go
-      linters:
-        - lll
-    - path: internal/memcached/task.go
-      linters:
-        - lll
-    # Because of the env var testing and using t.Setenv
-    - path: internal/envvar/envvar_test.go
-      linters:
-        - paralleltest
-        - thelper
-        - tparallel
-    # Because these are tools
-    - path: internal/tools/tools.go
-      linters:
-        - typecheck
-    # Because go:generate
-    - path: internal/rest/open_api.go
-      linters:
-        - lll
+        - godox
+        - ireturn

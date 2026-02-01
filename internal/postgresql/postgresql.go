@@ -27,15 +27,27 @@ func convertPriority(priority db.Priority) (internal.Priority, error) {
 	return internal.Priority(-1), fmt.Errorf("unknown value: %s", priority)
 }
 
-func newTimestamp(t time.Time) pgtype.Timestamp {
+func newTimestamp(t *time.Time) pgtype.Timestamp {
+	if t == nil || t.IsZero() {
+		return pgtype.Timestamp{
+			Valid: false,
+		}
+	}
+
+	truncated := t.Truncate(time.Minute)
+
 	return pgtype.Timestamp{
-		Time:  t,
-		Valid: !t.IsZero(),
+		Time:  truncated,
+		Valid: true,
 	}
 }
 
-func newPriority(p internal.Priority) db.Priority {
-	switch p {
+func newPriority(p *internal.Priority) db.Priority {
+	if p == nil {
+		return db.PriorityNone
+	}
+
+	switch *p {
 	case internal.PriorityNone:
 		return db.PriorityNone
 	case internal.PriorityLow:

@@ -1,134 +1,7 @@
-components:
-  requestBodies:
-    CreateTasksRequest:
-      content:
-        application/json:
-          schema:
-            properties:
-              dates:
-                $ref: '#/components/schemas/Dates'
-              description:
-                minLength: 1
-                type: string
-              priority:
-                $ref: '#/components/schemas/Priority'
-      description: Request used for creating a task.
-      required: true
-    SearchTasksRequest:
-      content:
-        application/json:
-          schema:
-            nullable: true
-            properties:
-              description:
-                minLength: 1
-                nullable: true
-                type: string
-              from:
-                default: 0
-                format: int64
-                type: integer
-              is_done:
-                default: false
-                nullable: true
-                type: boolean
-              priority:
-                $ref: '#/components/schemas/Priority'
-              size:
-                default: 10
-                format: int64
-                type: integer
-      description: Request used for searching a task.
-      required: true
-    UpdateTasksRequest:
-      content:
-        application/json:
-          schema:
-            properties:
-              dates:
-                $ref: '#/components/schemas/Dates'
-              description:
-                minLength: 1
-                type: string
-              is_done:
-                default: false
-                type: boolean
-              priority:
-                $ref: '#/components/schemas/Priority'
-      description: Request used for updating a task.
-      required: true
-  responses:
-    CreateTasksResponse:
-      content:
-        application/json:
-          schema:
-            properties:
-              task:
-                $ref: '#/components/schemas/Task'
-      description: Response returned back after creating tasks.
-    ErrorResponse:
-      content:
-        application/json:
-          schema:
-            properties:
-              error:
-                type: string
-      description: Response when errors happen.
-    ReadTasksResponse:
-      content:
-        application/json:
-          schema:
-            properties:
-              task:
-                $ref: '#/components/schemas/Task'
-      description: Response returned back after searching one task.
-    SearchTasksResponse:
-      content:
-        application/json:
-          schema:
-            properties:
-              tasks:
-                items:
-                  $ref: '#/components/schemas/Task'
-                type: array
-              total:
-                format: int64
-                type: integer
-      description: Response returned back after searching for any task.
-  schemas:
-    Dates:
-      properties:
-        due:
-          format: date-time
-          nullable: true
-          type: string
-        start:
-          format: date-time
-          nullable: true
-          type: string
-      type: object
-    Priority:
-      default: none
-      enum:
-        - none
-        - low
-        - medium
-        - high
-      type: string
-    Task:
-      properties:
-        dates:
-          $ref: '#/components/schemas/Dates'
-        description:
-          type: string
-        id:
-          format: uuid
-          type: string
-        is_done:
-          type: boolean
-        priority:
-          $ref: '#/components/schemas/Priority'
-      type: object
+openapi: 3.0.0
+servers:
+  - description: Local development
+    url: http://localhost:9234
 info:
   contact:
     url: https://github.com/MarioCarrion/todo-api-microservice-example
@@ -137,23 +10,12 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
   title: ToDo API
-  version: 0.0.0
-openapi: 3.0.0
+  version: 1.0.0
 paths:
-  /search/tasks:
-    post:
-      operationId: SearchTask
-      requestBody:
-        $ref: '#/components/requestBodies/SearchTasksRequest'
-      responses:
-        "200":
-          $ref: '#/components/responses/SearchTasksResponse'
-        "400":
-          $ref: '#/components/responses/ErrorResponse'
-        "500":
-          $ref: '#/components/responses/ErrorResponse'
   /tasks:
     post:
+      tags:
+        - Tasks
       operationId: CreateTask
       requestBody:
         $ref: '#/components/requestBodies/CreateTasksRequest'
@@ -164,16 +26,23 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         "500":
           $ref: '#/components/responses/ErrorResponse'
-  /tasks/{taskId}:
+  /tasks/{id}:
     delete:
+      tags:
+        - Tasks
       operationId: DeleteTask
       parameters:
         - in: path
-          name: taskId
+          name: id
           required: true
           schema:
             format: uuid
             type: string
+            x-go-name: ID
+            x-go-type: googleuuid.UUID
+            x-go-type-import:
+              path: github.com/google/uuid
+              name: googleuuid
       responses:
         "200":
           description: Task updated
@@ -182,14 +51,21 @@ paths:
         "500":
           $ref: '#/components/responses/ErrorResponse'
     get:
+      tags:
+        - Tasks
       operationId: ReadTask
       parameters:
         - in: path
-          name: taskId
+          name: id
           required: true
           schema:
             format: uuid
             type: string
+            x-go-name: ID
+            x-go-type: googleuuid.UUID
+            x-go-type-import:
+              path: github.com/google/uuid
+              name: googleuuid
       responses:
         "200":
           $ref: '#/components/responses/ReadTasksResponse'
@@ -198,14 +74,21 @@ paths:
         "500":
           $ref: '#/components/responses/ErrorResponse'
     put:
+      tags:
+        - Tasks
       operationId: UpdateTask
       parameters:
         - in: path
-          name: taskId
+          name: id
           required: true
           schema:
             format: uuid
             type: string
+            x-go-name: ID
+            x-go-type: googleuuid.UUID
+            x-go-type-import:
+              path: github.com/google/uuid
+              name: googleuuid
       requestBody:
         $ref: '#/components/requestBodies/UpdateTasksRequest'
       responses:
@@ -217,6 +100,171 @@ paths:
           description: Task not found
         "500":
           $ref: '#/components/responses/ErrorResponse'
-servers:
-  - description: Local development
-    url: http://127.0.0.1:9234
+  /tasks/search:
+    post:
+      tags:
+        - Tasks
+      operationId: SearchTask
+      requestBody:
+        $ref: '#/components/requestBodies/SearchTasksRequest'
+      responses:
+        "200":
+          $ref: '#/components/responses/SearchTasksResponse'
+        "400":
+          $ref: '#/components/responses/ErrorResponse'
+        "500":
+          $ref: '#/components/responses/ErrorResponse'
+components:
+  requestBodies:
+    CreateTasksRequest:
+      description: Request used for creating a task.
+      required: true
+      content:
+        application/json:
+          schema:
+            properties:
+              dates:
+                $ref: '#/components/schemas/Dates'
+              description:
+                minLength: 1
+                type: string
+              priority:
+                $ref: '#/components/schemas/Priority'
+            required:
+              - description
+    SearchTasksRequest:
+      description: Request used for searching a task.
+      required: true
+      content:
+        application/json:
+          schema:
+            properties:
+              description:
+                minLength: 1
+                nullable: true
+                type: string
+              from:
+                default: 0
+                format: int64
+                type: integer
+              isDone:
+                default: false
+                nullable: true
+                type: boolean
+              priority:
+                $ref: '#/components/schemas/Priority'
+              size:
+                default: 10
+                format: int64
+                type: integer
+            required:
+              - size
+              - from
+    UpdateTasksRequest:
+      description: Request used for updating a task.
+      required: true
+      content:
+        application/json:
+          schema:
+            properties:
+              dates:
+                $ref: '#/components/schemas/Dates'
+              description:
+                minLength: 1
+                type: string
+              isDone:
+                default: false
+                type: boolean
+              priority:
+                $ref: '#/components/schemas/Priority'
+  responses:
+    CreateTasksResponse:
+      description: Response returned back after creating tasks.
+      content:
+        application/json:
+          schema:
+            properties:
+              task:
+                $ref: '#/components/schemas/Task'
+            required:
+              - task
+    ErrorResponse:
+      description: Response when errors happen.
+      content:
+        application/json:
+          schema:
+            properties:
+              error:
+                type: string
+            required:
+              - error
+    ReadTasksResponse:
+      description: Response returned back after searching one task.
+      content:
+        application/json:
+          schema:
+            properties:
+              task:
+                $ref: '#/components/schemas/Task'
+    SearchTasksResponse:
+      description: Response returned back after searching for any task.
+      content:
+        application/json:
+          schema:
+            properties:
+              tasks:
+                items:
+                  $ref: '#/components/schemas/Task'
+                type: array
+              total:
+                format: int64
+                type: integer
+  schemas:
+    Dates:
+      type: object
+      properties:
+        start:
+          description: 'When the task is expected to begin, seconds are dropped.'
+          format: date-time
+          nullable: true
+          type: string
+        due:
+          description: 'When the task is expected to be due, seconds are dropped.'
+          format: date-time
+          nullable: true
+          type: string
+    Priority:
+      type: string
+      default: none
+      enum:
+        - none
+        - low
+        - medium
+        - high
+      x-enumNames:
+        - PriorityNone
+        - PriorityLow
+        - PriorityMedium
+        - PriorityHigh
+    Task:
+      type: object
+      properties:
+        dates:
+          $ref: '#/components/schemas/Dates'
+        description:
+          type: string
+        id:
+          format: uuid
+          type: string
+          x-go-name: ID
+          x-go-type: googleuuid.UUID
+          x-go-type-import:
+            path: github.com/google/uuid
+            name: googleuuid
+        isDone:
+          type: boolean
+        priority:
+          $ref: '#/components/schemas/Priority'
+      required:
+        - id
+        - description

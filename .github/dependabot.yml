@@ -7,6 +7,11 @@ updates:
       - "/internal/tools/"
     schedule:
       interval: "weekly"
+    groups:
+      testcontainers-go:
+        patterns:
+          - "github.com/testcontainers/testcontainers-go"
+          - "github.com/testcontainers/testcontainers-go/modules/*"
   # Docker
   - package-ecosystem: "docker"
     directory: "/dockerfiles/"

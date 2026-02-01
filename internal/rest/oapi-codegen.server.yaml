@@ -1,0 +1,6 @@
+package: rest
+generate:
+  std-http-server: true
+  models: true
+  strict-server: true
+output: server.gen.go

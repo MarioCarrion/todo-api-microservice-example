@@ -23,6 +23,7 @@ services:
       rabbitmq:
         condition: service_started
   rabbitmq:
+    # Make sure the docker image version listed here matches the one used in `internal/rabbitmq/task_test.go`.
     image: rabbitmq:3.11.10-management-alpine
     ports:
       - 5672:5672

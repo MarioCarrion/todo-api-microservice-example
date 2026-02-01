@@ -19,7 +19,7 @@ type RedisMessageBroker struct {
 }
 
 // NewMessageBrokerPublisher initializes a new Redis Broker.
-func NewMessageBrokerPublisher(conf *envvar.Configuration) (MessageBrokerPublisher, error) { //nolint: ireturn
+func NewMessageBrokerPublisher(conf *envvar.Configuration) (MessageBrokerPublisher, error) { //nolint: nolintlint,ireturn
 	producer, err := cmdinternal.NewRedis(conf)
 	if err != nil {
 		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "internal.NewRedis")
@@ -32,7 +32,7 @@ func NewMessageBrokerPublisher(conf *envvar.Configuration) (MessageBrokerPublish
 }
 
 // Publisher returns the Redis broker.
-func (m *RedisMessageBroker) Publisher() service.TaskMessageBrokerPublisher { //nolint: ireturn
+func (m *RedisMessageBroker) Publisher() service.TaskMessageBrokerPublisher { //nolint: nolintlint,ireturn
 	return m.publisher
 }
 
