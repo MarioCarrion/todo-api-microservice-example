@@ -12,8 +12,8 @@ func NewDates(d internal.Dates) Dates {
 	}
 }
 
-// Convert returns the domain type defining the internal representation.
-func (d Dates) Convert() internal.Dates {
+// ToDomain returns the domain type defining the internal representation.
+func (d Dates) ToDomain() internal.Dates {
 	return internal.Dates{
 		Start: d.Start,
 		Due:   d.Due,

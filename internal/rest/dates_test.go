@@ -44,7 +44,7 @@ func TestNewDates(t *testing.T) {
 	}
 }
 
-func TestDates_Convert(t *testing.T) {
+func TestDates_ToDomain(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -69,7 +69,7 @@ func TestDates_Convert(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			actualRes := tt.input.Convert()
+			actualRes := tt.input.ToDomain()
 			if !cmp.Equal(tt.output, actualRes, cmpopts.IgnoreUnexported(time.Time{})) {
 				t.Fatalf("expected output do not match\n%s", cmp.Diff(tt.output, actualRes, cmpopts.IgnoreUnexported(time.Time{})))
 			}

@@ -11,31 +11,6 @@ import (
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/rest/resttesting"
 )
 
-func TestNewTaskHandler(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name string
-	}{
-		{
-			name: "creates new task handler",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			svc := &resttesting.FakeTaskService{}
-			handler := rest.NewTaskHandler(svc)
-
-			if handler == nil {
-				t.Fatal("expected non-nil handler")
-			}
-		})
-	}
-}
-
 func TestTaskHandler_CreateTask(t *testing.T) {
 	t.Parallel()
 
@@ -53,7 +28,8 @@ func TestTaskHandler_CreateTask(t *testing.T) {
 			request: rest.CreateTaskRequestObject{
 				Body: &rest.CreateTaskJSONRequestBody{
 					Description: "test task",
-					Priority:    (*rest.Priority)(internal.ValueToPointer("high")),
+					Priority:    internal.ValueToPointer(rest.NewPriority(internal.PriorityHigh)),
+					Dates:       internal.ValueToPointer(rest.NewDates(internal.Dates{})),
 				},
 			},
 			setupMock: func(m *resttesting.FakeTaskService) {
@@ -61,6 +37,7 @@ func TestTaskHandler_CreateTask(t *testing.T) {
 					ID:          taskID.String(),
 					Description: "test task",
 					Priority:    internal.ValueToPointer(internal.PriorityHigh),
+					Dates:       &internal.Dates{},
 				}, nil)
 			},
 			expectError: false,

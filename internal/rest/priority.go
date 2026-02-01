@@ -87,15 +87,3 @@ func (p *Priority) UnmarshalJSON(b []byte) error {
 
 	return nil
 }
-
-//-
-
-func NewPriorityFromDomain(p *internal.Priority) *Priority {
-	if p == nil {
-		return nil
-	}
-
-	res := NewPriority(*p)
-
-	return &res
-}

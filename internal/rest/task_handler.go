@@ -41,7 +41,7 @@ func (t *TaskHandler) CreateTask(ctx context.Context, req CreateTaskRequestObjec
 
 	var dates *internal.Dates
 	if req.Body.Dates != nil {
-		dates = internal.ValueToPointer(req.Body.Dates.Convert())
+		dates = internal.ValueToPointer(req.Body.Dates.ToDomain())
 	}
 
 	task, err := t.svc.Create(ctx, internal.CreateParams{
@@ -75,7 +75,7 @@ func (t *TaskHandler) CreateTask(ctx context.Context, req CreateTaskRequestObjec
 	}
 
 	if task.Priority != nil {
-		resp.Task.Priority = NewPriorityFromDomain(task.Priority)
+		resp.Task.Priority = internal.ValueToPointer(NewPriority(*task.Priority))
 	}
 
 	return resp, nil
@@ -123,7 +123,7 @@ func (t *TaskHandler) ReadTask(ctx context.Context, request ReadTaskRequestObjec
 	}
 
 	if task.Priority != nil {
-		resp.Task.Priority = NewPriorityFromDomain(task.Priority)
+		resp.Task.Priority = internal.ValueToPointer(NewPriority(*task.Priority))
 	}
 
 	return resp, nil
@@ -137,7 +137,7 @@ func (t *TaskHandler) UpdateTask(ctx context.Context, req UpdateTaskRequestObjec
 
 	var dates *internal.Dates
 	if req.Body.Dates != nil {
-		dates = internal.ValueToPointer(req.Body.Dates.Convert())
+		dates = internal.ValueToPointer(req.Body.Dates.ToDomain())
 	}
 
 	if err := t.svc.Update(ctx, req.Id.String(), internal.UpdateParams{
@@ -188,7 +188,7 @@ func (t *TaskHandler) SearchTask(ctx context.Context, req SearchTaskRequestObjec
 		tasks[i].Description = task.Description
 
 		if task.Priority != nil {
-			tasks[i].Priority = NewPriorityFromDomain(task.Priority)
+			tasks[i].Priority = internal.ValueToPointer(NewPriority(*task.Priority))
 		}
 
 		if task.Dates != nil {
