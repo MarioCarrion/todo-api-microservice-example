@@ -1,16 +1,5 @@
 name: todo-api-microservice
 services:
-  prometheus:
-    image: prom/prometheus:v2.40.7
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./docs/prometheus.yml:/etc/prometheus/prometheus.yml
-  jaeger:
-    image: jaegertracing/all-in-one:1.40.0
-    ports:
-      - 16686:16686
-      - 14268:14268
   postgres:
     image: postgres:16.2-bullseye
     ports:

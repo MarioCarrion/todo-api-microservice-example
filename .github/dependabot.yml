@@ -23,6 +23,9 @@ updates:
         patterns:
           - "debian*"
           - "golang*"
+    ignore:
+      - dependency-name: "*"
+        versions: ["*-rc*", "*-beta*", "*-alpha*"]
   # Github Actions
   - package-ecosystem: "github-actions"
     directory: "/"

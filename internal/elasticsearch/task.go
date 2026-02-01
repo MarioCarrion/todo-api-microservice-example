@@ -209,6 +209,7 @@ func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal
 		res[index].ID = hit.Source.ID
 		res[index].Description = hit.Source.Description
 		res[index].Priority = hit.Source.Priority
+		res[index].IsDone = hit.Source.IsDone
 
 		if hit.Source.DateStart != 0 || hit.Source.DateDue != 0 {
 			dates := internal.Dates{}

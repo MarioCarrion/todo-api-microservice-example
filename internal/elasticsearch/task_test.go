@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/elastic/go-elasticsearch/v7"
+	"github.com/google/go-cmp/cmp"
 	"github.com/testcontainers/testcontainers-go"
 	elasticsearchtest "github.com/testcontainers/testcontainers-go/modules/elasticsearch"
 
@@ -63,7 +64,7 @@ func TestTask_All(t *testing.T) {
 		ID:          "test-123",
 		Description: "Test task for elasticsearch",
 		Priority:    internal.ValueToPointer(internal.PriorityHigh),
-		IsDone:      false,
+		IsDone:      true,
 		Dates: &internal.Dates{
 			Start: &now,
 			Due:   &now,
@@ -88,7 +89,11 @@ func TestTask_All(t *testing.T) {
 	}
 
 	if len(results.Tasks) == 0 {
-		t.Error("Expected to find indexed task")
+		t.Fatalf("Expected to find indexed task")
+	}
+
+	if diff := cmp.Diff(results.Tasks[0], task); diff != "" {
+		t.Fatalf("Searched task is not the same as the indexed one: %s", diff)
 	}
 
 	//- Testing `Delete` method
