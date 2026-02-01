@@ -1,14 +1,13 @@
 linters:
   enable-all: true
   disable:
+    # Disagree with the rationale behind these linters
+    - depguard # No need to explicitly list what packages to import.
     - gofumpt # Prefer `gofmt` rules / some rules conflict with `wsl`
-    - spancheck # Calling End() is implemented as expected
-    # I disagree with the rationale behind these linters
+    # These will be re-enabled after some code refactoring.
     - err113
-    - depguard
     - musttag
     - nonamedreturns
-    # -
     - mnd # Magic number
     # The following are deprecated linters, added to avoid initial warning when running
     - tenv
@@ -62,6 +61,7 @@ issues:
         - exhaustruct
         - funlen
         - gocognit
+        - musttag
         - varnamelen
         - wrapcheck
     - path: main\.go
@@ -70,10 +70,10 @@ issues:
         - funlen
         - godox
         - gocognit
-    - path: internal/postgresql/task.go
+    - path: internal/postgresql/task_handler.go
       linters:
         - godox
-    - path: internal/rest/task.go
+    - path: internal/rest/task_handler.go
       linters:
         - godox
         - ireturn

@@ -29,8 +29,8 @@ type Task struct {
 }
 
 type event struct {
-	Type  string
-	Value internal.Task
+	Type  string        `json:"type"`
+	Value internal.Task `json:"value"`
 }
 
 // NewTask instantiates the Task message broker publisher.

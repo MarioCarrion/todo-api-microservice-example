@@ -43,7 +43,7 @@ func (t *Task) Create(ctx context.Context, params internal.CreateParams) (intern
 		}
 	}
 
-	// TODO: We are intentionally NOT SUPPORTING `SubTasks` and `Categories` JUST YET.
+	// We are intentionally NOT SUPPORTING `SubTasks` and `Categories` JUST YET.
 	newID, err := t.q.InsertTask(ctx, db.InsertTaskParams{
 		Description: params.Description,
 		Priority:    newPriority(params.Priority),
