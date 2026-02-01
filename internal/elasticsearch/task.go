@@ -1,3 +1,4 @@
+// Package elasticsearch implements the Elasticsearch repository.
 package elasticsearch
 
 import (
@@ -22,12 +23,12 @@ type Task struct {
 //nolint:tagliatelle
 type indexedTask struct {
 	// XXX: `SubTasks` and `Categories` will be added in future episodes
-	ID          string            `json:"id"`
-	Description string            `json:"description"`
-	Priority    internal.Priority `json:"priority"`
-	IsDone      bool              `json:"is_done"`
-	DateStart   int64             `json:"date_start"`
-	DateDue     int64             `json:"date_due"`
+	ID          string             `json:"id"`
+	Description string             `json:"description"`
+	Priority    *internal.Priority `json:"priority"`
+	IsDone      bool               `json:"is_done"`
+	DateStart   int64              `json:"date_start"`
+	DateDue     int64              `json:"date_due"`
 }
 
 // NewTask instantiates the Task repository.
@@ -45,8 +46,16 @@ func (t *Task) Index(ctx context.Context, task internal.Task) error {
 		Description: task.Description,
 		Priority:    task.Priority,
 		IsDone:      task.IsDone,
-		DateStart:   task.Dates.Start.UnixNano(),
-		DateDue:     task.Dates.Due.UnixNano(),
+	}
+
+	if task.Dates != nil {
+		if task.Dates.Start != nil {
+			body.DateStart = task.Dates.Start.UnixNano()
+		}
+
+		if task.Dates.Due != nil {
+			body.DateDue = task.Dates.Due.UnixNano()
+		}
 	}
 
 	var buf bytes.Buffer
@@ -196,12 +205,25 @@ func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal
 
 	res := make([]internal.Task, len(hits.Hits.Hits))
 
-	for i, hit := range hits.Hits.Hits {
-		res[i].ID = hit.Source.ID
-		res[i].Description = hit.Source.Description
-		res[i].Priority = hit.Source.Priority
-		res[i].Dates.Due = time.Unix(0, hit.Source.DateDue).UTC()
-		res[i].Dates.Start = time.Unix(0, hit.Source.DateStart).UTC()
+	for index, hit := range hits.Hits.Hits {
+		res[index].ID = hit.Source.ID
+		res[index].Description = hit.Source.Description
+		res[index].Priority = hit.Source.Priority
+		res[index].IsDone = hit.Source.IsDone
+
+		if hit.Source.DateStart != 0 || hit.Source.DateDue != 0 {
+			dates := internal.Dates{}
+
+			if hit.Source.DateStart != 0 {
+				dates.Start = internal.ValueToPointer(time.Unix(0, hit.Source.DateStart).UTC())
+			}
+
+			if hit.Source.DateDue != 0 {
+				dates.Due = internal.ValueToPointer(time.Unix(0, hit.Source.DateDue).UTC())
+			}
+
+			res[index].Dates = &dates
+		}
 	}
 
 	return internal.SearchResults{

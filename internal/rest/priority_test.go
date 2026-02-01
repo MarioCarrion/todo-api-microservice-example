@@ -58,49 +58,77 @@ func TestNewPriority(t *testing.T) {
 	}
 }
 
-func TestPriority_Convert(t *testing.T) {
+func TestPriority_ToDomain(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name   string
 		input  rest.Priority
-		output internal.Priority
+		output *internal.Priority
 	}{
 		{
-			"OK: none",
-			rest.Priority("none"),
-			internal.PriorityNone,
+			name:  "OK: none",
+			input: rest.Priority("none"),
+			output: func() *internal.Priority {
+				res := internal.PriorityNone
+
+				return &res
+			}(),
 		},
 		{
-			"OK: low",
-			rest.Priority("low"),
-			internal.PriorityLow,
+			name:  "OK: none when empty",
+			input: rest.Priority(""),
+			output: func() *internal.Priority {
+				res := internal.PriorityNone
+
+				return &res
+			}(),
 		},
 		{
-			"OK: medium",
-			rest.Priority("medium"),
-			internal.PriorityMedium,
+			name:  "OK: low",
+			input: rest.Priority("low"),
+			output: func() *internal.Priority {
+				res := internal.PriorityLow
+
+				return &res
+			}(),
 		},
 		{
-			"OK: high",
-			rest.Priority("high"),
-			internal.PriorityHigh,
+			name:  "OK: medium",
+			input: rest.Priority("medium"),
+			output: func() *internal.Priority {
+				res := internal.PriorityMedium
+
+				return &res
+			}(),
 		},
 		{
-			"ERR",
-			rest.Priority("unknown"),
-			internal.PriorityNone,
+			name:  "OK: high",
+			input: rest.Priority("high"),
+			output: func() *internal.Priority {
+				res := internal.PriorityHigh
+
+				return &res
+			}(),
 		},
-	}
+		{
+			name:  "ERR",
+			input: rest.Priority("err"),
+			output: func() *internal.Priority {
+				res := internal.PriorityNone
+
+				return &res
+			}(),
+		}}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			actualRes := tt.input.Convert()
+			actualRes := tt.input.ToDomain()
 
-			if !cmp.Equal(tt.output, actualRes) {
-				t.Fatalf("expected output do not match\n%s", cmp.Diff(tt.output, actualRes))
+			if diff := cmp.Diff(tt.output, actualRes); diff != "" {
+				t.Fatalf("expected output do not match\n%s", diff)
 			}
 		})
 	}

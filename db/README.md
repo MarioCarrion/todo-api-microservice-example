@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Install the `tern` tool using [`install_tools`](../bin/install_tools), you can [read more](../internal/tools/) about how those are versioned as well.
+Install the `tern` tool using [`make tools`](../Makefile), you can [read more](../internal/tools/) about how those are versioned as well.
 
 ## Local PostgreSQL
 

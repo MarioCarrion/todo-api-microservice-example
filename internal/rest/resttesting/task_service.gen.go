@@ -24,6 +24,20 @@ type FakeTaskService struct {
 		result1 internal.SearchResults
 		result2 error
 	}
+	ByIDStub        func(context.Context, string) (internal.Task, error)
+	byIDMutex       sync.RWMutex
+	byIDArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	byIDReturns struct {
+		result1 internal.Task
+		result2 error
+	}
+	byIDReturnsOnCall map[int]struct {
+		result1 internal.Task
+		result2 error
+	}
 	CreateStub        func(context.Context, internal.CreateParams) (internal.Task, error)
 	createMutex       sync.RWMutex
 	createArgsForCall []struct {
@@ -50,29 +64,12 @@ type FakeTaskService struct {
 	deleteReturnsOnCall map[int]struct {
 		result1 error
 	}
-	TaskStub        func(context.Context, string) (internal.Task, error)
-	taskMutex       sync.RWMutex
-	taskArgsForCall []struct {
-		arg1 context.Context
-		arg2 string
-	}
-	taskReturns struct {
-		result1 internal.Task
-		result2 error
-	}
-	taskReturnsOnCall map[int]struct {
-		result1 internal.Task
-		result2 error
-	}
-	UpdateStub        func(context.Context, string, string, internal.Priority, internal.Dates, bool) error
+	UpdateStub        func(context.Context, string, internal.UpdateParams) error
 	updateMutex       sync.RWMutex
 	updateArgsForCall []struct {
 		arg1 context.Context
 		arg2 string
-		arg3 string
-		arg4 internal.Priority
-		arg5 internal.Dates
-		arg6 bool
+		arg3 internal.UpdateParams
 	}
 	updateReturns struct {
 		result1 error
@@ -145,6 +142,71 @@ func (fake *FakeTaskService) ByReturnsOnCall(i int, result1 internal.SearchResul
 	}
 	fake.byReturnsOnCall[i] = struct {
 		result1 internal.SearchResults
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeTaskService) ByID(arg1 context.Context, arg2 string) (internal.Task, error) {
+	fake.byIDMutex.Lock()
+	ret, specificReturn := fake.byIDReturnsOnCall[len(fake.byIDArgsForCall)]
+	fake.byIDArgsForCall = append(fake.byIDArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.ByIDStub
+	fakeReturns := fake.byIDReturns
+	fake.recordInvocation("ByID", []interface{}{arg1, arg2})
+	fake.byIDMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeTaskService) ByIDCallCount() int {
+	fake.byIDMutex.RLock()
+	defer fake.byIDMutex.RUnlock()
+	return len(fake.byIDArgsForCall)
+}
+
+func (fake *FakeTaskService) ByIDCalls(stub func(context.Context, string) (internal.Task, error)) {
+	fake.byIDMutex.Lock()
+	defer fake.byIDMutex.Unlock()
+	fake.ByIDStub = stub
+}
+
+func (fake *FakeTaskService) ByIDArgsForCall(i int) (context.Context, string) {
+	fake.byIDMutex.RLock()
+	defer fake.byIDMutex.RUnlock()
+	argsForCall := fake.byIDArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeTaskService) ByIDReturns(result1 internal.Task, result2 error) {
+	fake.byIDMutex.Lock()
+	defer fake.byIDMutex.Unlock()
+	fake.ByIDStub = nil
+	fake.byIDReturns = struct {
+		result1 internal.Task
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeTaskService) ByIDReturnsOnCall(i int, result1 internal.Task, result2 error) {
+	fake.byIDMutex.Lock()
+	defer fake.byIDMutex.Unlock()
+	fake.ByIDStub = nil
+	if fake.byIDReturnsOnCall == nil {
+		fake.byIDReturnsOnCall = make(map[int]struct {
+			result1 internal.Task
+			result2 error
+		})
+	}
+	fake.byIDReturnsOnCall[i] = struct {
+		result1 internal.Task
 		result2 error
 	}{result1, result2}
 }
@@ -276,88 +338,20 @@ func (fake *FakeTaskService) DeleteReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeTaskService) Task(arg1 context.Context, arg2 string) (internal.Task, error) {
-	fake.taskMutex.Lock()
-	ret, specificReturn := fake.taskReturnsOnCall[len(fake.taskArgsForCall)]
-	fake.taskArgsForCall = append(fake.taskArgsForCall, struct {
-		arg1 context.Context
-		arg2 string
-	}{arg1, arg2})
-	stub := fake.TaskStub
-	fakeReturns := fake.taskReturns
-	fake.recordInvocation("Task", []interface{}{arg1, arg2})
-	fake.taskMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *FakeTaskService) TaskCallCount() int {
-	fake.taskMutex.RLock()
-	defer fake.taskMutex.RUnlock()
-	return len(fake.taskArgsForCall)
-}
-
-func (fake *FakeTaskService) TaskCalls(stub func(context.Context, string) (internal.Task, error)) {
-	fake.taskMutex.Lock()
-	defer fake.taskMutex.Unlock()
-	fake.TaskStub = stub
-}
-
-func (fake *FakeTaskService) TaskArgsForCall(i int) (context.Context, string) {
-	fake.taskMutex.RLock()
-	defer fake.taskMutex.RUnlock()
-	argsForCall := fake.taskArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
-}
-
-func (fake *FakeTaskService) TaskReturns(result1 internal.Task, result2 error) {
-	fake.taskMutex.Lock()
-	defer fake.taskMutex.Unlock()
-	fake.TaskStub = nil
-	fake.taskReturns = struct {
-		result1 internal.Task
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeTaskService) TaskReturnsOnCall(i int, result1 internal.Task, result2 error) {
-	fake.taskMutex.Lock()
-	defer fake.taskMutex.Unlock()
-	fake.TaskStub = nil
-	if fake.taskReturnsOnCall == nil {
-		fake.taskReturnsOnCall = make(map[int]struct {
-			result1 internal.Task
-			result2 error
-		})
-	}
-	fake.taskReturnsOnCall[i] = struct {
-		result1 internal.Task
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeTaskService) Update(arg1 context.Context, arg2 string, arg3 string, arg4 internal.Priority, arg5 internal.Dates, arg6 bool) error {
+func (fake *FakeTaskService) Update(arg1 context.Context, arg2 string, arg3 internal.UpdateParams) error {
 	fake.updateMutex.Lock()
 	ret, specificReturn := fake.updateReturnsOnCall[len(fake.updateArgsForCall)]
 	fake.updateArgsForCall = append(fake.updateArgsForCall, struct {
 		arg1 context.Context
 		arg2 string
-		arg3 string
-		arg4 internal.Priority
-		arg5 internal.Dates
-		arg6 bool
-	}{arg1, arg2, arg3, arg4, arg5, arg6})
+		arg3 internal.UpdateParams
+	}{arg1, arg2, arg3})
 	stub := fake.UpdateStub
 	fakeReturns := fake.updateReturns
-	fake.recordInvocation("Update", []interface{}{arg1, arg2, arg3, arg4, arg5, arg6})
+	fake.recordInvocation("Update", []interface{}{arg1, arg2, arg3})
 	fake.updateMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4, arg5, arg6)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -371,17 +365,17 @@ func (fake *FakeTaskService) UpdateCallCount() int {
 	return len(fake.updateArgsForCall)
 }
 
-func (fake *FakeTaskService) UpdateCalls(stub func(context.Context, string, string, internal.Priority, internal.Dates, bool) error) {
+func (fake *FakeTaskService) UpdateCalls(stub func(context.Context, string, internal.UpdateParams) error) {
 	fake.updateMutex.Lock()
 	defer fake.updateMutex.Unlock()
 	fake.UpdateStub = stub
 }
 
-func (fake *FakeTaskService) UpdateArgsForCall(i int) (context.Context, string, string, internal.Priority, internal.Dates, bool) {
+func (fake *FakeTaskService) UpdateArgsForCall(i int) (context.Context, string, internal.UpdateParams) {
 	fake.updateMutex.RLock()
 	defer fake.updateMutex.RUnlock()
 	argsForCall := fake.updateArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5, argsForCall.arg6
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeTaskService) UpdateReturns(result1 error) {
@@ -410,16 +404,6 @@ func (fake *FakeTaskService) UpdateReturnsOnCall(i int, result1 error) {
 func (fake *FakeTaskService) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.byMutex.RLock()
-	defer fake.byMutex.RUnlock()
-	fake.createMutex.RLock()
-	defer fake.createMutex.RUnlock()
-	fake.deleteMutex.RLock()
-	defer fake.deleteMutex.RUnlock()
-	fake.taskMutex.RLock()
-	defer fake.taskMutex.RUnlock()
-	fake.updateMutex.RLock()
-	defer fake.updateMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

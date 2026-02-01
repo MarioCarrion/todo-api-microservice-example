@@ -10,7 +10,7 @@ import (
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/envvar/envvartesting"
 )
 
-func TestConfiguration_Get(t *testing.T) {
+func TestConfiguration_Get(t *testing.T) { //nolint: paralleltest
 	type output struct {
 		val     string
 		withErr bool
@@ -26,6 +26,7 @@ func TestConfiguration_Get(t *testing.T) {
 		{
 			"OK: no secret",
 			func(t *testing.T, _ *envvartesting.FakeProvider) {
+				t.Helper()
 				t.Setenv("ENVVAR_OK", "value")
 			},
 			"ENVVAR_OK",
@@ -37,6 +38,7 @@ func TestConfiguration_Get(t *testing.T) {
 		{
 			"OK: secure",
 			func(t *testing.T, p *envvartesting.FakeProvider) {
+				t.Helper()
 				t.Setenv("ENVVAR_OK1_SECURE", "/secret/value")
 
 				p.GetReturns("provider value", nil)
@@ -50,6 +52,7 @@ func TestConfiguration_Get(t *testing.T) {
 		{
 			"ERR: provider failed",
 			func(t *testing.T, p *envvartesting.FakeProvider) {
+				t.Helper()
 				t.Setenv("ENVVAR_ERR_SECURE", "/failed")
 
 				p.GetReturns("", errors.New("failed"))
@@ -62,7 +65,7 @@ func TestConfiguration_Get(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
+	for _, tt := range tests { //nolint: paralleltest
 		t.Run(tt.name, func(t *testing.T) {
 			provider := envvartesting.FakeProvider{}
 
