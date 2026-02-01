@@ -6,53 +6,50 @@ import (
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 )
 
-// Priority indicates how important a Task is.
-type Priority string
-
-const (
-	priorityNone   Priority = "none"
-	priorityLow    Priority = "low"
-	priorityMedium Priority = "medium"
-	priorityHigh   Priority = "high"
-)
-
 // NewPriority converts the received domain type to a rest type, when the argument is unknown "none" is used.
 func NewPriority(p internal.Priority) Priority {
 	switch p {
 	case internal.PriorityNone:
-		return priorityNone
+		return PriorityNone
 	case internal.PriorityLow:
-		return priorityLow
+		return PriorityLow
 	case internal.PriorityMedium:
-		return priorityMedium
+		return PriorityMedium
 	case internal.PriorityHigh:
-		return priorityHigh
+		return PriorityHigh
 	}
 
-	return priorityNone
+	return PriorityNone
 }
 
-// Convert returns the domain type defining the internal representation, when priority is unknown "none" is
-// used.
-func (p *Priority) Convert() internal.Priority {
-	switch *p {
-	case priorityNone:
-		return internal.PriorityNone
-	case priorityLow:
-		return internal.PriorityLow
-	case priorityMedium:
-		return internal.PriorityMedium
-	case priorityHigh:
-		return internal.PriorityHigh
+// ToDomain returns the domain type defining the internal representation,
+// when Priority is unknown or nil "none" is used.
+func (p *Priority) ToDomain() *internal.Priority {
+	res := internal.PriorityNone
+	if p == nil {
+		return &res
 	}
 
-	return internal.PriorityNone
+	switch *p {
+	case PriorityNone:
+		res = internal.PriorityNone
+	case PriorityLow:
+		res = internal.PriorityLow
+	case PriorityMedium:
+		res = internal.PriorityMedium
+	case PriorityHigh:
+		res = internal.PriorityHigh
+	default:
+		res = internal.PriorityNone
+	}
+
+	return &res
 }
 
 // Validate ...
-func (p *Priority) Validate() error {
-	switch *p {
-	case priorityNone, priorityLow, priorityMedium, priorityHigh:
+func (p Priority) Validate() error {
+	switch p {
+	case PriorityNone, PriorityLow, PriorityMedium, PriorityHigh:
 		return nil
 	}
 
@@ -60,12 +57,12 @@ func (p *Priority) Validate() error {
 }
 
 // MarshalJSON ...
-func (p *Priority) MarshalJSON() ([]byte, error) {
+func (p Priority) MarshalJSON() ([]byte, error) {
 	if err := p.Validate(); err != nil {
 		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "Validate")
 	}
 
-	b, err := json.Marshal(string(*p))
+	b, err := json.Marshal(string(p))
 	if err != nil {
 		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.Marshal")
 	}

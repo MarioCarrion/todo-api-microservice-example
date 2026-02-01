@@ -1,4 +1,4 @@
-FROM golang:1.26rc2-bookworm AS builder
+FROM golang:1.25.6-bookworm AS builder
 
 # Explicitly NOT setting a default value
 ARG TAG
@@ -9,6 +9,8 @@ COPY . .
 
 ENV CGO_ENABLED=1 \
     GOOS=linux
+
+COPY ./openapi/openapi3.yaml ./cmd/rest-server/static/openapi3.yaml
 
 RUN go mod download && \
     go build -a -installsuffix cgo -ldflags "-extldflags -static" -tags=$TAG \

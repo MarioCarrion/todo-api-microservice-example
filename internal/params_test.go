@@ -21,7 +21,7 @@ func TestCreateParams_Validate(t *testing.T) {
 			"OK",
 			internal.CreateParams{
 				Description: "Description",
-				Priority:    internal.PriorityLow,
+				Priority:    internal.ValueToPointer(internal.PriorityLow),
 			},
 			false,
 		},
@@ -57,18 +57,6 @@ func TestCreateParams_Validate(t *testing.T) {
 func TestSearchParams_IsZero(t *testing.T) {
 	t.Parallel()
 
-	newString := func(str string) *string {
-		return &str
-	}
-
-	newPriority := func(p internal.Priority) *internal.Priority {
-		return &p
-	}
-
-	newBool := func(b bool) *bool {
-		return &b
-	}
-
 	tests := []struct {
 		name   string
 		input  internal.SearchParams
@@ -77,33 +65,33 @@ func TestSearchParams_IsZero(t *testing.T) {
 		{
 			"OK",
 			internal.SearchParams{
-				Description: newString("description"),
-				Priority:    newPriority(internal.PriorityHigh),
-				IsDone:      newBool(false),
+				Description: internal.ValueToPointer("description"),
+				Priority:    internal.ValueToPointer(internal.PriorityHigh),
+				IsDone:      internal.ValueToPointer(false),
 			},
 			false,
 		},
 		{
 			"OK: Description",
 			internal.SearchParams{
-				Priority: newPriority(internal.PriorityHigh),
-				IsDone:   newBool(false),
+				Priority: internal.ValueToPointer(internal.PriorityHigh),
+				IsDone:   internal.ValueToPointer(false),
 			},
 			false,
 		},
 		{
 			"OK: Priority",
 			internal.SearchParams{
-				Description: newString("description"),
-				IsDone:      newBool(false),
+				Description: internal.ValueToPointer("description"),
+				IsDone:      internal.ValueToPointer(false),
 			},
 			false,
 		},
 		{
 			"OK: IsDone",
 			internal.SearchParams{
-				Description: newString("description"),
-				Priority:    newPriority(internal.PriorityHigh),
+				Description: internal.ValueToPointer("description"),
+				Priority:    internal.ValueToPointer(internal.PriorityHigh),
 			},
 			false,
 		},

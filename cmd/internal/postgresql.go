@@ -7,7 +7,7 @@ import (
 	"net/url"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/jackc/pgx/v5/stdlib" // pgx stdlib driver
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/envvar"

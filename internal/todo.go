@@ -39,13 +39,17 @@ type Category string
 
 // Dates indicates a point in time where a task starts or completes, dates are not enforced on Tasks.
 type Dates struct {
-	Start time.Time
-	Due   time.Time
+	Start *time.Time
+	Due   *time.Time
 }
 
 // Validate ...
 func (d Dates) Validate() error {
-	if !d.Start.IsZero() && !d.Due.IsZero() && d.Start.After(d.Due) {
+	if d.Start == nil || d.Due == nil {
+		return nil
+	}
+
+	if !d.Start.IsZero() && !d.Due.IsZero() && d.Start.After(*d.Due) {
 		return NewErrorf(ErrorCodeInvalidArgument, "start dates should be before end date")
 	}
 
@@ -54,11 +58,11 @@ func (d Dates) Validate() error {
 
 // Task is an activity that needs to be completed within a period of time.
 type Task struct {
-	IsDone      bool
-	Priority    Priority
 	ID          string
+	IsDone      bool
+	Priority    *Priority
 	Description string
-	Dates       Dates
+	Dates       *Dates
 	SubTasks    []Task
 	Categories  []Category
 }
