@@ -28,7 +28,7 @@ jobs:
         with:
           gcov_ignore: "**/*.gen.go"
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: code-coverage
           path: coverage.html
