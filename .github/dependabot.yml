@@ -12,6 +12,8 @@ updates:
         patterns:
           - "github.com/testcontainers/testcontainers-go"
           - "github.com/testcontainers/testcontainers-go/modules/*"
+    commit-message:
+      prefix: "chore"
   # Docker
   - package-ecosystem: "docker"
     directory: "/dockerfiles/"
@@ -23,8 +25,12 @@ updates:
         patterns:
           - "debian*"
           - "golang*"
+    commit-message:
+      prefix: "chore"
   # Github Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "chore"
