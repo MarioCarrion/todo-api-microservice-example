@@ -8,7 +8,7 @@ require (
 	github.com/google/yamlfmt v0.21.0
 	github.com/jackc/tern/v2 v2.3.5
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.12.0
-	github.com/oapi-codegen/oapi-codegen/v2 v2.5.0
+	github.com/oapi-codegen/oapi-codegen/v2 v2.5.1
 	github.com/sqlc-dev/sqlc v1.30.0
 	golang.org/x/vuln v1.1.4
 )
@@ -69,7 +69,7 @@ require (
 	github.com/firefart/nonamedreturns v1.0.5 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/fzipp/gocyclo v0.6.0 // indirect
-	github.com/getkin/kin-openapi v0.132.0 // indirect
+	github.com/getkin/kin-openapi v0.133.0 // indirect
 	github.com/ghostiam/protogetter v0.3.9 // indirect
 	github.com/go-critic/go-critic v0.12.0 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
@@ -224,6 +224,7 @@ require (
 	github.com/vmware-labs/yaml-jsonpath v0.3.2 // indirect
 	github.com/wasilibs/go-pgquery v0.0.0-20250409022910-10ac41983c07 // indirect
 	github.com/wasilibs/wazero-helpers v0.0.0-20240620070341-3dff1577cd52 // indirect
+	github.com/woodsbury/decimal128 v1.3.0 // indirect
 	github.com/xen0n/gosmopolitan v1.2.2 // indirect
 	github.com/yagipy/maintidx v1.0.0 // indirect
 	github.com/yeya24/promlinter v0.3.0 // indirect
