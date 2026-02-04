@@ -4,10 +4,5 @@
 
 Used as repository for publishing messages to be consumed by other processes.
 
-```
-docker run \
-  --rm \
-  -d \
-  -p 6379:6379 \
-  redis:7.0.7-alpine3.17
-```
+Please review the **services** in [compose.redis.yml](../compose.redis.yml), the code to publish 
+and consume is in the [redis](../internal/redis) package.

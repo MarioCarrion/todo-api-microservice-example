@@ -1,5 +1,7 @@
 # Metrics, Traces and Logging using OpenTelemetry
 
+:warning: This needs to be revisited, it was disabled in current version. :warning:
+
 ## Metrics using Prometheus
 
 ```

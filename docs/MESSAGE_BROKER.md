@@ -4,12 +4,7 @@
 
 Used as repository for publishing messages to be consumed by other processes.
 
-```
-docker run \
-  -d \
-  -p 5672:5672 \
-  -p 15672:15672 \
-  rabbitmq:3.11.5-management-alpine
-```
+Please review the **services** in [compose.rabbitmq.yml](../compose.rabbitmq.yml), the code to publish 
+and consume is in the [rabbitmq](../internal/rabbitmq) package.
 
-Then open http://localhost:15672 . To log in use `guest` as the value for both the username and password.
+Then open [http://localhost:15672](http://localhost:15672). Use `guest` as the value for both the username and the password.

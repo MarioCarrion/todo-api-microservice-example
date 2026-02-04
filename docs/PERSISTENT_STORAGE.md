@@ -2,13 +2,5 @@
 
 Used as repository for persisting data.
 
-```
-docker run \
-  -d \
-  -e POSTGRES_HOST_AUTH_METHOD=trust \
-  -e POSTGRES_USER=user \
-  -e POSTGRES_PASSWORD=password \
-  -e POSTGRES_DB=dbname \
-  -p 5432:5432 \
-  postgres:15.1-alpine3.17
-```
+Please review the `postgres*` **services** in [compose.yml](../compose.yml), the code to insert, update
+and select records is in the [postgresql](../internal/postgresql) package.

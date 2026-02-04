@@ -6,7 +6,7 @@ This folder includes concrete details needed for running the services using Dock
 
 * [Secure Configuration using Hashicorp Vault](SECURE_CONFIGURATION.md)
 * [Persistent Storage using PostgreSQL](PERSISTENT_STORAGE.md)
-* [OpenAPI 3 and Swagger](OPENAPI3_SWAGGER.md)
+* [OpenAPI 3](OPENAPI3.md)
 * [Metrics, Traces and Logging using OpenTelemetry, Prometheus and Jaeger](METRICS_TRACES_LOGGING.md)
 * [Search Enginer using ElasticSearch](SEARCH_ENGINE.md)
 * [Events Streaming using Kafa](EVENT_STREAMING.md)

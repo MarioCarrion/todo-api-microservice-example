@@ -36,18 +36,18 @@ Talking specifically about microservices **only**, the structure I like to recom
 - [X] `db/`
   - [X] `migrations/`: contains database migrations.
   - [ ] `seeds/`: contains file meant to populate basic database values.
-- [ ] `internal/`: defines the _core domain_.
-  - [ ] `<datastoreN>/`: a concrete _repository_ used by the domain, for example `postgresql`
-  - [ ] `rest/`: defines HTTP Handlers.
-  - [ ] `service/`: orchestrates use cases and manages transactions.
+- [X] `internal/`: defines the _core domain_.
+  - [X] `<datastoreN>/`: a concrete _repository_ used by the domain, for example `postgresql`
+  - [X] `rest/`: defines HTTP Handlers.
+  - [X] `service/`: orchestrates use cases and manages transactions.
 
 There are cases where requiring a new bounded context is needed, in those cases the recommendation would be to
 define a package like `internal/<bounded-context>` that then should follow the same structure, for example:
 
-* `internal/<bounded-context>/`
-  * `internal/<bounded-context>/<datastoreN>`
-  * `internal/<bounded-context>/http`
-  * `internal/<bounded-context>/service`
+- `internal/<bounded-context>/`
+  - `internal/<bounded-context>/<datastoreN>`
+  - `internal/<bounded-context>/http`
+  - `internal/<bounded-context>/service`
 
 ## Tools
 
@@ -57,8 +57,8 @@ Please refer to the documentation in [internal/tools/](internal/tools/README.md)
 
 Icons meaning:
 
-* <img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video"> means a link to Youtube video.
-* <img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post"> means a link to Blog post.
+- <img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video"> means a link to Youtube video.
+- <img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/link.svg" width="20" height="20" alt="Blog post"> means a link to Blog post.
 
 In no particular order:
 
@@ -102,31 +102,31 @@ In no particular order:
 - [ ] Documentation
   - [C4 Model](https://c4model.com/) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/pZ2z2tZkMsE)
 - [ ] Cloud Design Patterns
-  * Reliability
+  - Reliability
     - [ ] [Circuit Breaker](https://en.wikipedia.org/wiki/Circuit_breaker_design_pattern) [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/UnL2iGcD7vE)
 - [ ] Tools as Dependencies [<img src="https://github.com/MarioCarrion/MarioCarrion/blob/main/youtube.svg" width="20" height="20" alt="YouTube video">](https://youtu.be/g_5n0W27XcY)
 - [ ] Whatever else I forgot to include
 
 ## More ideas
 
-* [2016: Peter Bourgon's: Repository structure](https://peter.bourgon.org/go-best-practices-2016/#repository-structure)
-* [2016: Ben Johnson's: Standard Package Layout](https://medium.com/@benbjohnson/standard-package-layout-7cdbc8391fc1)
-* [2017: William Kennedy's: Design Philosophy On Packaging](https://www.ardanlabs.com/blog/2017/02/design-philosophy-on-packaging.html)
-* [2017: Jaana Dogan's: Style guideline for Go packages](https://rakyll.org/style-packages/)
-* [2018: Kat Zien - How Do You Structure Your Go Apps](https://www.youtube.com/watch?v=oL6JBUk6tj0)
+- [2016: Peter Bourgon's: Repository structure](https://peter.bourgon.org/go-best-practices-2016/#repository-structure)
+- [2016: Ben Johnson's: Standard Package Layout](https://medium.com/@benbjohnson/standard-package-layout-7cdbc8391fc1)
+- [2017: William Kennedy's: Design Philosophy On Packaging](https://www.ardanlabs.com/blog/2017/02/design-philosophy-on-packaging.html)
+- [2017: Jaana Dogan's: Style guideline for Go packages](https://rakyll.org/style-packages/)
+- [2018: Kat Zien - How Do You Structure Your Go Apps](https://www.youtube.com/watch?v=oL6JBUk6tj0)
 
 ## Running project locally using Docker Compose
 
 Originally added as part of [Building Microservices In Go: Containerization with Docker](https://youtu.be/u_ayzie9pAQ), `docker compose` has evolved and with it the way to run everything locally. Make sure you are running a recent version of Docker Compose. The configuration in this repository and the instructions below are known to work for at least the following versions:
 
-* Engine: **27.4.0**, and
-* Compose: **v2.31.0-desktop.2**
+- Engine: **27.4.0**, and
+- Compose: **v2.31.0-desktop.2**
 
 This project takes advantage of [Go's build constrains](https://pkg.go.dev/go/build) and [Docker's arguments](https://docs.docker.com/reference/dockerfile/#arg) to build the ElasticSearch indexers and to run the [rest-server](cmd/rest-server) using any of the following types of message broker:
 
-* Redis (**default one**)
-* RabbitMQ
-* Kafka
+- Redis (**default one**)
+- RabbitMQ
+- Kafka
 
 The `docker compose` instructions are executed in the form of:
 
@@ -136,11 +136,11 @@ docker compose -f compose.yml -f compose.<type>.yml <command>
 
 Where:
 
-* `<type>`: Indicates what message broker to use, and effectively match the compose filename itself. The three supported values are:
+- `<type>`: Indicates what message broker to use, and effectively match the compose filename itself. The three supported values are:
     1. `rabbitmq`,
     1. `kafka`, and
     1. `redis` (default value when building the `rest-server` binary).
-* `<command>`: Indicates the docker compose command to use.
+- `<command>`: Indicates the docker compose command to use.
 
 For example to build images using RabbitMQ as the message broker you execute:
 
@@ -154,18 +154,4 @@ Then to start the containers you execute:
 docker compose -f compose.yml -f compose.rabbitmq.yml up
 ```
 
-Once you all the containers are `up` you can access the Swagger UI at [http://localhost:9234/static/swagger-ui/](http://localhost:9234/static/swagger-ui/).
-
-## Diagrams
-
-To start a local HTTP server that serves a graphical editor:
-
-```
-mdl serve github.com/MarioCarrion/todo-api/internal/doc -dir docs/diagrams/
-```
-
-To generate JSON artifact for uploading to [structurizr](https://structurizr.com/):
-
-```
-stz gen github.com/MarioCarrion/todo-api/internal/doc
-```
+Once all the containers are `up` you can access the Swagger UI at [http://localhost:9234/static/swagger-ui/](http://localhost:9234/static/swagger-ui/).
