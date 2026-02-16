@@ -1,6 +1,6 @@
 module github.com/MarioCarrion/todo-api-microservice-example/internal/tools
 
-go 1.25
+go 1.26
 
 require (
 	github.com/fdaines/spm-go v0.11.1
