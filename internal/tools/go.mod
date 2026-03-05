@@ -8,7 +8,7 @@ require (
 	github.com/google/yamlfmt v0.21.0
 	github.com/jackc/tern/v2 v2.3.5
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.12.0
-	github.com/oapi-codegen/oapi-codegen/v2 v2.5.1
+	github.com/oapi-codegen/oapi-codegen/v2 v2.6.0
 	github.com/sqlc-dev/sqlc v1.30.0
 	golang.org/x/vuln v1.1.4
 )
