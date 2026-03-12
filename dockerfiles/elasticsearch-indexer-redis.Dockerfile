@@ -1,4 +1,4 @@
-FROM golang:1.26.0-bookworm AS builder
+FROM golang:1.26.1-bookworm AS builder
 
 WORKDIR /build/
 
@@ -13,7 +13,7 @@ RUN go mod download && \
 
 #-
 
-FROM debian:bookworm-20260202-slim
+FROM debian:bookworm-20260223-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
