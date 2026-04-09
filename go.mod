@@ -4,7 +4,7 @@ go 1.26
 
 require (
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
-	github.com/confluentinc/confluent-kafka-go/v2 v2.13.3
+	github.com/confluentinc/confluent-kafka-go/v2 v2.14.0
 	github.com/didip/tollbooth/v6 v6.1.2
 	github.com/elastic/go-elasticsearch/v7 v7.17.10
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
