@@ -13,7 +13,7 @@ RUN go mod download && \
 
 #-
 
-FROM debian:bookworm-20260406-slim
+FROM debian:bookworm-20260421-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
