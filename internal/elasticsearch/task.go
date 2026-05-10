@@ -116,51 +116,51 @@ func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal
 		return internal.SearchResults{}, nil
 	}
 
-	should := make([]interface{}, 0, 3)
+	should := make([]any, 0, 3)
 
 	if args.Description != nil {
-		should = append(should, map[string]interface{}{
-			"match": map[string]interface{}{
+		should = append(should, map[string]any{
+			"match": map[string]any{
 				"description": *args.Description,
 			},
 		})
 	}
 
 	if args.Priority != nil {
-		should = append(should, map[string]interface{}{
-			"match": map[string]interface{}{
+		should = append(should, map[string]any{
+			"match": map[string]any{
 				"priority": *args.Priority,
 			},
 		})
 	}
 
 	if args.IsDone != nil {
-		should = append(should, map[string]interface{}{
-			"match": map[string]interface{}{
+		should = append(should, map[string]any{
+			"match": map[string]any{
 				"is_done": *args.IsDone,
 			},
 		})
 	}
 
-	var query map[string]interface{}
+	var query map[string]any
 
 	if len(should) > 1 {
-		query = map[string]interface{}{
-			"query": map[string]interface{}{
-				"bool": map[string]interface{}{
+		query = map[string]any{
+			"query": map[string]any{
+				"bool": map[string]any{
 					"should": should,
 				},
 			},
 		}
 	} else {
-		query = map[string]interface{}{
+		query = map[string]any{
 			"query": should[0],
 		}
 	}
 
-	query["sort"] = []interface{}{
+	query["sort"] = []any{
 		"_score",
-		map[string]interface{}{"id": "asc"},
+		map[string]any{"id": "asc"},
 	}
 
 	query["from"] = args.From
@@ -215,11 +215,11 @@ func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal
 			dates := internal.Dates{}
 
 			if hit.Source.DateStart != 0 {
-				dates.Start = internal.ValueToPointer(time.Unix(0, hit.Source.DateStart).UTC())
+				dates.Start = new(time.Unix(0, hit.Source.DateStart).UTC())
 			}
 
 			if hit.Source.DateDue != 0 {
-				dates.Due = internal.ValueToPointer(time.Unix(0, hit.Source.DateDue).UTC())
+				dates.Due = new(time.Unix(0, hit.Source.DateDue).UTC())
 			}
 
 			res[index].Dates = &dates

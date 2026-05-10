@@ -125,8 +125,8 @@ func TestTask_Find(t *testing.T) {
 			Description: "test",
 			Priority:    internal.ValueToPointer(internal.PriorityNone),
 			Dates: &internal.Dates{
-				Start: internal.ValueToPointer(now),
-				Due:   internal.ValueToPointer(now),
+				Start: new(now),
+				Due:   new(now),
 			},
 		})
 		if err != nil {
@@ -192,8 +192,8 @@ func TestTask_Update(t *testing.T) {
 
 		originalTask.Description = "changed"
 		originalTask.Dates = &internal.Dates{
-			Start: internal.ValueToPointer(now),
-			Due:   internal.ValueToPointer(now),
+			Start: new(now),
+			Due:   new(now),
 		}
 		originalTask.Priority = internal.ValueToPointer(internal.PriorityHigh)
 
@@ -226,7 +226,7 @@ func TestTask_Update(t *testing.T) {
 		t.Parallel()
 
 		params := internal.UpdateParams{
-			Description: internal.ValueToPointer("x"),
+			Description: new("x"),
 			Priority:    internal.ValueToPointer(internal.PriorityNone),
 			Dates:       &internal.Dates{},
 			IsDone:      new(bool),

@@ -1,8 +1,10 @@
 package internal
 
 // ValueToPointer converts a value of type T to a pointer of type *T.
+//
+//go:fix inline
 func ValueToPointer[T any](value T) *T {
-	return &value
+	return new(value)
 }
 
 // PointerToValue converts a pointer of type *T to the value of type T it points to.

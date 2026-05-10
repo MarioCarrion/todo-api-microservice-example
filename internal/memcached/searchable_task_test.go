@@ -98,9 +98,9 @@ func TestSearchableTask_All(t *testing.T) {
 				t.Helper()
 
 				got, err := task.Search(t.Context(), internal.SearchParams{
-					Description: internal.ValueToPointer("description"),
+					Description: new("description"),
 					Priority:    internal.ValueToPointer(internal.PriorityHigh),
-					IsDone:      internal.ValueToPointer(true),
+					IsDone:      new(true),
 					From:        0,
 					Size:        2,
 				})

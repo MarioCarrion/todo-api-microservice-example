@@ -125,7 +125,7 @@ func Test_newTimestamp(t *testing.T) {
 		},
 		{
 			name:  "truncated by minute",
-			input: internal.ValueToPointer(time.Date(2026, 1, 1, 3, 2, 0, 0, time.UTC)),
+			input: new(time.Date(2026, 1, 1, 3, 2, 0, 0, time.UTC)),
 			expected: pgtype.Timestamp{
 				Time:  time.Date(2026, 1, 1, 3, 2, 0, 0, time.UTC),
 				Valid: true,

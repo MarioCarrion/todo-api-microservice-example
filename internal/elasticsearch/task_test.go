@@ -80,7 +80,7 @@ func TestTask_All(t *testing.T) {
 
 	//- Testing `Search` method
 	results, err := taskRepo.Search(ctx, internal.SearchParams{
-		Description: internal.ValueToPointer("Test"),
+		Description: new("Test"),
 		From:        0,
 		Size:        10,
 	})
@@ -104,7 +104,7 @@ func TestTask_All(t *testing.T) {
 	time.Sleep(1 * time.Second)
 
 	results, err = taskRepo.Search(ctx, internal.SearchParams{
-		Description: internal.ValueToPointer("Test"),
+		Description: new("Test"),
 		From:        0,
 		Size:        10,
 	})

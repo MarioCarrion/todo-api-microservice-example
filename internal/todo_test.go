@@ -89,7 +89,7 @@ func TestPriority_Pointer(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ptr := internal.ValueToPointer(tt.priority)
+			ptr := new(tt.priority)
 			if ptr == nil {
 				t.Fatal("expected non-nil pointer")
 			} else if *ptr != tt.priority {
@@ -110,30 +110,30 @@ func TestDates_Validate(t *testing.T) {
 		{
 			"OK: Start.IsZero",
 			internal.Dates{
-				Due: internal.ValueToPointer(time.Now()),
+				Due: new(time.Now()),
 			},
 			false,
 		},
 		{
 			"OK: Due.IsZero",
 			internal.Dates{
-				Start: internal.ValueToPointer(time.Now()),
+				Start: new(time.Now()),
 			},
 			false,
 		},
 		{
 			"OK: Start < Due",
 			internal.Dates{
-				Start: internal.ValueToPointer(time.Now()),
-				Due:   internal.ValueToPointer(time.Now().Add(2 * time.Hour)),
+				Start: new(time.Now()),
+				Due:   new(time.Now().Add(2 * time.Hour)),
 			},
 			false,
 		},
 		{
 			"ERR: Start > Due",
 			internal.Dates{
-				Start: internal.ValueToPointer(time.Now().Add(2 * time.Hour)),
-				Due:   internal.ValueToPointer(time.Now()),
+				Start: new(time.Now().Add(2 * time.Hour)),
+				Due:   new(time.Now()),
 			},
 			true,
 		},

@@ -336,7 +336,7 @@ func TestTask_Update(t *testing.T) {
 			name: "successful update",
 			id:   "123",
 			params: internal.UpdateParams{
-				Description: internal.ValueToPointer("updated task"),
+				Description: new("updated task"),
 			},
 			mockRepo: &mockTaskRepository{
 				updateFn: func(_ context.Context, _ string, _ internal.UpdateParams) error {
@@ -358,7 +358,7 @@ func TestTask_Update(t *testing.T) {
 			name: "repository update error",
 			id:   "123",
 			params: internal.UpdateParams{
-				Description: internal.ValueToPointer("updated task"),
+				Description: new("updated task"),
 			},
 			mockRepo: &mockTaskRepository{
 				updateFn: func(_ context.Context, _ string, _ internal.UpdateParams) error {
@@ -403,7 +403,7 @@ func TestTask_By(t *testing.T) {
 		{
 			name: "successful search",
 			params: internal.SearchParams{
-				Description: internal.ValueToPointer("test"),
+				Description: new("test"),
 				From:        0,
 				Size:        10,
 			},
@@ -438,7 +438,7 @@ func TestTask_By(t *testing.T) {
 		{
 			name: "search error",
 			params: internal.SearchParams{
-				Description: internal.ValueToPointer("test"),
+				Description: new("test"),
 			},
 			mockSearch: &mockTaskSearchRepository{
 				searchFn: func(_ context.Context, _ internal.SearchParams) (internal.SearchResults, error) {

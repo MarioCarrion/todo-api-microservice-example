@@ -28,8 +28,8 @@ func TestTaskHandler_CreateTask(t *testing.T) {
 			request: rest.CreateTaskRequestObject{
 				Body: &rest.CreateTaskJSONRequestBody{
 					Description: "test task",
-					Priority:    internal.ValueToPointer(rest.NewPriority(internal.PriorityHigh)),
-					Dates:       internal.ValueToPointer(rest.Dates{}),
+					Priority:    new(rest.NewPriority(internal.PriorityHigh)),
+					Dates:       new(rest.Dates{}),
 				},
 			},
 			setupMock: func(m *resttesting.FakeTaskService) {
@@ -264,7 +264,7 @@ func TestTaskHandler_UpdateTask(t *testing.T) {
 			request: rest.UpdateTaskRequestObject{
 				Id: taskID,
 				Body: &rest.UpdateTaskJSONRequestBody{
-					Description: internal.ValueToPointer("updated task"),
+					Description: new("updated task"),
 				},
 			},
 			setupMock: func(m *resttesting.FakeTaskService) {
@@ -284,7 +284,7 @@ func TestTaskHandler_UpdateTask(t *testing.T) {
 			request: rest.UpdateTaskRequestObject{
 				Id: taskID,
 				Body: &rest.UpdateTaskJSONRequestBody{
-					Description: internal.ValueToPointer("updated task"),
+					Description: new("updated task"),
 				},
 			},
 			setupMock: func(m *resttesting.FakeTaskService) {
@@ -342,7 +342,7 @@ func TestTaskHandler_SearchTask(t *testing.T) {
 			name: "successful search",
 			request: rest.SearchTaskRequestObject{
 				Body: &rest.SearchTaskJSONRequestBody{
-					Description: internal.ValueToPointer("test"),
+					Description: new("test"),
 					From:        0,
 					Size:        10,
 				},
@@ -372,7 +372,7 @@ func TestTaskHandler_SearchTask(t *testing.T) {
 			name: "service error",
 			request: rest.SearchTaskRequestObject{
 				Body: &rest.SearchTaskJSONRequestBody{
-					Description: internal.ValueToPointer("test"),
+					Description: new("test"),
 				},
 			},
 			setupMock: func(m *resttesting.FakeTaskService) {

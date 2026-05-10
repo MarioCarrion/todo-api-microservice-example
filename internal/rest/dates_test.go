@@ -21,12 +21,12 @@ func Test_newDates(t *testing.T) {
 		{
 			"OK",
 			internal.Dates{
-				Start: internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)),
-				Due:   internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour)),
+				Start: new(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)),
+				Due:   new(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour)),
 			},
 			Dates{
-				Start: internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)),
-				Due:   internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour)),
+				Start: new(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)),
+				Due:   new(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour)),
 			},
 		},
 	}
@@ -54,12 +54,12 @@ func TestDates_ToDomain(t *testing.T) {
 		{
 			"OK",
 			Dates{
-				Start: internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)),
-				Due:   internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour)),
+				Start: new(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)),
+				Due:   new(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour)),
 			},
 			internal.Dates{
-				Start: internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)),
-				Due:   internal.ValueToPointer(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour)),
+				Start: new(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)),
+				Due:   new(time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC).Add(time.Hour)),
 			},
 		},
 	}
