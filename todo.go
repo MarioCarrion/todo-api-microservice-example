@@ -1,4 +1,3 @@
-// Package todo represents the ToDo REST API client generated.
 package todo
 
 //- Client

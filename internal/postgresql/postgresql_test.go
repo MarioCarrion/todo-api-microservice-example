@@ -159,27 +159,27 @@ func Test_newPriority(t *testing.T) {
 		},
 		{
 			name:     "PriorityNone",
-			input:    internal.ValueToPointer(internal.PriorityNone),
+			input:    new(internal.PriorityNone),
 			expected: db.PriorityNone,
 		},
 		{
 			name:     "PriorityLow",
-			input:    internal.ValueToPointer(internal.PriorityLow),
+			input:    new(internal.PriorityLow),
 			expected: db.PriorityLow,
 		},
 		{
 			name:     "PriorityMedium",
-			input:    internal.ValueToPointer(internal.PriorityMedium),
+			input:    new(internal.PriorityMedium),
 			expected: db.PriorityMedium,
 		},
 		{
 			name:     "PriorityHigh",
-			input:    internal.ValueToPointer(internal.PriorityHigh),
+			input:    new(internal.PriorityHigh),
 			expected: db.PriorityHigh,
 		},
 		{
 			name:     "invalid",
-			input:    internal.ValueToPointer(internal.Priority(-1)),
+			input:    new(internal.Priority(-1)),
 			expected: db.Priority("invalid"),
 		},
 	}

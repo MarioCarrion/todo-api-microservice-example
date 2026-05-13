@@ -29,7 +29,7 @@ func TestTask_Create(t *testing.T) {
 		task, err := postgresql.NewTask(newDB(t)).Create(t.Context(),
 			internal.CreateParams{
 				Description: "test",
-				Priority:    internal.ValueToPointer(internal.PriorityNone),
+				Priority:    new(internal.PriorityNone),
 			})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
@@ -46,7 +46,7 @@ func TestTask_Create(t *testing.T) {
 		_, err := postgresql.NewTask(newDB(t)).Create(t.Context(),
 			internal.CreateParams{
 				Description: "",
-				Priority:    internal.ValueToPointer(internal.Priority(-1)),
+				Priority:    new(internal.Priority(-1)),
 			})
 		if err == nil { // because of invalid priority
 			t.Fatalf("expected error, got no value")
@@ -69,7 +69,7 @@ func TestTask_Delete(t *testing.T) {
 
 		createdTask, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
-			Priority:    internal.ValueToPointer(internal.PriorityNone),
+			Priority:    new(internal.PriorityNone),
 		})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
@@ -88,7 +88,6 @@ func TestTask_Delete(t *testing.T) {
 		t.Parallel()
 
 		err := postgresql.NewTask(newDB(t)).Delete(t.Context(), "x")
-
 		if err == nil {
 			t.Fatalf("expected error, got not value")
 		}
@@ -123,10 +122,10 @@ func TestTask_Find(t *testing.T) {
 
 		originalTask, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
-			Priority:    internal.ValueToPointer(internal.PriorityNone),
+			Priority:    new(internal.PriorityNone),
 			Dates: &internal.Dates{
-				Start: new(now),
-				Due:   new(now),
+				Start: &now,
+				Due:   &now,
 			},
 		})
 		if err != nil {
@@ -182,7 +181,7 @@ func TestTask_Update(t *testing.T) {
 
 		originalTask, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
-			Priority:    internal.ValueToPointer(internal.PriorityNone),
+			Priority:    new(internal.PriorityNone),
 		})
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
@@ -192,10 +191,10 @@ func TestTask_Update(t *testing.T) {
 
 		originalTask.Description = "changed"
 		originalTask.Dates = &internal.Dates{
-			Start: new(now),
-			Due:   new(now),
+			Start: &now,
+			Due:   &now,
 		}
-		originalTask.Priority = internal.ValueToPointer(internal.PriorityHigh)
+		originalTask.Priority = new(internal.PriorityHigh)
 
 		params := internal.UpdateParams{
 			Description: &originalTask.Description,
@@ -227,7 +226,7 @@ func TestTask_Update(t *testing.T) {
 
 		params := internal.UpdateParams{
 			Description: new("x"),
-			Priority:    internal.ValueToPointer(internal.PriorityNone),
+			Priority:    new(internal.PriorityNone),
 			Dates:       &internal.Dates{},
 			IsDone:      new(bool),
 		}
@@ -251,7 +250,7 @@ func TestTask_Update(t *testing.T) {
 
 		task, err := store.Create(t.Context(), internal.CreateParams{
 			Description: "test",
-			Priority:    internal.ValueToPointer(internal.PriorityNone),
+			Priority:    new(internal.PriorityNone),
 			Dates:       &dates,
 		})
 		if err != nil {
@@ -259,7 +258,7 @@ func TestTask_Update(t *testing.T) {
 		}
 
 		params := internal.UpdateParams{
-			Priority: internal.ValueToPointer(internal.Priority(-1)),
+			Priority: new(internal.Priority(-1)),
 			Dates:    &internal.Dates{},
 			IsDone:   new(bool),
 		}
@@ -282,7 +281,7 @@ func TestTask_Update(t *testing.T) {
 		t.Parallel()
 
 		params := internal.UpdateParams{
-			Priority: internal.ValueToPointer(internal.PriorityNone),
+			Priority: new(internal.PriorityNone),
 			Dates:    &internal.Dates{},
 			IsDone:   new(bool),
 		}

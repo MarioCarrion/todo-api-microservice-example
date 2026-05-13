@@ -36,17 +36,19 @@ func TestTaskHandler_CreateTask(t *testing.T) {
 				m.CreateReturns(internal.Task{
 					ID:          taskID.String(),
 					Description: "test task",
-					Priority:    internal.ValueToPointer(internal.PriorityHigh),
+					Priority:    new(internal.PriorityHigh),
 					Dates:       &internal.Dates{},
 				}, nil)
 			},
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.CreateTaskResponseObject) {
 				t.Helper()
+
 				r, ok := resp.(rest.CreateTask201JSONResponse)
 				if !ok {
 					t.Fatalf("expected CreateTask201JSONResponse, got %T", resp)
 				}
+
 				if r.Task.ID != taskID {
 					t.Errorf("expected task ID %v, got %v", taskID, r.Task.ID)
 				}
@@ -65,6 +67,7 @@ func TestTaskHandler_CreateTask(t *testing.T) {
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.CreateTaskResponseObject) {
 				t.Helper()
+
 				_, ok := resp.(rest.CreateTask500JSONResponse)
 				if !ok {
 					t.Fatalf("expected CreateTask500JSONResponse, got %T", resp)
@@ -123,10 +126,12 @@ func TestTaskHandler_ReadTask(t *testing.T) {
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.ReadTaskResponseObject) {
 				t.Helper()
+
 				r, ok := resp.(rest.ReadTask200JSONResponse)
 				if !ok {
 					t.Fatalf("expected ReadTask200JSONResponse, got %T", resp)
 				}
+
 				if r.Task.ID != taskID {
 					t.Errorf("expected task ID %v, got %v", taskID, r.Task.ID)
 				}
@@ -143,7 +148,9 @@ func TestTaskHandler_ReadTask(t *testing.T) {
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.ReadTaskResponseObject) {
 				t.Helper()
+
 				_, ok := resp.(rest.ReadTask500JSONResponse)
+
 				if !ok {
 					t.Fatalf("expected ReadTask500JSONResponse, got %T", resp)
 				}
@@ -198,6 +205,7 @@ func TestTaskHandler_DeleteTask(t *testing.T) {
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.DeleteTaskResponseObject) {
 				t.Helper()
+
 				_, ok := resp.(rest.DeleteTask200Response)
 				if !ok {
 					t.Fatalf("expected DeleteTask200Response, got %T", resp)
@@ -215,6 +223,7 @@ func TestTaskHandler_DeleteTask(t *testing.T) {
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.DeleteTaskResponseObject) {
 				t.Helper()
+
 				_, ok := resp.(rest.DeleteTask500JSONResponse)
 				if !ok {
 					t.Fatalf("expected DeleteTask500JSONResponse, got %T", resp)
@@ -273,6 +282,7 @@ func TestTaskHandler_UpdateTask(t *testing.T) {
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.UpdateTaskResponseObject) {
 				t.Helper()
+
 				_, ok := resp.(rest.UpdateTask200Response)
 				if !ok {
 					t.Fatalf("expected UpdateTask200Response, got %T", resp)
@@ -293,6 +303,7 @@ func TestTaskHandler_UpdateTask(t *testing.T) {
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.UpdateTaskResponseObject) {
 				t.Helper()
+
 				_, ok := resp.(rest.UpdateTask500JSONResponse)
 				if !ok {
 					t.Fatalf("expected UpdateTask500JSONResponse, got %T", resp)
@@ -359,10 +370,12 @@ func TestTaskHandler_SearchTask(t *testing.T) {
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.SearchTaskResponseObject) {
 				t.Helper()
+
 				r, ok := resp.(rest.SearchTask200JSONResponse)
 				if !ok {
 					t.Fatalf("expected SearchTask200JSONResponse, got %T", resp)
 				}
+
 				if r.Tasks == nil || len(*r.Tasks) != 2 {
 					t.Errorf("expected 2 tasks, got %v", r.Tasks)
 				}
@@ -381,6 +394,7 @@ func TestTaskHandler_SearchTask(t *testing.T) {
 			expectError: false,
 			validateResp: func(t *testing.T, resp rest.SearchTaskResponseObject) {
 				t.Helper()
+
 				_, ok := resp.(rest.SearchTask500JSONResponse)
 				if !ok {
 					t.Fatalf("expected SearchTask500JSONResponse, got %T", resp)

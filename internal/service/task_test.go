@@ -113,7 +113,7 @@ func TestTask_Create(t *testing.T) {
 			name: "successful create",
 			params: internal.CreateParams{
 				Description: "test task",
-				Priority:    internal.ValueToPointer(internal.PriorityHigh),
+				Priority:    new(internal.PriorityHigh),
 			},
 			mockRepo: &mockTaskRepository{
 				createFn: func(_ context.Context, params internal.CreateParams) (internal.Task, error) {
@@ -127,13 +127,15 @@ func TestTask_Create(t *testing.T) {
 			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
 			verify: func(t *testing.T, task internal.Task, err error) {
 				t.Helper()
+
 				if err != nil {
 					t.Fatalf("unexpected error: %v", err)
 				}
+
 				expectedTask := internal.Task{
 					ID:          "123",
 					Description: "test task",
-					Priority:    internal.ValueToPointer(internal.PriorityHigh),
+					Priority:    new(internal.PriorityHigh),
 				}
 				if diff := cmp.Diff(expectedTask, task); diff != "" {
 					t.Errorf("task mismatch (-want +got):\n%s", diff)
@@ -149,9 +151,11 @@ func TestTask_Create(t *testing.T) {
 			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
 			verify: func(t *testing.T, _ internal.Task, err error) {
 				t.Helper()
+
 				if err == nil {
 					t.Fatalf("expected error containing %q, got nil", "params.Validate")
 				}
+
 				if !strings.Contains(err.Error(), "params.Validate") {
 					t.Errorf("expected error containing %q, got %q", "params.Validate", err.Error())
 				}
@@ -161,7 +165,7 @@ func TestTask_Create(t *testing.T) {
 			name: "repository error",
 			params: internal.CreateParams{
 				Description: "test task",
-				Priority:    internal.ValueToPointer(internal.PriorityHigh),
+				Priority:    new(internal.PriorityHigh),
 			},
 			mockRepo: &mockTaskRepository{
 				createFn: func(_ context.Context, _ internal.CreateParams) (internal.Task, error) {
@@ -171,9 +175,11 @@ func TestTask_Create(t *testing.T) {
 			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
 			verify: func(t *testing.T, _ internal.Task, err error) {
 				t.Helper()
+
 				if err == nil {
 					t.Fatalf("expected error containing %q, got nil", "repo.Create")
 				}
+
 				if !strings.Contains(err.Error(), "repo.Create") {
 					t.Errorf("expected error containing %q, got %q", "repo.Create", err.Error())
 				}
@@ -215,6 +221,7 @@ func TestTask_Delete(t *testing.T) {
 			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
 			verify: func(t *testing.T, err error) {
 				t.Helper()
+
 				if err != nil {
 					t.Fatalf("unexpected error: %v", err)
 				}
@@ -231,9 +238,11 @@ func TestTask_Delete(t *testing.T) {
 			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
 			verify: func(t *testing.T, err error) {
 				t.Helper()
+
 				if err == nil {
 					t.Fatalf("expected error containing %q, got nil", "Delete")
 				}
+
 				if !strings.Contains(err.Error(), "Delete") {
 					t.Errorf("expected error containing %q, got %q", "Delete", err.Error())
 				}
@@ -276,13 +285,16 @@ func TestTask_ByID(t *testing.T) {
 			},
 			verify: func(t *testing.T, task internal.Task, err error) {
 				t.Helper()
+
 				if err != nil {
 					t.Fatalf("unexpected error: %v", err)
 				}
+
 				expectedTask := internal.Task{
 					ID:          "123",
 					Description: "test task",
 				}
+
 				if diff := cmp.Diff(expectedTask, task); diff != "" {
 					t.Errorf("task mismatch (-want +got):\n%s", diff)
 				}
@@ -298,9 +310,11 @@ func TestTask_ByID(t *testing.T) {
 			},
 			verify: func(t *testing.T, _ internal.Task, err error) {
 				t.Helper()
+
 				if err == nil {
 					t.Fatalf("expected error containing %q, got nil", "Find")
 				}
+
 				if !strings.Contains(err.Error(), "Find") {
 					t.Errorf("expected error containing %q, got %q", "Find", err.Error())
 				}
@@ -349,6 +363,7 @@ func TestTask_Update(t *testing.T) {
 			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
 			verify: func(t *testing.T, err error) {
 				t.Helper()
+
 				if err != nil {
 					t.Fatalf("unexpected error: %v", err)
 				}
@@ -368,9 +383,11 @@ func TestTask_Update(t *testing.T) {
 			mockMsgBroker: &mockTaskMessageBrokerPublisher{},
 			verify: func(t *testing.T, err error) {
 				t.Helper()
+
 				if err == nil {
 					t.Fatalf("expected error containing %q, got nil", "repo.Update")
 				}
+
 				if !strings.Contains(err.Error(), "repo.Update") {
 					t.Errorf("expected error containing %q, got %q", "repo.Update", err.Error())
 				}
@@ -420,9 +437,11 @@ func TestTask_By(t *testing.T) {
 			},
 			verify: func(t *testing.T, result internal.SearchResults, err error) {
 				t.Helper()
+
 				if err != nil {
 					t.Fatalf("unexpected error: %v", err)
 				}
+
 				expectedResult := internal.SearchResults{
 					Tasks: []internal.Task{
 						{ID: "1", Description: "test task 1"},
@@ -430,6 +449,7 @@ func TestTask_By(t *testing.T) {
 					},
 					Total: 2,
 				}
+
 				if diff := cmp.Diff(expectedResult, result); diff != "" {
 					t.Errorf("result mismatch (-want +got):\n%s", diff)
 				}
@@ -447,9 +467,11 @@ func TestTask_By(t *testing.T) {
 			},
 			verify: func(t *testing.T, _ internal.SearchResults, err error) {
 				t.Helper()
+
 				if err == nil {
 					t.Fatalf("expected error containing %q, got nil", "search")
 				}
+
 				if !strings.Contains(err.Error(), "search") {
 					t.Errorf("expected error containing %q, got %q", "search", err.Error())
 				}

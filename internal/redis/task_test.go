@@ -245,6 +245,7 @@ var setupClient = sync.OnceValue(func() RedisClient { //nolint: gochecknoglobals
 
 		return res
 	}
+
 	res.container = container
 
 	connStr, err := container.ConnectionString(context.Background())
@@ -267,6 +268,7 @@ var setupClient = sync.OnceValue(func() RedisClient { //nolint: gochecknoglobals
 
 		return res
 	}
+
 	res.redis = client
 
 	return res

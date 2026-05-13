@@ -10,7 +10,7 @@ tidy:
 tools:
 	go install -C internal/tools \
 		github.com/fdaines/spm-go \
-		github.com/golangci/golangci-lint/cmd/golangci-lint \
+		github.com/golangci/golangci-lint/v2/cmd/golangci-lint \
 		github.com/google/yamlfmt/cmd/yamlfmt \
 		github.com/jackc/tern/v2 \
 		github.com/maxbrunsfeld/counterfeiter/v6 \

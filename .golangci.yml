@@ -1,80 +1,100 @@
+version: "2"
 linters:
-  enable-all: true
+  default: all
   disable:
     # Disagree with the rationale behind these linters
-    - depguard # No need to explicitly list what packages to import.
-    - gofumpt # Prefer `gofmt` rules / some rules conflict with `wsl`
+    - depguard
+    - noinlineerr
     # These will be re-enabled after some code refactoring.
     - err113
+    - gomodguard
+    - mnd
     - musttag
     - nonamedreturns
-    - mnd # Magic number
     # The following are deprecated linters, added to avoid initial warning when running
-    - tenv
+    - wsl
+  settings:
+    exhaustruct:
+      include:
+        - github.com/MarioCarrion/todo-api-microservice-example/internal.*Params
+    ireturn:
+      allow:
+        - error
+        - stdlib
+    lll:
+      line-length: 130
+    varnamelen:
+      max-distance: 10
+      ignore-type-assert-ok: true
+      ignore-map-index-ok: true
+      ignore-chan-recv-ok: true
+      ignore-decls:
+        - b bytes.Buffer
+        - h http.Handler
+        - id string
+        - ok bool
+        - r *http.Request
+        - w http.ResponseWriter
+    wrapcheck:
+      ignore-sigs:
+        - internaldomain.WrapErrorf(
+        - internaldomain.NewErrorf(
+        - internal.NewErrorf(
+        - internal.WrapErrorf(
+      ignore-package-globs:
+        - github.com/MarioCarrion/todo-api-microservice-example/*
   exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - cyclop
+          - dupl
+          - errorlint
+          - exhaustruct
+          - funlen
+          - gocognit
+          - goconst
+          - musttag
+          - testpackage
+          - varnamelen
+          - wrapcheck
+        path: _test\.go
+      - linters:
+          - cyclop
+          - funlen
+          - gocognit
+          - godox
+        path: main\.go
+      - linters:
+          - godox
+        path: internal/postgresql/task_handler.go
+      - linters:
+          - godox
+          - ireturn
+        path: internal/rest/task_handler.go
     paths:
-      - '(.gen.go)' # Exclude generated code
-linters-settings:
-  lll:
-    line-length: 130
-  gci:
-    sections:
-      - standard
-      - default
-      - prefix(github.com/MarioCarrion/todo-api-microservice-example)
-    section-separators:
-      - newLine
-  exhaustruct:
-    include:
-      - 'github.com/MarioCarrion/todo-api-microservice-example/internal.*Params'
-  ireturn:
-    allow:
-      - error
-      - stdlib
-  varnamelen:
-    max-distance: 10
-    ignore-type-assert-ok: true
-    ignore-map-index-ok: true
-    ignore-chan-recv-ok: true
-    ignore-decls:
-      - b bytes.Buffer
-      - h http.Handler
-      - id string
-      - ok bool
-      - r *http.Request
-      - w http.ResponseWriter
-  wrapcheck:
-    ignoreSigs:
-      - internaldomain.WrapErrorf(
-      - internaldomain.NewErrorf(
-      - internal.NewErrorf(
-      - internal.WrapErrorf(
-    ignorePackageGlobs:
-      - github.com/MarioCarrion/todo-api-microservice-example/*
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - cyclop
-        - dupl
-        - errorlint
-        - exhaustruct
-        - funlen
-        - gocognit
-        - musttag
-        - testpackage
-        - varnamelen
-        - wrapcheck
-    - path: main\.go
-      linters:
-        - cyclop
-        - funlen
-        - godox
-        - gocognit
-    - path: internal/postgresql/task_handler.go
-      linters:
-        - godox
-    - path: internal/rest/task_handler.go
-      linters:
-        - godox
-        - ireturn
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/MarioCarrion/todo-api-microservice-example)

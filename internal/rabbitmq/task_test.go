@@ -67,7 +67,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 				task := internal.Task{
 					ID:          "test-123",
 					Description: "Test task",
-					Priority:    internal.ValueToPointer(internal.PriorityHigh),
+					Priority:    new(internal.PriorityHigh),
 					IsDone:      true,
 				}
 
@@ -91,7 +91,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 				expected := internal.Task{
 					ID:          "test-123",
 					Description: "Test task",
-					Priority:    internal.ValueToPointer(internal.PriorityHigh),
+					Priority:    new(internal.PriorityHigh),
 					IsDone:      true,
 				}
 
@@ -110,7 +110,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 				task := internal.Task{
 					ID:          "test-123",
 					Description: "Test task",
-					Priority:    internal.ValueToPointer(internal.PriorityHigh),
+					Priority:    new(internal.PriorityHigh),
 					IsDone:      true,
 				}
 
@@ -134,7 +134,7 @@ func TestTask_All(t *testing.T) { //nolint: tparallel
 				expected := internal.Task{
 					ID:          "test-123",
 					Description: "Test task",
-					Priority:    internal.ValueToPointer(internal.PriorityHigh),
+					Priority:    new(internal.PriorityHigh),
 					IsDone:      true,
 				}
 
@@ -359,7 +359,6 @@ var setupClient = sync.OnceValue(func() RabbitMQClient { //nolint: gochecknoglob
 	res.msgs = msgs
 
 	return res
-
 })
 
 type RabbitMQClient struct {

@@ -31,7 +31,7 @@ func TestSearchableTask_All(t *testing.T) {
 				expected := internal.Task{
 					ID:          "test-123",
 					Description: "Test task",
-					Priority:    internal.ValueToPointer(internal.PriorityHigh),
+					Priority:    new(internal.PriorityHigh),
 				}
 
 				if err := task.Index(t.Context(), expected); err != nil {
@@ -86,7 +86,7 @@ func TestSearchableTask_All(t *testing.T) {
 						{
 							ID:          "test-123",
 							Description: "Test task",
-							Priority:    internal.ValueToPointer(internal.PriorityHigh),
+							Priority:    new(internal.PriorityHigh),
 						},
 					},
 					Total: 1,
@@ -99,7 +99,7 @@ func TestSearchableTask_All(t *testing.T) {
 
 				got, err := task.Search(t.Context(), internal.SearchParams{
 					Description: new("description"),
-					Priority:    internal.ValueToPointer(internal.PriorityHigh),
+					Priority:    new(internal.PriorityHigh),
 					IsDone:      new(true),
 					From:        0,
 					Size:        2,
@@ -118,7 +118,7 @@ func TestSearchableTask_All(t *testing.T) {
 						{
 							ID:          "test-123",
 							Description: "Test task",
-							Priority:    internal.ValueToPointer(internal.PriorityHigh),
+							Priority:    new(internal.PriorityHigh),
 						},
 					},
 					Total: 1,

@@ -212,6 +212,7 @@ func newServer(conf serverConfig) *http.Server {
 				if conf.Logger != nil {
 					conf.Logger.Error("request failed", zap.Error(err))
 				}
+
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}
 		},

@@ -7,7 +7,7 @@ import (
 	"github.com/MarioCarrion/todo-api-microservice-example/internal/envvar"
 )
 
-// KafkaConsumer is the producer implementation of Kafka.
+// KafkaProducer is the producer implementation of Kafka.
 type KafkaProducer struct {
 	Producer *kafka.Producer
 	Topic    string

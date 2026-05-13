@@ -63,7 +63,7 @@ func TestTask_All(t *testing.T) {
 	task := internal.Task{
 		ID:          "test-123",
 		Description: "Test task for elasticsearch",
-		Priority:    internal.ValueToPointer(internal.PriorityHigh),
+		Priority:    new(internal.PriorityHigh),
 		IsDone:      true,
 		Dates: &internal.Dates{
 			Start: &now,
@@ -189,8 +189,8 @@ var setupClient = sync.OnceValue(func() ElasticsearchClient { //nolint: gocheckn
 	cfg := elasticsearch.Config{
 		Addresses: []string{container.Settings.Address},
 	}
-	client, err := elasticsearch.NewClient(cfg)
 
+	client, err := elasticsearch.NewClient(cfg)
 	if err != nil {
 		res.err = fmt.Errorf("failed to create elasticsearch client: %w", err)
 

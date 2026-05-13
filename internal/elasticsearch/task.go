@@ -14,6 +14,8 @@ import (
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 )
 
+const match = "match"
+
 // Task represents the repository used for interacting with Task records.
 type Task struct {
 	client *esv7.Client
@@ -120,7 +122,7 @@ func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal
 
 	if args.Description != nil {
 		should = append(should, map[string]any{
-			"match": map[string]any{
+			match: map[string]any{
 				"description": *args.Description,
 			},
 		})
@@ -128,7 +130,7 @@ func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal
 
 	if args.Priority != nil {
 		should = append(should, map[string]any{
-			"match": map[string]any{
+			match: map[string]any{
 				"priority": *args.Priority,
 			},
 		})
@@ -136,7 +138,7 @@ func (t *Task) Search(ctx context.Context, args internal.SearchParams) (internal
 
 	if args.IsDone != nil {
 		should = append(should, map[string]any{
-			"match": map[string]any{
+			match: map[string]any{
 				"is_done": *args.IsDone,
 			},
 		})

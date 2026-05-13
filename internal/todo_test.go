@@ -90,9 +90,7 @@ func TestPriority_Pointer(t *testing.T) {
 			t.Parallel()
 
 			ptr := new(tt.priority)
-			if ptr == nil {
-				t.Fatal("expected non-nil pointer")
-			} else if *ptr != tt.priority {
+			if *ptr != tt.priority {
 				t.Errorf("expected *%v, got *%v", tt.priority, *ptr)
 			}
 		})
@@ -177,7 +175,7 @@ func TestTask_Validate(t *testing.T) {
 			"OK",
 			internal.Task{
 				Description: "complete this microservice",
-				Priority:    internal.ValueToPointer(internal.PriorityHigh),
+				Priority:    new(internal.PriorityHigh),
 				Dates:       newDate(time.Now(), time.Now().Add(time.Hour)),
 			},
 			false,
@@ -185,7 +183,7 @@ func TestTask_Validate(t *testing.T) {
 		{
 			"ERR: Description",
 			internal.Task{
-				Priority: internal.ValueToPointer(internal.PriorityHigh),
+				Priority: new(internal.PriorityHigh),
 				Dates:    newDate(time.Now(), time.Now().Add(time.Hour)),
 			},
 			true,
@@ -194,7 +192,7 @@ func TestTask_Validate(t *testing.T) {
 			"ERR: Priority",
 			internal.Task{
 				Description: "complete this microservice",
-				Priority:    internal.ValueToPointer(internal.Priority(-1)),
+				Priority:    new(internal.Priority(-1)),
 				Dates:       newDate(time.Now(), time.Now().Add(time.Hour)),
 			},
 			true,
@@ -203,7 +201,7 @@ func TestTask_Validate(t *testing.T) {
 			"ERR: Dates",
 			internal.Task{
 				Description: "complete this microservice",
-				Priority:    internal.ValueToPointer(internal.PriorityHigh),
+				Priority:    new(internal.PriorityHigh),
 				Dates:       newDate(time.Now().Add(time.Hour), time.Now()),
 			},
 			true,

@@ -108,8 +108,8 @@ func TestProvider_Get(t *testing.T) {
 	// Provider is not local to the subtest because we want to test the local caching logic
 
 	client := newVault(t)
-	provider, err := vault.New(client.Token, client.Address, "/secret")
 
+	provider, err := vault.New(client.Token, client.Address, "/secret")
 	if err != nil {
 		t.Fatalf("expected no error, got %s", err)
 	}
@@ -117,7 +117,6 @@ func TestProvider_Get(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) { //nolint: wsl
 			// Not calling t.Parallel() because vault.Provider is not goroutine safe.
-
 			if err := tt.setup(client); err != nil {
 				t.Fatalf("could not set up %s", err)
 			}
