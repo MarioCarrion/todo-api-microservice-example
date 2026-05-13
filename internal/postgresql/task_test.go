@@ -117,7 +117,7 @@ func TestTask_Find(t *testing.T) {
 	t.Run("Find: OK", func(t *testing.T) {
 		t.Parallel()
 
-		now := time.Now().UTC().Truncate(time.Minute)
+		now := time.Now().UTC().Truncate(time.Minute) //nolint:staticcheck // SA4006 false positive: new(expr) is valid Go 1.26 syntax
 
 		store := postgresql.NewTask(newDB(t))
 
@@ -188,9 +188,7 @@ func TestTask_Update(t *testing.T) {
 			t.Fatalf("expected no error, got %s", err)
 		}
 
-		now := time.Now().UTC().Truncate(time.Minute)
-
-		originalTask.Description = "changed"
+		now := time.Now().UTC().Truncate(time.Minute) //nolint:staticcheck // SA4006 false positive: new(expr) is valid Go 1.26 syntax
 		originalTask.Dates = &internal.Dates{
 			Start: new(now),
 			Due:   new(now),

@@ -11,6 +11,7 @@ linters:
     - mnd # Magic number
     # The following are deprecated linters, added to avoid initial warning when running
     - tenv
+    - gocheckcompilerdirectives # //go:fix is a valid directive in Go 1.24+
   exclusions:
     paths:
       - '(.gen.go)' # Exclude generated code
