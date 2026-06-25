@@ -18,13 +18,13 @@ require (
 	github.com/mercari/go-circuitbreaker v0.0.2
 	github.com/oapi-codegen/runtime v1.4.1
 	github.com/rabbitmq/amqp091-go v1.12.0
-	github.com/testcontainers/testcontainers-go v0.42.0
-	github.com/testcontainers/testcontainers-go/modules/elasticsearch v0.42.0
-	github.com/testcontainers/testcontainers-go/modules/kafka v0.42.0
-	github.com/testcontainers/testcontainers-go/modules/postgres v0.42.0
-	github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.42.0
-	github.com/testcontainers/testcontainers-go/modules/redis v0.42.0
-	github.com/testcontainers/testcontainers-go/modules/vault v0.42.0
+	github.com/testcontainers/testcontainers-go v0.43.0
+	github.com/testcontainers/testcontainers-go/modules/elasticsearch v0.43.0
+	github.com/testcontainers/testcontainers-go/modules/kafka v0.43.0
+	github.com/testcontainers/testcontainers-go/modules/postgres v0.43.0
+	github.com/testcontainers/testcontainers-go/modules/rabbitmq v0.43.0
+	github.com/testcontainers/testcontainers-go/modules/redis v0.43.0
+	github.com/testcontainers/testcontainers-go/modules/vault v0.43.0
 	go.uber.org/zap v1.28.0
 )
 
@@ -81,7 +81,7 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
 	github.com/moby/go-archive v0.2.0 // indirect
-	github.com/moby/moby/api v1.54.1 // indirect
+	github.com/moby/moby/api v1.54.2 // indirect
 	github.com/moby/moby/client v0.4.0 // indirect
 	github.com/moby/patternmatcher v0.6.1 // indirect
 	github.com/moby/sys/sequential v0.6.0 // indirect
@@ -94,7 +94,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
-	github.com/shirou/gopsutil/v4 v4.26.3 // indirect
+	github.com/shirou/gopsutil/v4 v4.26.5 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
