@@ -10,7 +10,7 @@ require (
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.12.2
 	github.com/oapi-codegen/oapi-codegen/v2 v2.7.2
 	github.com/sqlc-dev/sqlc v1.31.1
-	golang.org/x/vuln v1.4.0
+	golang.org/x/vuln v1.5.0
 )
 
 require (
@@ -271,9 +271,9 @@ require (
 	golang.org/x/net v0.56.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
-	golang.org/x/telemetry v0.0.0-20260611141451-d61e87d5f4a3 // indirect
+	golang.org/x/telemetry v0.0.0-20260625142307-59b4966ccb57 // indirect
 	golang.org/x/text v0.38.0 // indirect
-	golang.org/x/tools v0.46.0 // indirect
+	golang.org/x/tools v0.47.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260120221211-b8f7ae30c516 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260120221211-b8f7ae30c516 // indirect
 	google.golang.org/grpc v1.80.0 // indirect
