@@ -6,7 +6,7 @@ require (
 	github.com/fdaines/spm-go v0.11.1
 	github.com/golangci/golangci-lint/v2 v2.12.2
 	github.com/google/yamlfmt v0.21.0
-	github.com/jackc/tern/v2 v2.4.1
+	github.com/jackc/tern/v2 v2.4.2
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.12.2
 	github.com/oapi-codegen/oapi-codegen/v2 v2.7.2
 	github.com/sqlc-dev/sqlc v1.31.1
@@ -20,7 +20,7 @@ require (
 	charm.land/lipgloss/v2 v2.0.3 // indirect
 	codeberg.org/chavacava/garif v0.2.0 // indirect
 	codeberg.org/polyfloyd/go-errorlint v1.9.0 // indirect
-	dario.cat/mergo v1.0.1 // indirect
+	dario.cat/mergo v1.0.2 // indirect
 	dev.gaijin.team/go/exhaustruct/v4 v4.0.0 // indirect
 	dev.gaijin.team/go/golib v0.6.0 // indirect
 	filippo.io/edwards25519 v1.1.1 // indirect
@@ -135,7 +135,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
-	github.com/jackc/pgx/v5 v5.9.2 // indirect
+	github.com/jackc/pgx/v5 v5.10.0 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jedib0t/go-pretty/v6 v6.1.0 // indirect
 	github.com/jgautheron/goconst v1.10.0 // indirect
@@ -220,7 +220,7 @@ require (
 	github.com/speakeasy-api/jsonpath v0.6.3 // indirect
 	github.com/speakeasy-api/openapi v1.19.2 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
-	github.com/spf13/cast v1.7.0 // indirect
+	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
