@@ -3,7 +3,7 @@
 package main
 
 import (
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 
 	cmdinternal "github.com/MarioCarrion/todo-api-microservice-example/cmd/internal"
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
