@@ -39,7 +39,7 @@ services:
       retries: 5
   kafka:
     # Make sure the docker image version listed here matches the one used in `internal/kafka/task_test.go`.
-    image: confluentinc/cp-kafka:7.6.2
+    image: confluentinc/cp-kafka:8.3.1
     depends_on:
       zookeeper:
         condition: service_healthy
@@ -59,7 +59,7 @@ services:
       retries: 5
   kafka_setup:
     # Make sure the docker image version listed here matches the one used in `internal/kafka/task_test.go`.
-    image: confluentinc/cp-kafka:7.6.2
+    image: confluentinc/cp-kafka:8.3.1
     restart: no
     depends_on:
       kafka:
