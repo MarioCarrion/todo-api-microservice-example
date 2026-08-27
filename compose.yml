@@ -16,7 +16,7 @@ services:
       retries: 10
       start_period: 40s
   postgres_setup:
-    image: ghcr.io/jackc/tern:v2.4.2
+    image: ghcr.io/jackc/tern:v2.4.3
     restart: no
     depends_on:
       postgres:
