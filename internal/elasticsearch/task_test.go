@@ -24,7 +24,7 @@ import (
 
 const (
 	// dockerImage must match the docker image listed in `compose.yml`.
-	dockerImage = "elasticsearch:7.17.9"
+	dockerImage = "elasticsearch:7.17.28"
 
 	// defaultIndexTimeout is timeout to wait for indexing operations.
 	defaultIndexTimeout = 5 * time.Second

@@ -1,7 +1,7 @@
 name: todo-api-microservice
 services:
   postgres:
-    image: postgres:16.2-bullseye
+    image: postgres:16.15-bookworm
     ports:
       - "5432:5432"
     environment:
@@ -16,7 +16,7 @@ services:
       retries: 10
       start_period: 40s
   postgres_setup:
-    image: ghcr.io/jackc/tern:v2.3.2
+    image: ghcr.io/jackc/tern:v2.4.2
     restart: no
     depends_on:
       postgres:
@@ -25,7 +25,7 @@ services:
       - ./db/migrations/:/db/
     entrypoint: ["/tern", "migrate", "--migrations", "/db/", "--conn-string", "postgres://user:password@postgres:5432/dbname?sslmode=disable"]
   vault:
-    image: vault:1.12.4
+    image: vault:1.13.3
     ports:
       - 8300:8300
     cap_add:
@@ -35,7 +35,7 @@ services:
       VAULT_DEV_ROOT_TOKEN_ID: myroot
   elasticsearch:
     # Make sure the docker image listed here matches the one used in `internal/elasticsearch/task_test.go`.
-    image: elasticsearch:7.17.9
+    image: elasticsearch:7.17.28
     ports:
       - 9200:9200
       - 9300:9300

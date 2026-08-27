@@ -21,7 +21,7 @@ import (
 )
 
 // dockerImage must match the docker image listed in `compose.redis.yml`.
-const dockerImage = "redis:7.0.9-alpine3.17"
+const dockerImage = "redis:7.4.11-alpine3.21"
 
 func TestMain(m *testing.M) {
 	client := setupClient()

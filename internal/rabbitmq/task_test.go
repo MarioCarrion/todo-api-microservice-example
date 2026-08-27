@@ -22,7 +22,7 @@ import (
 
 const (
 	// dockerImage must match the docker image listed in `compose.rabbitmq.yml`.
-	dockerImage = "rabbitmq:3.11.10-management-alpine"
+	dockerImage = "rabbitmq:3.13.7-management-alpine"
 
 	rabbitMQConsumerName = "test-rabbitmq-consumer"
 )
