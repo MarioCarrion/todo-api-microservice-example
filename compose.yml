@@ -1,7 +1,7 @@
 name: todo-api-microservice
 services:
   postgres:
-    image: postgres:16.15-bookworm
+    image: postgres:18.4-bookworm
     ports:
       - "5432:5432"
     environment:
