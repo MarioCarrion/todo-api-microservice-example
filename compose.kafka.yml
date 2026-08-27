@@ -26,7 +26,7 @@ services:
         condition: service_healthy
   zookeeper:
     # Make sure the docker image version listed here matches the one used in `internal/kafka/task_test.go`.
-    image: confluentinc/cp-zookeeper:7.6.2
+    image: confluentinc/cp-zookeeper:7.9.1
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
