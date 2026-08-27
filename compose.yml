@@ -35,7 +35,7 @@ services:
       VAULT_DEV_ROOT_TOKEN_ID: myroot
   elasticsearch:
     # Make sure the docker image listed here matches the one used in `internal/elasticsearch/task_test.go`.
-    image: elasticsearch:7.17.28
+    image: elasticsearch:9.5.1
     ports:
       - 9200:9200
       - 9300:9300
