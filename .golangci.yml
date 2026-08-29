@@ -13,9 +13,12 @@ linters:
     - nonamedreturns
     # The following are deprecated linters, added to avoid initial warning when running
     - wsl
+    # Superseded by exhaustruct_v5, see settings below
+    - exhaustruct
   settings:
-    exhaustruct:
-      include:
+    exhaustruct_v5:
+      explicit-mode: true
+      enforce-patterns:
         - github.com/MarioCarrion/todo-api-microservice-example/internal.*Params
     ireturn:
       allow:
@@ -55,7 +58,7 @@ linters:
           - cyclop
           - dupl
           - errorlint
-          - exhaustruct
+          - exhaustruct_v5
           - funlen
           - gocognit
           - goconst
