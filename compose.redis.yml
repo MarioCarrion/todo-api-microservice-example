@@ -24,7 +24,7 @@ services:
         condition: service_healthy
   redis:
     # Make sure the docker image listed here matches the one used in `internal/redis/task_test.go`.
-    image: redis:7.4.11-alpine3.21
+    image: redis:8.0.6-alpine3.21
     ports:
       - 6379:6379
     healthcheck:
