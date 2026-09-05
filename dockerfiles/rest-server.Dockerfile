@@ -1,4 +1,4 @@
-FROM golang:1.26.6-bookworm AS builder
+FROM golang:1.27.1-bookworm AS builder
 
 # Explicitly NOT setting a default value
 ARG TAG
