@@ -2,6 +2,7 @@ package elasticsearch_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -17,6 +18,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/testcontainers/testcontainers-go"
 	elasticsearchtest "github.com/testcontainers/testcontainers-go/modules/elasticsearch"
+	"github.com/testcontainers/testcontainers-go/wait"
 
 	"github.com/MarioCarrion/todo-api-microservice-example/internal"
 	elasticsearchtask "github.com/MarioCarrion/todo-api-microservice-example/internal/elasticsearch"
@@ -27,7 +29,11 @@ const (
 	dockerImage = "elasticsearch:7.17.28"
 
 	// defaultIndexTimeout is timeout to wait for indexing operations.
-	defaultIndexTimeout = 5 * time.Second
+	defaultIndexTimeout = 15 * time.Second
+
+	// clusterHealthStartupTimeout is how long to wait for the single-node
+	// cluster to report a usable health status before giving up.
+	clusterHealthStartupTimeout = 60 * time.Second
 )
 
 func TestMain(m *testing.M) {
@@ -124,7 +130,26 @@ var setupClient = sync.OnceValue(func() ElasticsearchClient { //nolint: gocheckn
 
 	ctx := context.Background()
 
-	container, err := elasticsearchtest.Run(ctx, dockerImage)
+	// The module's default wait strategy only checks that `GET /` answers
+	// with 200, which can happen before the single-node cluster has
+	// finished allocating its initial state. Wait for cluster health to
+	// report "yellow"/"green" too, so the index creation request below
+	// doesn't race a still-initializing cluster.
+	container, err := elasticsearchtest.Run(ctx, dockerImage,
+		testcontainers.WithAdditionalWaitStrategy(
+			wait.ForHTTP("/_cluster/health").
+				WithPort("9200/tcp").
+				WithResponseMatcher(func(body io.Reader) bool {
+					var health struct {
+						Status string `json:"status"`
+					}
+
+					return json.NewDecoder(body).Decode(&health) == nil &&
+						(health.Status == "yellow" || health.Status == "green")
+				}).
+				WithStartupTimeout(clusterHealthStartupTimeout),
+		),
+	)
 	if err != nil {
 		res.err = fmt.Errorf("failed to start elasticsearch container: %w", err)
 
