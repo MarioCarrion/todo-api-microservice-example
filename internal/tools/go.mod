@@ -7,7 +7,7 @@ require (
 	github.com/golangci/golangci-lint/v2 v2.13.2
 	github.com/google/yamlfmt v0.21.0
 	github.com/jackc/tern/v2 v2.4.3
-	github.com/maxbrunsfeld/counterfeiter/v6 v6.12.2
+	github.com/maxbrunsfeld/counterfeiter/v6 v6.13.0
 	github.com/oapi-codegen/oapi-codegen/v2 v2.7.2
 	github.com/sqlc-dev/sqlc v1.31.1
 	golang.org/x/vuln v1.8.0
