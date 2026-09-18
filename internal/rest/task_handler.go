@@ -49,7 +49,6 @@ func (t *TaskHandler) CreateTask(ctx context.Context, req CreateTaskRequestObjec
 		Priority:    priority,
 		Dates:       dates,
 	})
-
 	// TODO: determine if this is a validation error or a different kind of error, and use "CreateTask400JSONResponse"
 	if err != nil {
 		return CreateTask500JSONResponse{ //nolint: nilerr
@@ -64,10 +63,11 @@ func (t *TaskHandler) CreateTask(ctx context.Context, req CreateTaskRequestObjec
 		}, nil
 	}
 
-	resp := CreateTask201JSONResponse{}
-	resp.Task = Task{
-		ID:          id,
-		Description: task.Description,
+	resp := CreateTask201JSONResponse{
+		Task: Task{
+			ID:          id,
+			Description: task.Description,
+		},
 	}
 
 	if task.Dates != nil {
@@ -83,8 +83,9 @@ func (t *TaskHandler) CreateTask(ctx context.Context, req CreateTaskRequestObjec
 
 func (t *TaskHandler) DeleteTask(ctx context.Context, request DeleteTaskRequestObject) (DeleteTaskResponseObject, error) {
 	if err := t.svc.Delete(ctx, request.Id.String()); err != nil {
-		resp := DeleteTask500JSONResponse{}
-		resp.Error = err.Error()
+		resp := DeleteTask500JSONResponse{
+			Error: err.Error(),
+		}
 
 		return resp, nil //nolint: nilerr
 	}
@@ -98,24 +99,27 @@ func (t *TaskHandler) ReadTask(ctx context.Context, request ReadTaskRequestObjec
 	task, err := t.svc.ByID(ctx, request.Id.String())
 	// TODO: determine if this is a validation error or a different kind of error, and use "CreateTask400JSONResponse"
 	if err != nil {
-		resp := ReadTask500JSONResponse{}
-		resp.Error = err.Error()
+		resp := ReadTask500JSONResponse{
+			Error: err.Error(),
+		}
 
 		return resp, nil //nolint: nilerr
 	}
 
-	id, err := uuid.Parse(task.ID)
+	id, err := uuid.Parse(task.ID) //nolint: varnamelen
 	if err != nil {
-		resp := ReadTask500JSONResponse{}
-		resp.Error = err.Error()
+		resp := ReadTask500JSONResponse{
+			Error: err.Error(),
+		}
 
 		return resp, nil //nolint: nilerr
 	}
 
-	resp := ReadTask200JSONResponse{}
-	resp.Task = &Task{
-		ID:          id,
-		Description: task.Description,
+	resp := ReadTask200JSONResponse{
+		Task: &Task{
+			ID:          id,
+			Description: task.Description,
+		},
 	}
 
 	if task.Dates != nil {
@@ -198,8 +202,9 @@ func (t *TaskHandler) SearchTask(ctx context.Context, req SearchTaskRequestObjec
 		tasks[i].IsDone = &task.IsDone
 	}
 
-	resp := SearchTask200JSONResponse{}
-	resp.Tasks = &tasks
+	resp := SearchTask200JSONResponse{
+		Tasks: &tasks,
+	}
 
 	return resp, nil
 }

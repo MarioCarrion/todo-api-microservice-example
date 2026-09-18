@@ -1,6 +1,6 @@
 module github.com/MarioCarrion/todo-api-microservice-example
 
-go 1.26
+go 1.27.1
 
 require (
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
